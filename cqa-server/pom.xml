@@ -85,6 +85,8 @@
                     <execution>
                         <goals>
                             <goal>repackage</goal>
+                            <!-- build-info.properties: версия и время сборки берутся из pom -->
+                            <goal>build-info</goal>
                         </goals>
                     </execution>
                 </executions>
