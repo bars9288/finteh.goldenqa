@@ -1,5 +1,7 @@
 package ru.cqa.server.web.greeting;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,7 @@ import ru.cqa.business.greeting.Operator;
  * <p>Контроллер намеренно тонкий: разобрать запрос, позвать сервис, собрать
  * ответ. Логика приветствия живёт в модуле cqa-business.
  */
+@Tag(name = "Дежурная проверка", description = "Ручка для проверки доступности приложения")
 @RestController
 @RequestMapping(path = "/helloAkBars", produces = MediaType.APPLICATION_JSON_VALUE)
 public class HelloController {
@@ -33,6 +36,7 @@ public class HelloController {
         this.greetingService = greetingService;
     }
 
+    @Operation(summary = "Приветствие, параметры в строке запроса")
     @GetMapping
     public HelloResponse hello(@RequestParam("name") String name,
                                @RequestParam("family") String family) {
@@ -43,10 +47,13 @@ public class HelloController {
      * Тело необязательно: если его нет или в нём заполнены не все поля,
      * недостающее берётся из параметров запроса.
      */
+    @Operation(summary = "Приветствие, параметры в теле запроса",
+               description = "Тело необязательно: недостающие поля берутся из параметров запроса")
     @PostMapping
     public HelloResponse hello(@RequestBody(required = false) HelloRequest body,
                                @RequestParam(name = "name", required = false) String name,
-                               @RequestParam(name = "family", required = false) String family) {
+                               @RequestParam(name = "family", required = false) String family
+    ) {
         if (body == null) {
             return respond(name, family);
         }
