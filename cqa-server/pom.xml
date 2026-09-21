@@ -40,6 +40,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- доменная логика: обычный jar, без Spring -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-business</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Spring MVC на встроенном сервлет-контейнере -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

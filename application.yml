@@ -3,4 +3,4 @@ spring:
     name: cqa-server
 
 server:
-  port: ${SERVER_PORT:8090}
+  port: ${SERVER_PORT:8990}

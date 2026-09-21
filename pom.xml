@@ -43,6 +43,15 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <!--
+                            Имена параметров методов сохраняются в class-файлах.
+                            Это флаг javac, а не фреймворка, но без него Spring MVC
+                            не может сопоставить @RequestParam с параметром метода,
+                            когда имя не указано явно.
+                        -->
+                        <parameters>true</parameters>
+                    </configuration>
                 </plugin>
 
                 <plugin>
