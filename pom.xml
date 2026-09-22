@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Корень намеренно нейтрален: он не знает ни про Spring, ни про любой
+    другой фреймворк. Здесь только состав модулей, уровень Java и версии
+    плагинов сборки. Spring Boot целиком заперт в модуле cqa-server.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.cqa</groupId>
+    <artifactId>cqa-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>CQA</name>
+    <description>Единый тестировщик — корневой агрегатор модулей</description>
+    <!-- модули добавляются по мере появления ЗДЕСЬ -->
+    <modules>
+        <module>cqa-server</module>
+        <module>cqa-case</module>
+        <module>cqa-business</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
+        <maven-dependency-plugin.version>3.9.0</maven-dependency-plugin.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <!-- СНОСКА 1-->
+                        <parameters>true</parameters>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
+
+        <!-- СНОСКА 1
+            Имена параметров методов сохраняются в class-файлах.
+            Это флаг javac, а не фреймворка, но без него Spring MVC
+            не может сопоставить @RequestParam с параметром метода,
+            когда имя не указано явно.
+        -->

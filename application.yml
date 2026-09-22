@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: cqa-server
+
+server:
+  port: ${SERVER_PORT:8990}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    # убирает petstore.swagger.io из swagger-initializer.js — контур без интернета
+    disable-swagger-default-url: true
+
+# Scalar — вторая читалка OpenAPI, рядом со Swagger UI на /scalar
+scalar:
+  # телеметрия наружу — в закрытом контуре недопустима
+  telemetry: false
+  # шрифты по умолчанию грузятся с fonts.scalar.com, в офлайне их не будет
+  with-default-fonts: false
+
+# Логи: один файл на всё приложение, рядом с ним же консоль.
+# Путь относительный — считается от рабочего каталога процесса.
+logging:
+  file:
+    name: logs/cqa-server.log
+  logback:
+    rollingpolicy:
+      # текущий файл больше 10 МБ не растёт — дальше уходит в архив
+      max-file-size: 10MB
+      # суммарный объём архивов; при превышении удаляются самые старые
+      total-size-cap: 10MB
+      # архивы старше 7 дней не хранятся
+      max-history: 7
+      # подчистить архивы при старте, а не ждать первой ротации
+      clean-history-on-start: true

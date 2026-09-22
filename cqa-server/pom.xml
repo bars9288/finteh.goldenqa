@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Единственный модуль, который знает про Spring. BOM импортируется
+    здесь же, а не в корне, поэтому остальные модули остаются чистыми
+    и не получают ни версий Spring, ни его настроек сборки.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.cqa</groupId>
+        <artifactId>cqa-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>cqa-server</artifactId>
+    <packaging>jar</packaging>
+
+    <name>CQA Server</name>
+    <description>Spring Boot приложение: контекст-приложение и веб-слой</description>
+
+    <properties>
+        <spring-boot.version>4.1.1</spring-boot.version>
+        <!-- springdoc не входит в BOM Spring Boot, версию держим здесь -->
+        <springdoc.version>3.1.1</springdoc.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- доменная логика: обычный jar, без Spring -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-business</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SOAP: Spring Web Services -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+        </dependency>
+
+        <!-- нужен DefaultWsdl11Definition для генерации WSDL из XSD -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+
+        <!-- OpenAPI-описание и Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- вторая читалка того же OpenAPI: Scalar, рядом со Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-scalar</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- Spring MVC на встроенном сервлет-контейнере -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- работа с БД добавится отдельным слоем -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <configuration>
+                    <!-- конфигурация лежит в корне репозитория, а не в модуле -->
+                    <workingDirectory>${project.basedir}/..</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                            <!-- build-info.properties: версия и время сборки берутся из pom -->
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

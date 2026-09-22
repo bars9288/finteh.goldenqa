@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Контракт SOAP-сервиса приветствий.
+
+    Схема — источник истины: из неё Spring WS генерирует WSDL, по ней же
+    проверяются входящие сообщения. Java-классы SOAP-слоя повторяют эти
+    элементы один в один.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://cqa.ru/ws/greeting"
+           targetNamespace="http://cqa.ru/ws/greeting"
+           elementFormDefault="qualified">
+
+    <!-- приветствие оператору: имя и фамилия -->
+    <xs:element name="helloRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="family" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="helloResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- приветствие внешнему сервису: имя сервиса и контур -->
+    <xs:element name="serviceHelloRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="typeService" type="xs:string"/>
+                <xs:element name="scope" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="serviceHelloResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
