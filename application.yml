@@ -11,3 +11,12 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
+    # убирает petstore.swagger.io из swagger-initializer.js — контур без интернета
+    disable-swagger-default-url: true
+
+# Scalar — вторая читалка OpenAPI, рядом со Swagger UI на /scalar
+scalar:
+  # телеметрия наружу — в закрытом контуре недопустима
+  telemetry: false
+  # шрифты по умолчанию грузятся с fonts.scalar.com, в офлайне их не будет
+  with-default-fonts: false

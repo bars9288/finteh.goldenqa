@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Единственный модуль, который знает про Spring. BOM импортируется
+    здесь же, а не в корне, поэтому остальные модули остаются чистыми
+    и не получают ни версий Spring, ни его настроек сборки.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -15,13 +20,7 @@
     <packaging>jar</packaging>
 
     <name>CQA Server</name>
-    <description>Spring Boot приложение: поднимает контекст и веб-слой</description>
-
-    <!--
-        Единственный модуль, который знает про Spring. BOM импортируется
-        здесь же, а не в корне, поэтому остальные модули остаются чистыми
-        и не получают ни версий Spring, ни его настроек сборки.
-    -->
+    <description>Spring Boot приложение: контекст-приложение и веб-слой</description>
 
     <properties>
         <spring-boot.version>4.1.1</spring-boot.version>
@@ -49,10 +48,29 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- SOAP: Spring Web Services -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+        </dependency>
+
+        <!-- нужен DefaultWsdl11Definition для генерации WSDL из XSD -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+
         <!-- OpenAPI-описание и Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- вторая читалка того же OpenAPI: Scalar, рядом со Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-scalar</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
 

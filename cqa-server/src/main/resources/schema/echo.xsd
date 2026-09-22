@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Контракт SOAP-эха: что получили, то и вернули.
+
+    Отдельное пространство имён и отдельный WSDL — эхо не относится к
+    приветствиям и живёт своей жизнью.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://cqa.ru/ws/echo"
+           targetNamespace="http://cqa.ru/ws/echo"
+           elementFormDefault="qualified">
+
+    <xs:element name="echoRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="echoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
