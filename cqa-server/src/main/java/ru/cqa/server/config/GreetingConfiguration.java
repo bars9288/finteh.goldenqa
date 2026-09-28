@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.cqa.business.greeting.ExternalServiceGreetingService;
+import ru.cqa.business.greeting.externalservice.ExternalServiceGreetingService;
 import ru.cqa.business.greeting.GreetingRegistry;
 import ru.cqa.business.greeting.GreetingService;
-import ru.cqa.business.greeting.OperatorGreetingService;
+import ru.cqa.business.greeting.operator.OperatorGreetingService;
 
 /**
  * Превращает классы доменного модуля в бины.

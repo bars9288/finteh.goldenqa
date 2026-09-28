@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.cqa.business.greeting.GreetingRegistry;
-import ru.cqa.business.greeting.Operator;
+import ru.cqa.business.greeting.operator.Operator;
 
 /**
  * Дежурная проверка доступности приложения.

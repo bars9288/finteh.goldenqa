@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.business.greeting.ExternalService;
+import ru.cqa.business.greeting.externalservice.ExternalService;
 import ru.cqa.business.greeting.GreetingRegistry;
 
 /**

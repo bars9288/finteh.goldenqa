@@ -5,7 +5,7 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import ru.cqa.business.greeting.GreetingRegistry;
-import ru.cqa.business.greeting.Operator;
+import ru.cqa.business.greeting.operator.Operator;
 
 /**
  * SOAP-аналог {@link ru.cqa.server.web.greeting.HelloController}.

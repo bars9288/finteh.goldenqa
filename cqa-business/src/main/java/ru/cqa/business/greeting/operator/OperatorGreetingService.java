@@ -1,4 +1,6 @@
-package ru.cqa.business.greeting;
+package ru.cqa.business.greeting.operator;
+
+import ru.cqa.business.greeting.GreetingService;
 
 /**
  * Приветствие оператору.

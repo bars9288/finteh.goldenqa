@@ -1,4 +1,7 @@
-package ru.cqa.business.greeting;
+package ru.cqa.business.greeting.externalservice;
+
+import ru.cqa.business.greeting.GreetingService;
+import ru.cqa.business.greeting.operator.OperatorGreetingService;
 
 /**
  * Приветствие внешнему сервису.
