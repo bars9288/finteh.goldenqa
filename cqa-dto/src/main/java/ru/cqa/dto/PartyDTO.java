@@ -19,9 +19,11 @@ public record PartyDTO(
         @Schema(description = "Тип участника", example = "ФИЗИЧЕСКОЕЛИЦО", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String type,
         @Schema(description = "Система-источник", example = "ВНЕШНЯЯСИСТЕМА", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String sourseSystem,
+        @NotBlank String sourceSystem,
         @Schema(description = "Реквизиты участника")
         List<@Valid FieldDTO> field,
+        @Schema(description = "Уникальный идентификатор строки", example = "ВНЕШНЯЯСИСТЕМА", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank String rawId,
         @Schema(description = "Атрибуты участника")
         List<@Valid AttributeDTO> attribute) {
 

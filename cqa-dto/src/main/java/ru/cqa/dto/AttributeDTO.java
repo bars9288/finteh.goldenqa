@@ -13,7 +13,7 @@ public record AttributeDTO(
         @Schema(description = "Тип атрибута", example = "DOC", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String type,
         @Schema(description = "Идентификатор строки", example = "12")
-        String rowId,
+        String rawId,
         @Schema(description = "Поля атрибута")
         List<@Valid FieldDTO> field) {
 
