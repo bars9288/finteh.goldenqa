@@ -22,6 +22,7 @@
         <module>cqa-server</module>
         <module>cqa-case</module>
         <module>cqa-business</module>
+        <module>cqa-dto</module>
     </modules>
 
     <properties>

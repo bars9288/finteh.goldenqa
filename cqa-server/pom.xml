@@ -48,6 +48,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- транспортные контракты: DTO тел запросов -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-dto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- SOAP: Spring Web Services -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -78,6 +85,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- движок Bean Validation: без него @Valid и @NotBlank молча не работают -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- работа с БД добавится отдельным слоем -->
