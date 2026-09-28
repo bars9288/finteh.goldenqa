@@ -17,4 +17,13 @@
     <name>CQA Case</name>
     <description>Сценарии и кейсы</description>
 
+    <dependencies>
+        <!-- DTO входящих запросов; с ним приезжает jakarta.validation-api -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-dto</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
