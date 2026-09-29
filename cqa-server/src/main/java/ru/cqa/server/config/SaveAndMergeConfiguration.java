@@ -3,7 +3,8 @@ package ru.cqa.server.config;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.cqa.cases.saveAndMerge.SaveAndMergeValidator;
+import ru.cqa.cases.validation.physical.PhysicalRules;
+import ru.cqa.cases.validation.SaveAndMergeValidator;
 
 /**
  * Бины кейса saveAndMerge. Сам валидатор живёт в cqa-case без Spring —
@@ -14,6 +15,6 @@ public class SaveAndMergeConfiguration {
 
     @Bean
     public SaveAndMergeValidator saveAndMergeValidator(Validator validator) {
-        return new SaveAndMergeValidator(validator);
+        return new SaveAndMergeValidator(validator, PhysicalRules.TO_SAVE_PHYSICAL);
     }
 }

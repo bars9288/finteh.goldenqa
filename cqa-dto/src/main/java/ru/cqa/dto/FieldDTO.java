@@ -10,8 +10,10 @@ import java.util.Map;
 /** Пара имя–значение: общий формат реквизитов и полей атрибутов. */
 @Schema(description = "Поле: имя и значение")
 public record FieldDTO(
+
         @Schema(description = "Имя поля", example = "surname", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String name,
+
         @Schema(description = "Значение поля", example = "Иванов")
         String value) {
 

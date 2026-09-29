@@ -13,8 +13,10 @@ import ru.cqa.business.greeting.externalservice.ExternalService;
  */
 @Schema(description = "Внешний сервис, участвующий в сценарии")
 public record ExternalServiceDTO(
+
         @Schema(description = "Имя сервиса", example = "KAFKA-CLIENT", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String typeService,
+
         @Schema(description = "Контур", example = "DEV", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String scope) {
 

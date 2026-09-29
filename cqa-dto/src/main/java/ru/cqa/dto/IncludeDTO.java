@@ -7,6 +7,7 @@ import java.util.List;
 /** Какие блоки информации об участнике вернуть в ответе. */
 @Schema(description = "Состав ответа")
 public record IncludeDTO(
+
         @Schema(description = "Блоки информации об участнике", example = "[\"МАМА\", \"МЫЛА\", \"РАМУ\", \"ОКНА\"]")
         List<String> partyInfo) {
 }

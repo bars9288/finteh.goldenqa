@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -33,10 +34,13 @@ import java.util.List;
  */
 @Schema(description = "Запрос на сохранение и слияние участников")
 public record SaveAndMergeDTO(
+
         @Schema(description = "Участники", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotEmpty List<@Valid PartyDTO> party,
+        @NotEmpty @Size(max = 1) List<@Valid PartyDTO> party,
+
         @Schema(description = "Какие блоки вернуть в ответе")
         @Valid IncludeDTO include,
+
         @Schema(description = "Тип обновления", example = "FULL", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String updateType) {
 }

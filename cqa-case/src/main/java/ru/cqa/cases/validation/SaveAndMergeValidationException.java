@@ -1,4 +1,4 @@
-package ru.cqa.cases.saveAndMerge;
+package ru.cqa.cases.validation;
 
 import java.util.List;
 

@@ -10,10 +10,13 @@ import java.util.Map;
 /** Атрибут участника (документ и т.п.) со своим набором полей. */
 @Schema(description = "Атрибут участника")
 public record AttributeDTO(
+
         @Schema(description = "Тип атрибута", example = "DOC", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String type,
+
         @Schema(description = "Идентификатор строки", example = "12")
         String rawId,
+
         @Schema(description = "Поля атрибута")
         List<@Valid FieldDTO> field) {
 

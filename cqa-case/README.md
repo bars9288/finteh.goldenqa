@@ -41,7 +41,8 @@ _TODO._ Ориентиры из формата сценария: `anyType` (пр
 
 ```
 ru.cqa.cases
-└── saveAndMerge   — SaveAndMergeValidator, SaveAndMergeValidationException
+└── saveAndMerge   — SaveAndMergeValidator, SaveAndMergeValidationException,
+                     SaveAndMergeRule (правило), SaveAndMergeRules (каталог правил)
 ```
 
 ## Сборка

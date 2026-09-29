@@ -1,10 +1,12 @@
-package ru.cqa.cases.saveAndMerge;
+package ru.cqa.cases.validation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import ru.cqa.cases.validation.physical.PhysicalRule;
+import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 
 /**
@@ -14,7 +16,8 @@ import ru.cqa.dto.SaveAndMergeDTO;
  * <ol>
  *   <li>форма — аннотации DTO ({@code @NotBlank}, {@code @NotEmpty}...),
  *       по всему дереву объектов разом;</li>
- *   <li>правила — проверки, которые аннотацией не выразить (пока заглушка).</li>
+ *   <li>правила — проверки, которые аннотацией не выразить,
+ *       список {@link PhysicalRule} (см. {@link ru.cqa.cases.validation.physical.PhysicalRules}).</li>
  * </ol>
  * Если список не пуст, бросается {@link SaveAndMergeValidationException}.
  *
@@ -24,15 +27,17 @@ import ru.cqa.dto.SaveAndMergeDTO;
 public class SaveAndMergeValidator {
 
     private final Validator validator;
+    private final List<PhysicalRule> rules;
 
-    public SaveAndMergeValidator(Validator validator) {
+    public SaveAndMergeValidator(Validator validator, List<PhysicalRule> rules) {
         this.validator = validator;
+        this.rules = List.copyOf(rules);
     }
 
     public void validate(SaveAndMergeDTO request) {
         List<String> errors = new ArrayList<>();
         checkForm(request, errors);
-        checkRules(request, errors);
+        checkRules(request.party().get(0), errors);
         if (!errors.isEmpty()) {
             throw new SaveAndMergeValidationException(errors);
         }
@@ -46,8 +51,9 @@ public class SaveAndMergeValidator {
                 .forEach(errors::add);
     }
 
-    /** Заглушка: сюда добавляются правила проверки, каждое пишет свои ошибки в {@code errors}. */
-    private void checkRules(SaveAndMergeDTO request, List<String> errors) {
+    /** Ошибки всех правил по порядку списка. */
+    private void checkRules(PartyDTO party, List<String> errors) {
+        rules.forEach(rule -> errors.addAll(rule.checkPhysical(party)));
     }
 
     private static String describe(ConstraintViolation<SaveAndMergeDTO> violation) {

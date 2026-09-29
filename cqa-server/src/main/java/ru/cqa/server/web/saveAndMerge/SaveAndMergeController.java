@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.cases.saveAndMerge.SaveAndMergeValidationException;
-import ru.cqa.cases.saveAndMerge.SaveAndMergeValidator;
+import ru.cqa.cases.validation.SaveAndMergeValidationException;
+import ru.cqa.cases.validation.SaveAndMergeValidator;
 import ru.cqa.dto.SaveAndMergeDTO;
 import ru.cqa.server.web.ApiPaths;
 
