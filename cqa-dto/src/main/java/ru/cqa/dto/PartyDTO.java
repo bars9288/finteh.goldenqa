@@ -3,6 +3,8 @@ package ru.cqa.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -17,16 +19,16 @@ import java.util.Map;
 @Schema(description = "Участник")
 public record PartyDTO(
 
-        @Schema(description = "Тип участника", example = "ФИЗИЧЕСКОЕЛИЦО", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Тип участника", example = "PHYSICAL", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String type,
 
-        @Schema(description = "Система-источник", example = "ВНЕШНЯЯСИСТЕМА", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Система-источник", example = "SBL", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String sourceSystem,
 
         @Schema(description = "Реквизиты участника")
-        List<@Valid FieldDTO> field,
+        @NotEmpty List<@NotNull @Valid FieldDTO> field,
 
-        @Schema(description = "Уникальный идентификатор строки", example = "ВНЕШНЯЯСИСТЕМА", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Уникальный идентификатор строки", example = "123456789abcdef", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String rawId,
 
         @Schema(description = "Атрибуты участника")

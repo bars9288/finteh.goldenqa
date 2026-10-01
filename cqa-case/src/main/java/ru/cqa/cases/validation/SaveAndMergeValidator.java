@@ -37,7 +37,11 @@ public class SaveAndMergeValidator {
     public void validate(SaveAndMergeDTO request) {
         List<String> errors = new ArrayList<>();
         checkForm(request, errors);
-        checkRules(request.party().get(0), errors);
+        // без участника правилам проверять нечего; null и [] уже отмечены формой (@NotEmpty, @NotNull)
+        List<PartyDTO> parties = request.party();
+        if (parties != null && !parties.isEmpty() && parties.get(0) != null) {
+            checkRules(parties.get(0), errors);
+        }
         if (!errors.isEmpty()) {
             throw new SaveAndMergeValidationException(errors);
         }
@@ -57,6 +61,8 @@ public class SaveAndMergeValidator {
     }
 
     private static String describe(ConstraintViolation<SaveAndMergeDTO> violation) {
-        return violation.getPropertyPath() + ": " + violation.getMessage();
+        // элемент списка Hibernate Validator помечает служебным «.<list element>» — клиенту он не нужен
+        String path = violation.getPropertyPath().toString().replace(".<list element>", "");
+        return path + ": " + violation.getMessage();
     }
 }

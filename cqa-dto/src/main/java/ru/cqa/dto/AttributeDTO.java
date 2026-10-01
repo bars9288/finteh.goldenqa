@@ -3,6 +3,7 @@ package ru.cqa.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,10 @@ public record AttributeDTO(
         @NotBlank String type,
 
         @Schema(description = "Идентификатор строки", example = "12")
-        String rawId,
+        @NotBlank String rawId,
 
         @Schema(description = "Поля атрибута")
-        List<@Valid FieldDTO> field) {
+        List<@NotNull @Valid FieldDTO> field) {
 
     /** Поля атрибута как имя → значение. */
     public Map<String, String> fieldMap() {

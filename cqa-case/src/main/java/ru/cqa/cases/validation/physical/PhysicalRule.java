@@ -3,7 +3,6 @@ package ru.cqa.cases.validation.physical;
 import java.util.List;
 
 import ru.cqa.dto.PartyDTO;
-import ru.cqa.dto.SaveAndMergeDTO;
 
 /**
  * Одно правило проверки запроса saveAndMerge — то, что аннотацией DTO не выразить.

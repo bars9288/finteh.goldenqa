@@ -19,12 +19,16 @@ public record FieldDTO(
 
     /**
      * Список полей как имя → значение в порядке запроса. При повторе имени
-     * остаётся последнее значение; {@code null} даёт пустую мапу.
+     * остаётся последнее значение; {@code null} даёт пустую мапу, элементы {@code null} пропускаются.
      */
     static Map<String, String> toMap(List<FieldDTO> fields) {
         Map<String, String> map = new LinkedHashMap<>();
         if (fields != null) {
-            fields.forEach(f -> map.put(f.name(), f.value()));
+            for (FieldDTO f : fields) {
+                if (f != null) {
+                    map.put(f.name(), f.value());
+                }
+            }
         }
         return map;
     }
