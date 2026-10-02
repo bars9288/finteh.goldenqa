@@ -2,6 +2,7 @@ package ru.cqa.server.web.greeting;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,12 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.cqa.business.greeting.GreetingRegistry;
-import ru.cqa.business.greeting.Operator;
+import ru.cqa.business.greeting.operator.Operator;
+import ru.cqa.dto.OperatorDTO;
 
 /**
  * Дежурная проверка доступности приложения.
  *
- * <p>Имя и фамилию можно передать двумя способами:
+ * <p>Имя и фамилию можно передать двумя способами — каждый метод принимает
+ * данные только одним путём, без смешивания:
  * <ul>
  *   <li>GET /helloAkBars?name=Иван&amp;family=Иванов</li>
  *   <li>POST /helloAkBars с телом {"name": "Иван", "family": "Иванов"}</li>
@@ -45,24 +48,20 @@ public class HelloController {
     }
 
     /**
-     * Тело необязательно: если его нет или в нём заполнены не все поля,
-     * недостающее берётся из параметров запроса.
+     * Тело обязательно и проверяется целиком до входа в метод: при пустом
+     * или неполном теле Spring отвечает 400, сюда управление не доходит.
      */
-    @Operation(summary = "Приветствие, параметры в теле запроса",
-               description = "Тело необязательно: недостающие поля берутся из параметров запроса")
+    @Operation(summary = "Приветствие, параметры в теле запроса")
     @PostMapping
-    public HelloResponse hello(@RequestBody(required = false) HelloRequest body,
-                               @RequestParam(name = "name", required = false) String name,
-                               @RequestParam(name = "family", required = false) String family
-    ) {
-        if (body == null) {
-            return respond(name, family);
-        }
-        return respond(body.nameOr(name), body.familyOr(family));
+    public HelloResponse hello(@Valid @RequestBody OperatorDTO body) {
+        return respond(body.toOperator());
     }
 
     private HelloResponse respond(String name, String family) {
-        Operator operator = new Operator(name, family);
+        return respond(new Operator(name, family));
+    }
+
+    private HelloResponse respond(Operator operator) {
         return new HelloResponse(greetings.greet(operator));
     }
 }

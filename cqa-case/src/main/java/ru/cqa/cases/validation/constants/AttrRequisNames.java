@@ -1,0 +1,15 @@
+package ru.cqa.cases.validation.constants;
+
+/**
+ * Имена реквизитов атрибутов Физического Лица ({@code party.attribute[].field[].name}).
+ */
+public final class AttrRequisNames {
+
+    public static final String ATTR_TYPE      = "type";
+    public static final String QUALIFIER_TYPE = "qualifierType";
+    public static final String RAW_SOURCE     = "rawSource";
+    public static final String PRIMARY        = "primary";
+
+    private AttrRequisNames() {
+    }
+}

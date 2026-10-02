@@ -1,18 +1,22 @@
-package ru.cqa.server.ws.greeting;
+package ru.cqa.dto.soap;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import ru.cqa.business.greeting.externalservice.ExternalService;
 
 /**
  * Тело SOAP-запроса приветствия внешнему сервису — элемент
- * {@code serviceHelloRequest} из XSD.
+ * {@code serviceHelloRequest} из schema/greeting.xsd.
+ *
+ * <p>Устроен так же, как {@link OperatorSoapDTO}: проверки — в
+ * {@link ExternalService}.
  */
-@XmlRootElement(name = "serviceHelloRequest")
+@XmlRootElement(name = "serviceHelloRequest", namespace = SoapNamespaces.GREETING)
+@XmlType(namespace = SoapNamespaces.GREETING, propOrder = {"typeService", "scope"})
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {"typeService", "scope"})
-public class ServiceHelloRequestSoap {
+public class ExternalServiceSoapDTO {
 
     private String typeService;
     private String scope;
@@ -31,5 +35,10 @@ public class ServiceHelloRequestSoap {
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    /** Доменный объект из тела запроса. */
+    public ExternalService toExternalService() {
+        return new ExternalService(typeService, scope);
     }
 }

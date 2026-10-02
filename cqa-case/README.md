@@ -2,9 +2,9 @@
 
 Сценарии и кейсы.
 
-`ru.cqa.<TODO>` · артефакт `cqa-case` · [← к карте проекта](../README.md)
+`ru.cqa.cases` · артефакт `cqa-case` · [← к карте проекта](../README.md)
 
-> **Статус:** модуль создан, исходников пока нет.
+> **Статус:** первый кейс — проверка запроса saveAndMerge.
 
 ## Назначение
 
@@ -25,11 +25,12 @@ _TODO: одним абзацем — за что отвечает модуль._
 
 ### Внутренние
 
-_Пока нет._
+- `cqa-dto` — DTO входящих запросов, которые проверяют кейсы.
 
 ### Внешние
 
-_Пока нет._ Модуль собирается без единой зависимости.
+Только `jakarta.validation-api` (приезжает через `cqa-dto`): интерфейс
+`Validator`. Движок (hibernate-validator) передаёт `cqa-server`.
 
 ## Точки расширения
 
@@ -39,8 +40,9 @@ _TODO._ Ориентиры из формата сценария: `anyType` (пр
 ## Структура пакетов
 
 ```
-ru.cqa.<TODO>
-└── _TODO_
+ru.cqa.cases
+└── saveAndMerge   — SaveAndMergeValidator, SaveAndMergeValidationException,
+                     SaveAndMergeRule (правило), SaveAndMergeRules (каталог правил)
 ```
 
 ## Сборка
@@ -57,6 +59,4 @@ _Пока нет._
 
 - [ ] Граница между `cqa-case` и `cqa-business`
 - [ ] Версионирование схемы сценария (`scenarioVersion`)
-- [ ] Имя Java-пакета: `case` — зарезервированное слово Java, пакет `ru.cqa.case`
-      не скомпилируется. Нужен другой корень: `ru.cqa.scenario`, `ru.cqa.cases`
-      или `ru.cqa.testcase`.
+- [x] Имя Java-пакета: `case` — зарезервированное слово Java, выбран `ru.cqa.cases`.

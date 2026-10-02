@@ -5,7 +5,8 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import ru.cqa.business.greeting.GreetingRegistry;
-import ru.cqa.business.greeting.Operator;
+import ru.cqa.business.greeting.operator.Operator;
+import ru.cqa.dto.soap.OperatorSoapDTO;
 
 /**
  * SOAP-аналог {@link ru.cqa.server.web.greeting.HelloController}.
@@ -25,8 +26,7 @@ public class HelloControllerSoap {
 
     @PayloadRoot(namespace = GreetingContractSoap.NAMESPACE, localPart = "helloRequest")
     @ResponsePayload
-    public HelloResponseSoap hello(@RequestPayload HelloRequestSoap request) {
-        Operator operator = new Operator(request.getName(), request.getFamily());
-        return new HelloResponseSoap(greetings.greet(operator));
+    public HelloResponseSoap hello(@RequestPayload OperatorSoapDTO request) {
+        return new HelloResponseSoap(greetings.greet(request.toOperator()));
     }
 }

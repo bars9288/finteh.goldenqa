@@ -1,4 +1,4 @@
-package ru.cqa.business.greeting;
+package ru.cqa.business.greeting.operator;
 
 /**
  * Оператор, от имени которого выполняется проверка.

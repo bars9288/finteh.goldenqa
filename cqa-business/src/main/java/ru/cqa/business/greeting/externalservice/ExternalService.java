@@ -1,4 +1,4 @@
-package ru.cqa.business.greeting;
+package ru.cqa.business.greeting.externalservice;
 
 /**
  * Внешний сервис, участвующий в сценарии (блок {@code servicesInfo}).
