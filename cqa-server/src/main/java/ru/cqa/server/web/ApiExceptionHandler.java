@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import tools.jackson.core.JacksonException;
 
 /**
  * Единая точка превращения ошибок в HTTP-ответ.
@@ -54,6 +55,15 @@ public class ApiExceptionHandler {
     /** Тела нет вовсе или это не JSON — до валидации дело не дошло. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail onUnreadableBody(HttpMessageNotReadableException exception) {
+        return badRequest("Тело запроса отсутствует или не является корректным JSON");
+    }
+
+    /**
+     * Тело прочитано сырыми байтами и разобрано в DTO вручную (saveAndMerge) — но это не JSON
+     * или JSON не той формы. Ответ тот же, что у {@link #onUnreadableBody}.
+     */
+    @ExceptionHandler(JacksonException.class)
+    public ProblemDetail onUnparsableBody(JacksonException exception) {
         return badRequest("Тело запроса отсутствует или не является корректным JSON");
     }
 

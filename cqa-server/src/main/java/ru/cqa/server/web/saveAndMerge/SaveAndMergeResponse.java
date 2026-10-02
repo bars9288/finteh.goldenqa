@@ -9,10 +9,6 @@ public record SaveAndMergeResponse(
         @Schema(description = "Итог проверки", example = "ОШИБОК НЕТ") String message,
         @Schema(description = "Все найденные ошибки") List<String> errors) {
 
-    public static SaveAndMergeResponse ok() {
-        return new SaveAndMergeResponse("ОШИБОК НЕТ", List.of());
-    }
-
     public static SaveAndMergeResponse failed(List<String> errors) {
         return new SaveAndMergeResponse("Ошибка", errors);
     }

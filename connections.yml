@@ -42,6 +42,10 @@ cqa:
         connect-timeout: 10s
         # сколько ждать ответа после отправки запроса
         read-timeout: 30s
+        # ручки сервиса — пути относительно url
+        endpoints:
+          # куда пересылается запрос saveAndMerge, прошедший проверку
+          save-and-merge: /saveAndMerge
         auth:
           # учётные данные — только из окружения
           username: ${CDI_DEV_USER}

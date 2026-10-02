@@ -18,6 +18,7 @@ public final class DateFormatUtils {
     public static final Pattern CITIZENSHIP_DIGITS = Pattern.compile("\\d{1,3}");
 
     public static final List<String> MOSCOW_ZONES = List.of("МСК", "MSK", "+03:00", "Europe/Moscow");
+
     public static final DateTimeFormatter DD_MM_YYYY_STRICT = DateTimeFormatter.ofPattern("dd.MM.uuuu").withResolverStyle(ResolverStyle.STRICT);
     public static final DateTimeFormatter DD_MM_YYYY_HH_MM_SS_STRICT = DateTimeFormatter.ofPattern("dd.MM.uuuu HH:mm:ss").withResolverStyle(ResolverStyle.STRICT);
 
