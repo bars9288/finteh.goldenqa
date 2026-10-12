@@ -1,12 +1,17 @@
 package ru.cqa.server.mdm;
 
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.util.UriComponentsBuilder;
+import ru.cqa.server.db.sqlite.journal.JournalWriter;
 
 /**
  * Клиент МДМ (CDI): пересылает проверенный запрос saveAndMerge как прозрачный прокси.
@@ -17,6 +22,9 @@ import org.springframework.web.client.RestClient;
  *
  * <p>Не пересылаются только заголовки соединения (hop-by-hop, RFC 9110 §7.6.1) и те,
  * что HTTP-клиент и сервер выставляют сами под новое соединение: {@code Host}, {@code Content-Length}.
+ *
+ * <p>Каждый вызов пишется в журнал (journal_call): ушедшие заголовки, ответ МДМ
+ * как есть — до фильтрации заголовков — или ошибка, если МДМ не ответила.
  */
 public class MdmClient {
 
@@ -24,22 +32,44 @@ public class MdmClient {
             "connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "proxy-connection",
             "te", "trailer", "transfer-encoding", "upgrade", "host", "content-length", "expect");
 
+    private static final String SERVICE = "MDM";
+
     private final RestClient restClient;
     private final String saveAndMergePath;
+    /** Полный адрес — только для журнала; запрос идёт по пути относительно baseUrl клиента. */
+    private final String saveAndMergeUrl;
+    private final JournalWriter journal;
 
-    public MdmClient(RestClient restClient, String saveAndMergePath) {
+    public MdmClient(RestClient restClient, String baseUrl, String saveAndMergePath, JournalWriter journal) {
         this.restClient = restClient;
         this.saveAndMergePath = saveAndMergePath;
+        this.saveAndMergeUrl = UriComponentsBuilder.fromUriString(baseUrl).path(saveAndMergePath).toUriString();
+        this.journal = journal;
     }
 
-    public ResponseEntity<byte[]> saveAndMerge(HttpHeaders requestHeaders, byte[] body) {
-        return restClient.post()
-                .uri(saveAndMergePath)
-                .headers(headers -> headers.addAll(forwardable(requestHeaders)))
-                .body(body)
-                .exchange((request, response) -> ResponseEntity.status(response.getStatusCode())
-                        .headers(forwardable(response.getHeaders()))
-                        .body(response.getBody().readAllBytes()));
+    /**
+     * @param journalId id записи журнала входящего запроса; null — вызов не журналируется
+     */
+    public ResponseEntity<byte[]> saveAndMerge(UUID journalId, HttpHeaders requestHeaders, byte[] body) {
+        HttpHeaders sent = forwardable(requestHeaders);
+        UUID callId = journal.callStarted(journalId, SERVICE, Instant.now(), saveAndMergeUrl, sent);
+        ResponseEntity<byte[]> answer;
+        try {
+            answer = restClient.post()
+                    .uri(saveAndMergePath)
+                    .headers(headers -> headers.addAll(sent))
+                    .body(body)
+                    .exchange((request, response) -> ResponseEntity.status(response.getStatusCode())
+                            .headers(response.getHeaders())
+                            .body(response.getBody().readAllBytes()));
+        } catch (RestClientException e) {
+            journal.callFailed(callId, Instant.now(), e.getMessage());
+            throw e;
+        }
+        journal.callAnswered(callId, Instant.now(), answer.getStatusCode().value(), answer.getHeaders(), answer.getBody());
+        return ResponseEntity.status(answer.getStatusCode())
+                .headers(forwardable(answer.getHeaders()))
+                .body(answer.getBody());
     }
 
     /** Копия заголовков без hop-by-hop и без перечисленных в самом {@code Connection}. */

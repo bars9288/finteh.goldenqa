@@ -1,6 +1,7 @@
 package ru.cqa.server.web.saveAndMerge;
 
 import java.util.List;
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +23,10 @@ import org.springframework.web.client.RestClientException;
 import ru.cqa.cases.validation.SaveAndMergeValidationException;
 import ru.cqa.cases.validation.SaveAndMergeValidator;
 import ru.cqa.dto.SaveAndMergeDTO;
+import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
 import ru.cqa.server.web.ApiPaths;
+import ru.cqa.server.web.journal.JournalFilter;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -35,6 +39,9 @@ import tools.jackson.databind.json.JsonMapper;
  *
  * <p>{@code @Valid} на теле намеренно не стоит: всю проверку — форму и правила —
  * делает {@link SaveAndMergeValidator} и возвращает все ошибки одним списком.
+ *
+ * <p>Сам запрос и ответ пишет в журнал {@link JournalFilter}; контроллер дописывает
+ * к той же записи итог проверки и ошибки конфигурации — по id из атрибута запроса.
  */
 @Tag(name = "saveAndMerge", description = "Сохранение и слияние участников")
 @RestController
@@ -44,20 +51,35 @@ public class SaveAndMergeController {
     private final SaveAndMergeValidator validator;
     private final MdmClient mdmClient;
     private final JsonMapper jsonMapper;
+    private final JournalWriter journal;
 
     /** {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. SaveAndMergeConfiguration. */
-    public SaveAndMergeController(SaveAndMergeValidator validator, @Lazy MdmClient mdmClient, JsonMapper jsonMapper) {
+    public SaveAndMergeController(SaveAndMergeValidator validator, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
+                                  JournalWriter journal) {
         this.validator = validator;
         this.mdmClient = mdmClient;
         this.jsonMapper = jsonMapper;
+        this.journal = journal;
     }
 
+    /**
+     * @param journalId id записи журнала от {@link JournalFilter}; null — запрос не журналируется
+     */
     @Operation(summary = "Проверить запрос saveAndMerge и переслать его в МДМ")
     @PostMapping
-    public ResponseEntity<byte[]> saveAndMerge(@RequestHeader HttpHeaders headers, @RequestBody byte[] raw) {
+    public ResponseEntity<byte[]> saveAndMerge(
+            @RequestHeader HttpHeaders headers,
+            @RequestBody byte[] raw,
+            @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
         SaveAndMergeDTO body = jsonMapper.readValue(raw, SaveAndMergeDTO.class);
-        validator.validate(body);
-        return mdmClient.saveAndMerge(headers, raw);
+        try {
+            validator.validate(body);
+        } catch (SaveAndMergeValidationException e) {
+            journal.validated(journalId, e.getErrors());
+            throw e;
+        }
+        journal.validated(journalId, List.of());
+        return mdmClient.saveAndMerge(journalId, headers, raw);
     }
 
     /** Действует только на этот контроллер, общий ApiExceptionHandler не трогает. */
@@ -73,11 +95,18 @@ public class SaveAndMergeController {
      */
     @ExceptionHandler(BeanCreationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public SaveAndMergeResponse onMdmNotConfigured(BeanCreationException exception) {
-        return SaveAndMergeResponse.failed(List.of("МДМ не настроена: " + exception.getMostSpecificCause().getMessage()));
+    public SaveAndMergeResponse onMdmNotConfigured(
+            BeanCreationException exception,
+            @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
+        String error = "МДМ не настроена: " + exception.getMostSpecificCause().getMessage();
+        journal.internalError(journalId, error);
+        return SaveAndMergeResponse.failed(List.of(error));
     }
 
-    /** МДМ не ответила: нет соединения, таймаут. Её ответы с 4xx/5xx сюда не попадают — они пересылаются как есть. */
+    /**
+     * МДМ не ответила: нет соединения, таймаут. Её ответы с 4xx/5xx сюда не попадают — они пересылаются как есть.
+     * В журнал ошибку уже записал MdmClient (journal_call.call_error).
+     */
     @ExceptionHandler(RestClientException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public SaveAndMergeResponse onMdmUnavailable(RestClientException exception) {

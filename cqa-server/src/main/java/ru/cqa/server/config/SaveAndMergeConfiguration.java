@@ -12,6 +12,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import ru.cqa.cases.validation.physical.PhysicalRules;
 import ru.cqa.cases.validation.SaveAndMergeValidator;
+import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
 
 /**
@@ -36,7 +37,7 @@ public class SaveAndMergeConfiguration {
      */
     @Bean
     @Lazy
-    public MdmClient mdmClient(Environment env) {
+    public MdmClient mdmClient(Environment env, JournalWriter journal) {
         String scope = env.getRequiredProperty("cqa.save-and-merge.mdm.scope");
         String connection = "cqa.connections.CDI." + scope + ".";
 
@@ -50,11 +51,12 @@ public class SaveAndMergeConfiguration {
         requestFactory.setReadTimeout(env.getRequiredProperty(connection + "read-timeout", Duration.class));
         requestFactory.enableCompression(false);
 
+        String baseUrl = env.getRequiredProperty(connection + "url");
         RestClient restClient = RestClient.builder()
-                .baseUrl(env.getRequiredProperty(connection + "url"))
+                .baseUrl(baseUrl)
                 .requestFactory(requestFactory)
                 .build();
 
-        return new MdmClient(restClient, env.getRequiredProperty(connection + "endpoints.save-and-merge"));
+        return new MdmClient(restClient, baseUrl, env.getRequiredProperty(connection + "endpoints.save-and-merge"), journal);
     }
 }

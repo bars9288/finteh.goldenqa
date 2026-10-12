@@ -8,16 +8,18 @@
 `system`-зависимостей, ни `<repository>`, указывающего сюда. Maven берёт всё из
 `~/.m2` и Central. Удаление `lib/` на сборку и запуск не влияет.
 
-Состояние на 2026-09-23: **106 jar, 40 МБ**.
+Состояние на 2026-10-12: **122 jar, 55 МБ**.
 
 | Папка | jar | Размер | Что внутри |
 |-------|----:|-------:|------------|
-| `spring-boot`        |  16 |   2.5 МБ | Spring Boot: ядро, автоконфигурация, стартеры |
-| `spring-framework`   |   7 |   8.1 МБ | Spring Framework: core, beans, context, web, mvc, aop |
+| `spring-boot`        |  25 |   2.8 МБ | Spring Boot: ядро, автоконфигурация, стартеры |
+| `spring-framework`   |   9 |   8.8 МБ | Spring Framework: core, beans, context, web, mvc, aop, jdbc, tx |
 | `web-server`         |   3 |   4.0 МБ | встроенный Tomcat |
+| `spring-data`        |   3 |   2.8 МБ | Spring Data JDBC: commons, relational, jdbc — журнал запросов |
+| `persistence`        |   2 |  11.6 МБ | драйвер SQLite и пул соединений HikariCP |
 | `openapi`            |  11 |   3.2 МБ | springdoc, Swagger UI, Scalar — документация REST |
 | `soap`               |   9 |   1.4 МБ | Spring WS, SAAJ, wsdl4j, spring-oxm — SOAP-слой |
-| `validation`         |   5 |   1.6 МБ | Bean Validation: Hibernate Validator (пришла со springdoc) |
+| `validation`         |   5 |   1.6 МБ | Bean Validation: Hibernate Validator |
 | `json`               |   7 |   4.9 МБ | Jackson 2.x и 3.x одновременно — см. примечание ниже |
 | `xml-bind`           |   8 |   1.4 МБ | JAXB и активация: разбор XML для SOAP |
 | `logging`            |   7 |   1.4 МБ | SLF4J, Logback, мосты Log4j и JUL |
@@ -33,15 +35,24 @@
 а `swagger-core-jakarta` из springdoc остался на Jackson 2 (`com.fasterxml.jackson`).
 Пакеты разные, конфликта нет, но в `json/` лежат обе линейки.
 
-**Валидацию никто не подключал явно.** `hibernate-validator` и компания пришли
-транзитивно вместе со `springdoc-openapi-starter-common`. Следствие приятное:
-`@Valid` и `@NotBlank` доступны без отдельной зависимости.
+**Валидация подключена явно.** `cqa-server` объявляет `spring-boot-starter-validation`
+(движок Hibernate Validator), а `cqa-dto` — только `jakarta.validation-api` для
+аннотаций. Те же jar приходят и транзитивно со `springdoc-openapi-starter-common`,
+поэтому состав папки `validation/` от этого не изменился — добавился лишь пустой
+стартер в `spring-boot/`.
 
 **Стартеры — пустые агрегаторы.** `spring-boot-starter-*` не содержат классов и
 в собранный fat-jar не попадают, хотя область видимости у них `compile`.
 
-**Свой модуль сюда не кладётся.** `cqa-business` — часть проекта, а не внешняя
-зависимость.
+**Свои модули сюда не кладутся.** `cqa-dto`, `cqa-case`, `cqa-business` — часть
+проекта, а не внешние зависимости.
+
+**`spring-boot-jarmode-tools` здесь нет намеренно.** Его добавляет в fat-jar сам
+`spring-boot-maven-plugin` при `repackage`; зависимостью проекта он не является
+и для компиляции в IDE не нужен.
+
+**Все jar совместимы с Java 17** (class-file ≤ 61) — это требование офлайн-стенда.
+После пересборки склада проверку стоит повторить.
 
 ## Пересборка склада
 
@@ -57,11 +68,12 @@ mvn -o clean package dependency:copy-dependencies \
     -pl cqa-server -am
 ```
 
-Важно: `package` и `-am` обязательны. Без них плагин не найдёт `cqa-business` —
-модуль не установлен в `~/.m2`, и резолв падает с
-`Could not find artifact ru.cqa:cqa-business`.
+Важно: `package` и `-am` обязательны. Без них плагин не найдёт свои модули
+(`cqa-dto`, `cqa-case`, `cqa-business`) — они не установлены в `~/.m2`, и резолв
+падает с `Could not find artifact ru.cqa:...`.
 
-Дальше содержимое `cqa-server/target/deps` раскладывается по папкам выше.
+Дальше содержимое `cqa-server/target/deps` (кроме `cqa-*.jar`) раскладывается
+по папкам выше.
 Разделение runtime и test определяется по составу fat-jar: что попало в
 `BOOT-INF/lib` — runtime, остальное (кроме стартеров) — тестовое.
 
@@ -74,7 +86,14 @@ Java 21.
 репозиторий своей структуры, а не папки с jar. Нужен перенос `~/.m2/repository`
 или внутренний Nexus.
 
-## Чего в проекте нет
+## Работа с БД
 
-Работы с БД нет — ни драйверов, ни Spring Data, ни ORM. Когда слой БД появится,
-здесь заведутся папки `persistence` и `spring-data`.
+Журнал запросов хранится в SQLite через Spring Data JDBC (без ORM, без Hibernate).
+Сервер БД не нужен: база — один файл в рабочем каталоге.
+
+**Драйвер SQLite — самый тяжёлый jar склада (~11 МБ).** Внутри лежат нативные
+библиотеки SQLite под все платформы (Windows, Linux, macOS), драйвер сам выбирает
+нужную при запуске. Отдельно ставить SQLite на стенд не требуется.
+
+**Диалекта SQLite в Spring Data JDBC нет** — он описан в проекте
+(`ru.cqa.server.journal.SqliteDialect`), дополнительных jar для этого не нужно.
