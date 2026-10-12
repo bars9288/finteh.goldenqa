@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS journal_request (     -- входящий запро�
     req_headers        TEXT    CHECK (json_valid(req_headers)),        -- {"имя": ["значение", ...]}
     req_content_type   TEXT,                     -- Content-Type запроса как прислал клиент
     req_body_kind      TEXT    NOT NULL,         -- EMPTY / JSON / XML / TEXT / BINARY
-    req_body           TEXT,                     -- тело запроса как пришло, без изменений
+    req_body           TEXT,                     -- тело запроса как пришло; сжатое (Content-Encoding gzip/deflate) — распакованным
     validation_status  TEXT,                     -- PASSED / FAILED / NOT_RUN
     validation_errors  TEXT    CHECK (json_valid(validation_errors)),  -- ["...", ...]
     internal_error     TEXT,                     -- ошибка самого ЕТ, если была
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS journal_call (        -- исходящий вызо�
     resp_headers       TEXT    CHECK (json_valid(resp_headers)),       -- заголовки ответа сервиса
     resp_content_type  TEXT,                     -- Content-Type ответа сервиса
     resp_body_kind     TEXT,                     -- EMPTY / JSON / XML / TEXT / BINARY
-    resp_body          TEXT,                     -- тело ответа сервиса как пришло
+    resp_body          TEXT,                     -- тело ответа сервиса как пришло; сжатое (gzip/deflate) — распакованным
     call_error         TEXT                      -- сервис не ответил: таймаут, нет соединения
 );
 

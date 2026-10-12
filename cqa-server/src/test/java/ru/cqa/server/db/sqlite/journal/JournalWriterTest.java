@@ -2,15 +2,21 @@ package ru.cqa.server.db.sqlite.journal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -114,6 +120,53 @@ class JournalWriterTest {
         JournalRequest request = requests.findById(binary).orElseThrow();
         assertThat(request.reqBodyKind()).isEqualTo(BodyKind.BINARY);
         assertThat(request.reqBody()).isEqualTo("//4A");
+    }
+
+    @Test
+    void compressedBodiesAreJournaledUnpacked() throws IOException {
+        byte[] json = utf8("{\"mdm\":\"ок\"}");
+
+        assertThat(answer("gzip", gzip(json)))
+                .isEqualTo(new JournalBody(BodyKind.JSON, "{\"mdm\":\"ок\"}"));
+        // deflate по стандарту (обёртка zlib) и «голый» — оба распаковываются
+        assertThat(answer("deflate", deflate(json, false)).kind()).isEqualTo(BodyKind.JSON);
+        assertThat(answer("deflate", deflate(json, true)).kind()).isEqualTo(BodyKind.JSON);
+        // несколько кодировок через запятую снимаются в обратном порядке
+        assertThat(answer("gzip, identity", gzip(json)).kind()).isEqualTo(BodyKind.JSON);
+
+        // br средствами JDK не распаковать, битый gzip — тоже: исходные байты в Base64
+        byte[] brotli = {0x1b, 0x0d, 0x00, 0x00};
+        assertThat(answer("br", brotli))
+                .isEqualTo(new JournalBody(BodyKind.BINARY, Base64.getEncoder().encodeToString(brotli)));
+        byte[] broken = Arrays.copyOf(gzip(json), 10);
+        assertThat(answer("gzip", broken).kind()).isEqualTo(BodyKind.BINARY);
+    }
+
+    /** Тип и текст тела ответа МДМ, как он лёг в journal_call. */
+    private JournalBody answer(String contentEncoding, byte[] body) {
+        UUID id = received(headers("application/json"), utf8("{}"));
+        UUID callId = writer.callStarted(id, "MDM", Instant.now(), "http://mdm", headers(null));
+        HttpHeaders headers = headers("application/json; charset=UTF-8");
+        headers.add(HttpHeaders.CONTENT_ENCODING, contentEncoding);
+        writer.callAnswered(callId, Instant.now(), 200, headers, body);
+        JournalCall call = calls.findById(callId).orElseThrow();
+        return new JournalBody(call.respBodyKind(), call.respBody());
+    }
+
+    private static byte[] gzip(byte[] data) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+            gzip.write(data);
+        }
+        return out.toByteArray();
+    }
+
+    private static byte[] deflate(byte[] data, boolean raw) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (DeflaterOutputStream deflate = new DeflaterOutputStream(out, new Deflater(Deflater.DEFAULT_COMPRESSION, raw))) {
+            deflate.write(data);
+        }
+        return out.toByteArray();
     }
 
     @Test

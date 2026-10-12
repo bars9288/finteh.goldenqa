@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterAll;
@@ -45,7 +47,10 @@ class JournalFilterTest {
     @TempDir
     static Path dir;
 
-    /** Поддельная МДМ: отвечает 201; с заголовком X-Test-Slow молчит дольше таймаута чтения. */
+    /**
+     * Поддельная МДМ: отвечает 201; с заголовком X-Test-Slow молчит дольше таймаута чтения,
+     * с X-Test-Gzip — сжимает ответ, как настоящая МДМ на {@code Accept-Encoding: gzip}.
+     */
     static HttpServer mdm;
 
     /** Заголовок Authorization, дошедший до МДМ в последнем запросе. */
@@ -61,6 +66,10 @@ class JournalFilterTest {
                 sleep(3000);
             }
             byte[] answer = "{\"mdm\":\"ok\"}".getBytes(StandardCharsets.UTF_8);
+            if (exchange.getRequestHeaders().containsKey("X-Test-Gzip")) {
+                answer = gzip(answer);
+                exchange.getResponseHeaders().add("Content-Encoding", "gzip");
+            }
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.getResponseHeaders().add("X-Mdm", "yes");
             exchange.sendResponseHeaders(201, answer.length);
@@ -145,6 +154,38 @@ class JournalFilterTest {
         assertThat((String) call.get("resp_headers")).contains("\"x-mdm\":[\"yes\"]");
         assertThat(call.get("resp_body_kind")).isEqualTo("JSON");
         assertThat(call.get("call_error")).isNull();
+    }
+
+    @Test
+    void gzipAnswerReachesClientAsIsAndJournalUnpacked() throws Exception {
+        String tag = tag();
+        HttpRequest request = HttpRequest.newBuilder(uri("/" + ApiPaths.SAVE_AND_MERGE + "?" + tag))
+                .header("Content-Type", "application/json")
+                .header("X-Test-Gzip", "1")
+                .POST(HttpRequest.BodyPublishers.ofString("{\"party\":[]}"))
+                .build();
+        HttpResponse<byte[]> response = http.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+        // клиенту — сжатые байты МДМ без изменений
+        assertThat(response.statusCode()).isEqualTo(201);
+        assertThat(response.headers().firstValue("Content-Encoding")).hasValue("gzip");
+        assertThat(response.body()).isEqualTo(gzip("{\"mdm\":\"ok\"}".getBytes(StandardCharsets.UTF_8)));
+
+        // в журнал — распакованный текст
+        Map<String, Object> row = journalRow(tag);
+        assertThat(row.get("resp_body")).isEqualTo("{\"mdm\":\"ok\"}");
+        Map<String, Object> call = jdbc.queryForMap("SELECT * FROM journal_call WHERE request_id = ?", row.get("id"));
+        assertThat(call.get("resp_body_kind")).isEqualTo("JSON");
+        assertThat(call.get("resp_body")).isEqualTo("{\"mdm\":\"ok\"}");
+        assertThat((String) call.get("resp_headers")).contains("\"content-encoding\":[\"gzip\"]");
+    }
+
+    private static byte[] gzip(byte[] data) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+            gzip.write(data);
+        }
+        return out.toByteArray();
     }
 
     @Test

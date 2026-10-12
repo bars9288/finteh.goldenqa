@@ -71,7 +71,7 @@ public class JournalWriter {
                                 String httpMethod, String endpoint, String queryString,
                                 HttpHeaders headers, byte[] body) {
         String contentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-        JournalBody journalBody = JournalBody.of(body, contentType, jsonMapper);
+        JournalBody journalBody = JournalBody.of(body, headers, jsonMapper);
         JournalRequest request = new JournalRequest(
                 UUID.randomUUID(), receivedAt, null, clientIp, clientPort,
                 httpMethod, endpoint, queryString, toJson(headers), contentType,
@@ -111,7 +111,7 @@ public class JournalWriter {
         if (requestId == null) {
             return;
         }
-        JournalBody journalBody = JournalBody.of(body, headers.getFirst(HttpHeaders.CONTENT_TYPE), jsonMapper);
+        JournalBody journalBody = JournalBody.of(body, headers, jsonMapper);
         String headersJson = toJson(headers);
         boolean delivered = deliveryError == null;
         write("responseSent", columns("id", requestId, "finished_at", finishedAt, "resp_status", status,
@@ -145,7 +145,7 @@ public class JournalWriter {
             return;
         }
         String contentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-        JournalBody journalBody = JournalBody.of(body, contentType, jsonMapper);
+        JournalBody journalBody = JournalBody.of(body, headers, jsonMapper);
         String headersJson = toJson(headers);
         write("callAnswered", columns("id", callId, "finished_at", finishedAt, "resp_status", status,
                         "resp_headers", headersJson, "resp_content_type", contentType,
