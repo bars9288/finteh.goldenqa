@@ -8,7 +8,7 @@ package ru.cqa.server.web;
  */
 public final class ApiPaths {
 
-    public static final String SAVE_AND_MERGE = "/saveAndMerge";
+    public static final String SAVE_AND_MERGE = "cdi/soap/services/2_13/PartyRA/saveAndMerge";
 
     private ApiPaths() {
     }
