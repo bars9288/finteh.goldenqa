@@ -2,10 +2,7 @@ package ru.cqa.cases.validation;
 
 import java.util.List;
 
-/**
- * Запрос saveAndMerge не прошёл проверку. Несёт сразу все найденные ошибки,
- * а не первую: клиент исправляет запрос за один заход.
- */
+
 public class SaveAndMergeValidationException extends RuntimeException {
 
     private final List<String> errors;

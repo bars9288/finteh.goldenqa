@@ -5,6 +5,8 @@ import ru.cqa.dto.AttributeDTO;
 import static ru.cqa.cases.validation.constants.AttrRequisNames.*;
 import static ru.cqa.cases.validation.constants.AttrTypes.*;
 import static ru.cqa.cases.validation.constants.RequisNames.*;
+import static ru.cqa.cases.validation.constants.RequisGenderFields.*;
+import static ru.cqa.cases.validation.constants.RequisBoolFields.*;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.*;
 
 import java.time.LocalDate;
@@ -15,18 +17,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Каталог правил : каждое правило — лямбда {@link PhysicalRule},
- * выполняются по порядку списка.
- */
+
 public final class PhysicalRules {
 
-    private static final Set<String> GENDERS = Set.of("MALE", "FEMALE");
-    private static final Set<String> TRUE_FALSE_UNKNOWN = Set.of("TRUE", "FALSE", "UNKNOWN");
+    private static final Set<String> GENDERS = Set.of(MALE, FEMALE);
+    private static final Set<String> TRUE_FALSE_UNKNOWN = Set.of(TRUE, FALSE, UNKNOWN);
     private static final Set<String> PHYSICAL_ATTRIBUTE_TYPES = Set.of(DOCUMENT_PASSPORT, ADDRESS, PHONE, EMAIL, EXTERNAL_IDENTIFIER);
 
     public static final List<PhysicalRule> TO_SAVE_PHYSICAL = List.of(
-
 //   *** ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY
 //1. ОБЩАЯ проверка: Поле уровень идентификации обязателен
             party -> {
@@ -38,19 +36,18 @@ public final class PhysicalRules {
                 }
                 return List.of();
             },
-
 //2. ОБЩАЯ проверка: Дата создания — createdDate обязательна, формат ДД.ММ.ГГГГ или ДД.ММ.ГГГГ ЧЧ:мм:СС МСК; пояс необязателен, но если указан — только московский
             party -> {
                 String raw = party.fieldMap().get(CREATED_DATE);
                 if (isBlank(raw)) {
                     return List.of("party[0].field." + CREATED_DATE + ": обязательно, не должно быть пустым");
                 }
-                String[] parts = raw.strip().split(" ");
+                String[] parts = raw.strip().split("\\s");
                 if (parts.length == 1 && isDdMmYyyy(parts[0])) {
                     return List.of();
                 }
-                return checkDateTimeMsk("party[0].field." + CREATED_DATE, parts,
-                        "ожидается дата в формате ДД.ММ.ГГГГ или ДД.ММ.ГГГГ ЧЧ:мм:СС, после времени — необязательный пояс");
+                return checkDateTimeZnMsk(parts, "party[0].field." + CREATED_DATE,
+                        "ожидается дата в формате ДД.ММ.ГГГГ или ДД.ММ.ГГГГ ЧЧ:мм:СС, необязательный пояс");
             },
 
 //3. ОБЩАЯ проверка: Дата актуальности — обязательна, формат ДД.ММ.ГГГГ ЧЧ:мм:СС МСК; пояс необязателен, но если указан — только московский
@@ -59,8 +56,7 @@ public final class PhysicalRules {
                 if (isBlank(raw)) {
                     return List.of("party[0].field." + ACTUALITY_DATE + ": обязательно, не должно быть пустым");
                 }
-                return checkDateTimeMsk("party[0].field." + ACTUALITY_DATE, raw.strip().split(" "),
-                        "ожидается дата и время в формате ДД.ММ.ГГГГ ЧЧ:мм:СС, после времени — необязательный пояс");
+                return checkDateTimeZnMsk(raw.strip().split(" "), "party[0].field." + ACTUALITY_DATE, "ожидается дата и время в формате ДД.ММ.ГГГГ ЧЧ:мм:СС, после времени — необязательный пояс");
             },
 
 //   *** ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY -> ATTRUBUTE -> FIELD
@@ -114,8 +110,7 @@ public final class PhysicalRules {
                     if (isBlank(raw)) {
                         errors.add(path + ": обязательно, не должно быть пустым");
                     } else {
-                        errors.addAll(checkDateTimeMsk(path, raw.strip().split(" "),
-                                "ожидается дата и время в формате ДД.ММ.ГГГГ ЧЧ:мм:СС, после времени — необязательный пояс"));
+                        errors.addAll(checkDateTimeZnMsk(raw.strip().split(" "), path, "ожидается дата и время в формате ДД.ММ.ГГГГ ЧЧ:мм:СС, после времени — необязательный пояс"));
                     }
                 }
                 return errors;
