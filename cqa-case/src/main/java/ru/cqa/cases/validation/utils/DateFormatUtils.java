@@ -6,13 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public final class DateFormatUtils {
-
-    public static final Pattern SNILS_FORMAT = Pattern.compile("\\d{3}\\-\\d{3}\\-\\d{3}\\s\\d{2}");
-    public static final Pattern DD_MM_YYYY = Pattern.compile("\\d{2}\\.\\d{2}\\.\\d{4}");
-    public static final Pattern CITIZENSHIP_DIGITS = Pattern.compile("\\d{1,3}");
 
     public static final List<String> MOSCOW_ZONES = List.of("МСК", "MSK", "+03:00", "Europe/Moscow");
 

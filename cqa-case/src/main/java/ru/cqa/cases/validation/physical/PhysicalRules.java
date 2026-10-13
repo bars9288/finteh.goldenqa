@@ -8,6 +8,7 @@ import static ru.cqa.cases.validation.constants.RequisNames.*;
 import static ru.cqa.cases.validation.constants.RequisGenderFields.*;
 import static ru.cqa.cases.validation.constants.RequisBoolFields.*;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.*;
+import static ru.cqa.cases.validation.constants.RequisPatternRegex.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ public final class PhysicalRules {
                     return List.of();
                 }
                 String value = raw.strip();
-                if (!CITIZENSHIP_DIGITS.matcher(value).matches() && !"UNKNOWN".equals(value)) {
+                if (!CITIZENSHIP_FORMAT.matcher(value).matches() && !"UNKNOWN".equals(value)) {
                     return List.of("party[0].field." + CITIZENSHIP + ": ожидается от одной до трёх цифр или UNKNOWN");
                 }
                 return List.of();
