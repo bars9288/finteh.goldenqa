@@ -5,6 +5,9 @@ spring:
     import:
       - optional:file:./.env[.properties]
       - optional:file:./connections.yml
+  mvc:
+    servlet:
+      load-on-startup: 1
 
 server:
   port: ${SERVER_PORT:8990}
@@ -38,13 +41,10 @@ logging:
     rollingpolicy:
       max-file-size: 10MB
       total-size-cap: 50MB
-      # вермя жизни, дней
       max-history: 28
       clean-history-on-start: true
 
 cqa:
   save-and-merge:
     mdm:
-      # контур МДМ — ключ блока cqa.connections.CDI.<scope>;
-      # адрес, таймауты и путь ручки (endpoints.save-and-merge) — в connections.yml
       scope: DEV

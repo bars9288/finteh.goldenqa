@@ -1,6 +1,5 @@
 cqa:
   connections:
-
     CDI:
       DEV:
         type: REST
