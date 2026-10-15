@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.cqa</groupId>
         <artifactId>cqa-parent</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cqa-business</artifactId>
