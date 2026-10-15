@@ -11,10 +11,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * главное — параметры адресной строки, которые в тело запроса не попадают.
  */
 public record EchoDetails(
-        @Schema(description = "HTTP-метод", example = "POST") String method,
-        @Schema(description = "Путь без строки параметров", example = "/echo/details") String uri,
-        @Schema(description = "Строка параметров как есть", example = "a=1&b=2") String queryString,
-        @Schema(description = "Разобранные параметры адресной строки") Map<String, String> queryParams,
-        @Schema(description = "Content-Type запроса", example = "application/json") String contentType,
-        @Schema(description = "Тело запроса как есть") String body) {
+
+        @Schema(description = "HTTP-метод", example = "POST")
+        String method,
+
+        @Schema(description = "Путь без строки параметров", example = "/echo/details")
+        String uri,
+
+        @Schema(description = "Строка параметров как есть", example = "a=1&b=2")
+        String queryString,
+
+        @Schema(description = "Разобранные параметры адресной строки")
+        Map<String, String> queryParams,
+
+        @Schema(description = "Content-Type запроса", example = "application/json")
+        String contentType,
+
+        @Schema(description = "Тело запроса как есть")
+        String body) {
 }

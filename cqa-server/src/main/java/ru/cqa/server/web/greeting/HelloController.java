@@ -14,20 +14,6 @@ import ru.cqa.business.greeting.GreetingRegistry;
 import ru.cqa.business.greeting.operator.Operator;
 import ru.cqa.dto.OperatorDTO;
 
-/**
- * Дежурная проверка доступности приложения.
- *
- * <p>Имя и фамилию можно передать двумя способами — каждый метод принимает
- * данные только одним путём, без смешивания:
- * <ul>
- *   <li>GET /helloAkBars?name=Иван&amp;family=Иванов</li>
- *   <li>POST /helloAkBars с телом {"name": "Иван", "family": "Иванов"}</li>
- * </ul>
- *
- * <p>Контроллер намеренно тонкий: разобрать запрос, позвать реестр, собрать
- * ответ. Логика приветствия живёт в модуле cqa-business. Какая именно
- * реализация сработает, решает реестр по типу адресата.
- */
 @Tag(name = "Дежурная проверка", description = "Ручка для проверки доступности приложения")
 @RestController
 @RequestMapping(path = "/helloAkBars", produces = MediaType.APPLICATION_JSON_VALUE)

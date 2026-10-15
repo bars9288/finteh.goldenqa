@@ -22,7 +22,7 @@ public record AttributeDTO(
         String rawId,
 
         @Schema(description = "Поля атрибута")
-        List<@NotNull @NotEmpty @Valid FieldDTO> field) {
+        List<@NotNull @Valid FieldDTO> field) {
 
 
     public Map<String, String> fieldMap() {
