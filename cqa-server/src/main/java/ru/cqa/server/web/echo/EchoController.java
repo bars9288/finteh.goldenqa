@@ -33,8 +33,7 @@ public class EchoController {
      * Чтобы увидеть их, есть {@link #details}.
      */
     @Operation(summary = "Вернуть тело запроса без изменений",
-               description = "Content-Type ответа повторяет Content-Type запроса. "
-                       + "Параметры адресной строки игнорируются: они не входят в тело.")
+               description = "Content-Type ответа повторяет Content-Type запроса. Параметры адресной строки игнорируются: они не входят в тело.")
     @PostMapping
     public ResponseEntity<String> echo(
             @RequestBody(required = false) String body,
