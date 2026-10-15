@@ -22,6 +22,5 @@ public class CqaServerApplication {
             String version = build != null ? build.getVersion() : null;
             log.info(HelloClass.getHello(version));
         }
-
     }
 }

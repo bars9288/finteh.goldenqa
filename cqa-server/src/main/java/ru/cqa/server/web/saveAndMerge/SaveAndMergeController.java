@@ -104,7 +104,7 @@ public class SaveAndMergeController {
     }
 
     /**
-     * МДМ не ответила: нет соединения, таймаут. Её ответы с 4xx/5xx сюда не попадают — они пересылаются как есть.
+     * МДМ не ответила: нет соединения, таймаут.
      * В журнал ошибку уже записал MdmClient (journal_call.call_error).
      */
     @ExceptionHandler(RestClientException.class)
