@@ -11,6 +11,7 @@
 | `cqa-server`   | Spring Boot приложение: контекст и веб-слой    | _TODO_     | Spring Boot   | [README](cqa-server/README.md)             |
 | `cqa-case`     | Сценарии и кейсы                                | _TODO_     | нет           | [README](cqa-case/README.md)               |
 | `cqa-business` | Бизнес-логика                                   | _TODO_     | нет           | [README](cqa-business/README.md)           |
+| `cqa-dto`      | Транспортные контракты: DTO тел запросов        | `cqa-business` | нет (только API аннотаций) | — |
 
 > Колонку «Зависит от» заполняем по мере появления связей. Пока ни один модуль
 > не зависит от другого — граф зависимостей ещё не задан.
@@ -47,8 +48,24 @@ mvn clean package
 mvn -pl cqa-server spring-boot:run
 
 # или собранным jar
-java -jar cqa-server/target/cqa-server-0.0.1-SNAPSHOT.jar
+java -jar cqa-server/target/cqa-server-0.0.2-SNAPSHOT.jar
 ```
+
+## Веб-интерфейс
+
+После запуска откройте **http://localhost:8990/** — корень ведёт на `/ui/`.
+Интерфейс лежит в `cqa-server/src/main/resources/static/ui/` и попадает в jar
+вместе с приложением: без Node, без сборки фронтенда, без CDN и внешних шрифтов —
+работает в закрытом контуре.
+
+| Раздел           | Что делает                                                                 |
+|------------------|----------------------------------------------------------------------------|
+| Обзор            | контур и адрес МДМ, состояние журнала, сводка и последние запросы          |
+| saveAndMerge     | редактор запроса с шаблонами, отправка, вердикт: нарушения правил с переходом к полю в JSON или ответ МДМ |
+| Журнал           | поиск и фильтры, автообновление, запрос/ответ/вызовы МДМ, повтор запроса в консоли |
+| Проверка связи   | `/helloAkBars`, `/helloService`, `/echo`, SOAP-конверты на `/services`     |
+
+Документация API — по-прежнему на `/swagger-ui.html` и `/scalar`.
 
 ## Конфигурация
 
@@ -58,13 +75,13 @@ java -jar cqa-server/target/cqa-server-0.0.1-SNAPSHOT.jar
 При запуске собранного jar рабочий каталог другой, поэтому конфиг передаётся явно:
 
 ```bash
-java -jar cqa-server/target/cqa-server-0.0.1-SNAPSHOT.jar \
+java -jar cqa-server/target/cqa-server-0.0.2-SNAPSHOT.jar \
      --spring.config.location=file:./application.yml
 ```
 
 | Переменная    | Свойство      | По умолчанию | Описание      |
 |---------------|---------------|--------------|---------------|
-| `SERVER_PORT` | `server.port` | `8090`       | Порт веб-слоя |
+| `SERVER_PORT` | `server.port` | `8990`       | Порт веб-слоя |
 
 ## Структура репозитория
 

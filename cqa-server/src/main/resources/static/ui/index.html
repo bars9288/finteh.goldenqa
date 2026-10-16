@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Единый тестировщик</title>
+    <!-- Всё локально: контур без интернета, внешних шрифтов и CDN нет -->
+    <link rel="stylesheet" href="app.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232F4B9A'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">К содержимому</a>
+
+<div class="shell">
+    <nav class="rail" aria-label="Разделы">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-text">Единый<br>тестировщик</span>
+        </div>
+        <a href="#/overview" data-route="overview">Обзор</a>
+        <a href="#/save-and-merge" data-route="save-and-merge">saveAndMerge</a>
+        <a href="#/journal" data-route="journal">Журнал</a>
+        <a href="#/probes" data-route="probes">Проверка связи</a>
+        <div class="rail-foot">
+            <a href="../swagger-ui.html" target="_blank" rel="noopener">Swagger UI</a>
+            <a href="../scalar" target="_blank" rel="noopener">Scalar</a>
+        </div>
+    </nav>
+
+    <div class="stage">
+        <header class="statusbar" id="statusbar" aria-live="polite">
+            <span class="sb-item" id="sb-mdm">МДМ: …</span>
+            <span class="sb-item" id="sb-journal">Журнал: …</span>
+            <span class="sb-item sb-version" id="sb-version"></span>
+        </header>
+
+        <main id="main" tabindex="-1">
+
+            <!-- ============================== ОБЗОР ============================== -->
+            <section class="view" data-view="overview" hidden>
+                <h1>Обзор</h1>
+                <p class="lead">Состояние приложения и последние запросы. Тестировщик проверяет запрос участника по правилам и, если нарушений нет, пересылает его в МДМ без изменений.</p>
+
+                <div class="overview-grid">
+                    <div class="panel">
+                        <h2>Подключение к МДМ</h2>
+                        <dl class="facts" id="ov-mdm"></dl>
+                    </div>
+                    <div class="panel">
+                        <h2>Журнал за всё время</h2>
+                        <div class="tally" id="ov-stats"></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Последние запросы</h2>
+                        <a href="#/journal" class="link">Весь журнал</a>
+                    </div>
+                    <div id="ov-recent"></div>
+                </div>
+            </section>
+
+            <!-- ============================== saveAndMerge ============================== -->
+            <section class="view" data-view="save-and-merge" hidden>
+                <h1>saveAndMerge</h1>
+                <p class="lead">Запрос уходит на <code id="sam-path"></code>. Сначала его проверяют правила тестировщика; прошедший проверку пересылается в МДМ, и вы видите её ответ как есть.</p>
+
+                <div class="workbench">
+                    <div class="editor-col">
+                        <div class="toolbar">
+                            <label class="select-label">Шаблон
+                                <select id="sam-template">
+                                    <option value="valid">Физлицо, без нарушений</option>
+                                    <option value="invalid">Физлицо, с нарушениями</option>
+                                    <option value="minimal">Только каркас</option>
+                                </select>
+                            </label>
+                            <button type="button" class="btn ghost" id="sam-load">Подставить</button>
+                            <button type="button" class="btn ghost" id="sam-format">Выровнять JSON</button>
+                        </div>
+
+                        <div class="editor" id="sam-editor-wrap">
+                            <pre class="gutter" id="sam-gutter" aria-hidden="true"></pre>
+                            <textarea id="sam-body" spellcheck="false" autocomplete="off"
+                                      aria-label="Тело запроса saveAndMerge, JSON"></textarea>
+                        </div>
+                        <p class="hint" id="sam-parse"></p>
+
+                        <fieldset class="auth">
+                            <legend>Учётные данные МДМ</legend>
+                            <p class="hint">Тестировщик — прозрачный прокси: заголовок Authorization уходит в МДМ как есть. В браузере не сохраняются.</p>
+                            <div class="auth-row">
+                                <label>Логин <input id="sam-user" autocomplete="off"></label>
+                                <label>Пароль <input id="sam-password" type="password" autocomplete="off"></label>
+                            </div>
+                        </fieldset>
+
+                        <div class="actions">
+                            <button type="button" class="btn primary" id="sam-send">Отправить запрос</button>
+                            <button type="button" class="btn ghost" id="sam-curl">Скопировать как curl</button>
+                        </div>
+                    </div>
+
+                    <div class="verdict-col">
+                        <div class="verdict" id="sam-verdict" data-state="idle">
+                            <p class="verdict-idle">Здесь появится итог: нарушения правил с переходом к нужному месту в запросе или ответ МДМ.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================== ЖУРНАЛ ============================== -->
+            <section class="view" data-view="journal" hidden>
+                <h1>Журнал</h1>
+                <p class="lead">Каждый входящий запрос, ответ клиенту и вызовы МДМ. Служебные адреса — документация, SOAP и этот интерфейс — сюда не пишутся.</p>
+
+                <form class="filters" id="jr-filters" autocomplete="off">
+                    <label>Поиск
+                        <input type="search" name="text" placeholder="ФИО, rawId, текст ошибки, id">
+                    </label>
+                    <label>Ручка
+                        <input type="search" name="endpoint" placeholder="saveAndMerge">
+                    </label>
+                    <label>Проверка
+                        <select name="validation">
+                            <option value="">любая</option>
+                            <option value="PASSED">пройдена</option>
+                            <option value="FAILED">есть нарушения</option>
+                            <option value="NOT_RUN">не выполнялась</option>
+                        </select>
+                    </label>
+                    <label>Ответ
+                        <select name="statusClass">
+                            <option value="">любой</option>
+                            <option value="2">2xx</option>
+                            <option value="4">4xx</option>
+                            <option value="5">5xx</option>
+                            <option value="0">нет ответа</option>
+                        </select>
+                    </label>
+                    <label class="check">
+                        <input type="checkbox" name="live" checked> обновлять каждые 5 с
+                    </label>
+                </form>
+
+                <div class="journal">
+                    <div class="journal-list">
+                        <div id="jr-table"></div>
+                        <div class="pager" id="jr-pager"></div>
+                    </div>
+                    <aside class="journal-detail" id="jr-detail" aria-label="Запись журнала" hidden></aside>
+                </div>
+            </section>
+
+            <!-- ============================== ПРОВЕРКА СВЯЗИ ============================== -->
+            <section class="view" data-view="probes" hidden>
+                <h1>Проверка связи</h1>
+                <p class="lead">Дежурные ручки: убедиться, что приложение живо, а REST и SOAP разбирают запрос так, как вы ожидаете.</p>
+
+                <div class="probes">
+                    <form class="panel probe" data-probe="hello">
+                        <h2>Приветствие оператору</h2>
+                        <p class="hint"><code>/helloAkBars</code> — GET с параметрами или POST с JSON.</p>
+                        <div class="probe-fields">
+                            <label>Имя <input name="name" value="Сергей"></label>
+                            <label>Фамилия <input name="family" value="Борискин"></label>
+                        </div>
+                        <div class="actions">
+                            <button class="btn" name="method" value="GET">GET</button>
+                            <button class="btn" name="method" value="POST">POST</button>
+                        </div>
+                        <output class="probe-out"></output>
+                    </form>
+
+                    <form class="panel probe" data-probe="service">
+                        <h2>Приветствие сервису</h2>
+                        <p class="hint"><code>/helloService</code> — тип сервиса и контур.</p>
+                        <div class="probe-fields">
+                            <label>Сервис <input name="typeService" value="KAFKA-CLIENT"></label>
+                            <label>Контур <input name="scope" value="DEV"></label>
+                        </div>
+                        <div class="actions">
+                            <button class="btn" name="method" value="GET">GET</button>
+                            <button class="btn" name="method" value="POST">POST</button>
+                        </div>
+                        <output class="probe-out"></output>
+                    </form>
+
+                    <form class="panel probe wide" data-probe="echo">
+                        <h2>Эхо</h2>
+                        <p class="hint"><code>/echo</code> вернёт тело как есть, <code>/echo/details</code> — ещё метод, путь и параметры строки.</p>
+                        <div class="probe-fields">
+                            <label>Content-Type
+                                <select name="contentType">
+                                    <option>application/json</option>
+                                    <option>text/plain</option>
+                                    <option>application/xml</option>
+                                </select>
+                            </label>
+                            <label>Параметры строки <input name="query" value="a=1&amp;b=2"></label>
+                        </div>
+                        <label class="block">Тело
+                            <textarea name="body" rows="4" spellcheck="false">{"проверка": "связи"}</textarea>
+                        </label>
+                        <div class="actions">
+                            <button class="btn" name="mode" value="echo">Эхо</button>
+                            <button class="btn" name="mode" value="details">Эхо с деталями</button>
+                        </div>
+                        <output class="probe-out"></output>
+                    </form>
+
+                    <form class="panel probe wide" data-probe="soap">
+                        <h2>SOAP</h2>
+                        <p class="hint">Все операции идут POST на <code>/services</code> с <code>text/xml</code>; операцию выбирает корневой элемент тела. Контракты: <a class="link" href="../services/greeting.wsdl" target="_blank" rel="noopener">greeting.wsdl</a>, <a class="link" href="../services/echo.wsdl" target="_blank" rel="noopener">echo.wsdl</a>.</p>
+                        <div class="probe-fields">
+                            <label>Конверт
+                                <select name="envelope">
+                                    <option value="hello">helloRequest — оператору</option>
+                                    <option value="service">serviceHelloRequest — сервису</option>
+                                    <option value="echo">echoRequest — эхо</option>
+                                    <option value="fault">helloRequest с пустым именем — Fault</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label class="block">Тело
+                            <textarea name="body" rows="9" spellcheck="false"></textarea>
+                        </label>
+                        <div class="actions">
+                            <button class="btn" name="mode" value="send">Отправить конверт</button>
+                        </div>
+                        <output class="probe-out"></output>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

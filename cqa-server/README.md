@@ -31,6 +31,25 @@ _Пока нет._ Модуль не зависит ни от одного др�
 BOM `spring-boot-dependencies` **4.1.1** импортируется в этом модуле, а не в
 корне, — поэтому остальные модули остаются свободными от Spring.
 
+## Веб-интерфейс
+
+Статика — `src/main/resources/static/ui/` (`index.html`, `app.css`, `app.js`),
+обычный JavaScript без сборки и библиотек. `UiConfiguration` отдаёт `/ui/` как
+`index.html` и перенаправляет туда корень сайта. Пути к API в интерфейсе
+относительные — он работает и за обратным прокси с префиксом.
+
+Служебные ручки интерфейса (в журнал не пишутся — см. `JournalFilter`):
+
+| Ручка                      | Что отдаёт                                                    |
+|----------------------------|---------------------------------------------------------------|
+| `GET /api/info`            | версия, контур и адрес МДМ (без учётных данных), состояние журнала |
+| `GET /api/journal`         | страница журнала; фильтры `text`, `endpoint`, `validation`, `statusClass`, `limit` ≤ 200, `offset` |
+| `GET /api/journal/stats`   | сводка: всего, прошли проверку, с нарушениями, 5xx, МДМ не ответила |
+| `GET /api/journal/{id}`    | запись целиком: запрос, ответ клиенту, вызовы МДМ             |
+
+Читает журнал `JournalReader` — пара к `JournalWriter`: обычный SQL через `JdbcClient`.
+Если БД журнала недоступна, ручки отвечают пустым результатом и `ready: false`.
+
 ## Точки расширения
 
 _TODO: как подключается новый протокол / новый тип проверки._
@@ -46,7 +65,7 @@ ru.cqa.server
 
 ```bash
 mvn -pl cqa-server spring-boot:run
-java -jar target/cqa-server-0.0.1-SNAPSHOT.jar
+java -jar target/cqa-server-0.0.2-SNAPSHOT.jar
 ```
 
 `spring-boot-maven-plugin` выполняет `repackage`, на выходе — исполняемый
@@ -60,7 +79,12 @@ fat-jar со `Start-Class: ru.cqa.server.CqaServerApplication`.
 
 ## Тесты
 
-_Пока нет._
+```bash
+mvn -pl cqa-server -am test
+```
+
+`JournalFilterTest` — журнал на настоящем HTTP с поддельной МДМ;
+`JournalControllerTest` — чтение журнала и то, что интерфейс и SOAP в журнал не попадают.
 
 ## Открытые вопросы
 

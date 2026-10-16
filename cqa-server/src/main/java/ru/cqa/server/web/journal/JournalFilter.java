@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
+import ru.cqa.server.web.ApiPaths;
 
 /**
  * Журнал входящих REST-запросов: что пришло и что ушло клиенту.
@@ -53,10 +54,20 @@ public class JournalFilter extends OncePerRequestFilter {
 
     /**
      * Служебные адреса — не REST-ручки, в журнал не пишутся: документация API,
-     * её статика, SOAP (свой сервлет на /services) и страница ошибки.
+     * её статика, SOAP (свой сервлет на /services), страница ошибки, веб-интерфейс
+     * и его служебные ручки (иначе интерфейс, опрашивающий журнал, засыпал бы его
+     * собственными запросами).
      */
     private static final List<String> NOT_JOURNALED = List.of(
-            "/swagger-ui", "/v3/api-docs", "/scalar", "/webjars", "/services/", "/favicon.ico", "/error");
+            "/swagger-ui", "/v3/api-docs", "/scalar", "/webjars", "/services/", "/favicon.ico", "/error",
+            ApiPaths.UI, ApiPaths.JOURNAL, ApiPaths.INFO);
+
+    /**
+     * Точные адреса, которые startsWith не покрывает: корень сайта (перенаправление на интерфейс;
+     * startsWith("/") совпал бы со всем) и сам адрес SOAP — конверты идут POST на /services
+     * без слэша, и префикс "/services/" их пропускал.
+     */
+    private static final List<String> NOT_JOURNALED_EXACT = List.of("/", "/services");
 
     private static final Logger log = LoggerFactory.getLogger(JournalFilter.class);
 
@@ -69,7 +80,7 @@ public class JournalFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        return NOT_JOURNALED.stream().anyMatch(path::startsWith);
+        return NOT_JOURNALED_EXACT.contains(path) || NOT_JOURNALED.stream().anyMatch(path::startsWith);
     }
 
     @Override
