@@ -9,32 +9,29 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Участник в запросе saveAndMerge: реквизиты ({@code field}) и атрибуты
- * ({@code attribute}).
- *
- * <p>Имя {@code sourseSystem} повторяет написание из контракта — Jackson
- * сопоставляет поля по имени буква в букву.
- */
 @Schema(description = "Участник")
 public record PartyDTO(
 
         @Schema(description = "Тип участника", example = "PHYSICAL", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String type,
+        @NotBlank(message = "Не должно быть пустым")
+        String type,
 
         @Schema(description = "Система-источник", example = "SBL", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String sourceSystem,
+        @NotBlank(message = "Не должно быть пустым")
+        String sourceSystem,
 
         @Schema(description = "Реквизиты участника")
-        @NotEmpty List<@NotNull @Valid FieldDTO> field,
+        @NotEmpty(message = "Не должна быь коллекция пустой")
+        List<@NotNull @Valid FieldDTO> field,
 
         @Schema(description = "Уникальный идентификатор строки", example = "123456789abcdef", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String rawId,
+        @NotBlank(message = "Не должно быть пустым")
+        String rawId,
 
         @Schema(description = "Атрибуты участника")
         List<@Valid AttributeDTO> attribute) {
 
-    /** Реквизиты как имя → значение. */
+
     public Map<String, String> fieldMap() {
         return FieldDTO.toMap(field);
     }

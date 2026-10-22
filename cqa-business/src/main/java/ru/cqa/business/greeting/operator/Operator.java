@@ -1,13 +1,9 @@
 package ru.cqa.business.greeting.operator;
 
-/**
- * Оператор, от имени которого выполняется проверка.
- *
- * <p>Модель сама следит за своей корректностью: собрать объект с пустым именем
- * или фамилией нельзя. Поэтому дальше по коду проверять их уже не нужно —
- * если экземпляр существует, значит он валиден.
- */
-public record Operator(String name, String family) {
+public record Operator(
+        String name,
+        String family
+) {
 
     public Operator {
         name = requireFilled(name, "name");
@@ -21,7 +17,6 @@ public record Operator(String name, String family) {
         return value.strip();
     }
 
-    /** Фамилия и имя одной строкой — в том порядке, в котором их ждёт оператор. */
     public String shortName() {
         return name + " " + family;
     }

@@ -15,10 +15,6 @@ import ru.cqa.cases.validation.SaveAndMergeValidator;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
 
-/**
- * Бины кейса saveAndMerge. Сам валидатор живёт в cqa-case без Spring —
- * здесь ему передаётся движок Bean Validation, который собрал Spring Boot.
- */
 @Configuration
 public class SaveAndMergeConfiguration {
 
@@ -27,14 +23,6 @@ public class SaveAndMergeConfiguration {
         return new SaveAndMergeValidator(validator, PhysicalRules.TO_SAVE_PHYSICAL);
     }
 
-    /**
-     * Клиент МДМ на фиксированном контуре {@code cqa.save-and-merge.mdm.scope}:
-     * адрес, таймауты и путь ручки ({@code endpoints.save-and-merge}) — из {@code cqa.connections.CDI.<scope>}. Учётные данные оттуда
-     * не берутся: в МДМ уходит {@code Authorization} самого клиента (прозрачный прокси).
-     *
-     * <p>{@code @Lazy}: бин создаётся при первом запросе, а не при старте — без
-     * настроенного МДМ (нет .env) приложение и остальные ручки продолжают работать.
-     */
     @Bean
     @Lazy
     public MdmClient mdmClient(Environment env, JournalWriter journal) {

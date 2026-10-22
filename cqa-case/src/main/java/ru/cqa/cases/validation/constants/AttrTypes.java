@@ -1,8 +1,5 @@
 package ru.cqa.cases.validation.constants;
 
-/**
- * Типы атрибутов Физического Лица ({@code party.attribute[].type}) и значения их реквизитов.
- */
 public final class AttrTypes {
 
     public static final String DOCUMENT_PASSPORT   = "DOCUMENT_PASSPORT";

@@ -9,20 +9,10 @@ import ru.cqa.cases.validation.physical.PhysicalRule;
 import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 
-/**
- * Проверка входящего запроса saveAndMerge.
- *
- * <p>Два слоя, ошибки обоих собираются в один список:
- * <ol>
- *   <li>форма — аннотации DTO ({@code @NotBlank}, {@code @NotEmpty}...),
- *       по всему дереву объектов разом;</li>
- *   <li>правила — проверки, которые аннотацией не выразить,
- *       список {@link PhysicalRule} (см. {@link ru.cqa.cases.validation.physical.PhysicalRules}).</li>
- * </ol>
+/** Проверка входящего запроса saveAndMerge. Два слоя, ошибки обоих собираются в один список:
+ *   <li>форма — аннотации DTO ({@code @NotBlank}, {@code @NotEmpty}...), по всему дереву объектов разом;</li>
+ *   <li>правила — проверки, которые аннотацией не выразить, список {@link PhysicalRule}.</li>
  * Если список не пуст, бросается {@link SaveAndMergeValidationException}.
- *
- * <p>{@link Validator} — только интерфейс Bean Validation; движок передаёт
- * снаружи cqa-server, поэтому модуль остаётся без Spring.
  */
 public class SaveAndMergeValidator {
 
@@ -37,7 +27,6 @@ public class SaveAndMergeValidator {
     public void validate(SaveAndMergeDTO request) {
         List<String> errors = new ArrayList<>();
         checkForm(request, errors);
-        // без участника правилам проверять нечего; null и [] уже отмечены формой (@NotEmpty, @NotNull)
         List<PartyDTO> parties = request.party();
         if (parties != null && !parties.isEmpty() && parties.get(0) != null) {
             checkRules(parties.get(0), errors);
@@ -55,7 +44,6 @@ public class SaveAndMergeValidator {
                 .forEach(errors::add);
     }
 
-    /** Ошибки всех правил по порядку списка. */
     private void checkRules(PartyDTO party, List<String> errors) {
         rules.forEach(rule -> errors.addAll(rule.checkPhysical(party)));
     }

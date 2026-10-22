@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Контракт SOAP-сервиса приветствий.
-
-    Схема — источник истины: из неё Spring WS генерирует WSDL, по ней же
-    проверяются входящие сообщения. Java-классы SOAP-слоя повторяют эти
-    элементы один в один.
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:tns="http://cqa.ru/ws/greeting"

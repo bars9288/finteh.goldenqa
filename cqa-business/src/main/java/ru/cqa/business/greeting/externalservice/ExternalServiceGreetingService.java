@@ -1,15 +1,7 @@
 package ru.cqa.business.greeting.externalservice;
 
 import ru.cqa.business.greeting.GreetingService;
-import ru.cqa.business.greeting.operator.OperatorGreetingService;
 
-/**
- * Приветствие внешнему сервису.
- *
- * <p>Ровно тот же шаблон, что и {@link OperatorGreetingService}: чтобы добавить
- * третий вид адресата, достаточно создать такой же класс — правок в других
- * файлах не потребуется.
- */
 public class ExternalServiceGreetingService implements GreetingService<ExternalService> {
 
     private static final String TEMPLATE = "Привет из приложения \"Единый тестировщик\" сервису ";

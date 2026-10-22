@@ -1,8 +1,5 @@
 package ru.cqa.cases.validation.constants;
 
-/**
- * Имена реквизитов Физического Лица ({@code party.field[].name}).
- */
 public final class RequisNames {
 
     public static final String NAME                           = "name";

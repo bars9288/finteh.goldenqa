@@ -1,6 +1,7 @@
 package ru.cqa.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -8,6 +9,6 @@ import java.util.List;
 @Schema(description = "Состав ответа")
 public record IncludeDTO(
 
-        @Schema(description = "Блоки информации об участнике", example = "[\"МАМА\", \"МЫЛА\", \"РАМУ\", \"ОКНА\"]")
+        @Schema(description = "Блок информации о запрашиваемых к ответу сущностях", example = "[\"SOURCE\", \"REQUISITE\", \"ATTRIBUTE\", \"RELATION\"]")
         List<String> partyInfo) {
 }

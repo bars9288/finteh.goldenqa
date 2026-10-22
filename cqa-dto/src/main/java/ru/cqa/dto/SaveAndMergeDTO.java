@@ -2,46 +2,23 @@ package ru.cqa.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-/**
- * Тело POST-запроса saveAndMerge.
- *
- * <p>Пример:
- * <pre>{@code
- * {
- *   "party": [
- *     {
- *       "type": "ФИЗИЧЕСКОЕЛИЦО",
- *       "sourseSystem": "ВНЕШНЯЯ СИСТЕМА",
- *       "field": [
- *         {"name": "name", "value": "Иван"},
- *         {"name": "surname", "value": "Иванов"}
- *       ],
- *       "attribute": [
- *         {"type": "ДОКУМЕНТ", "rowId": "12456789", "field": [{"name": "pasportNumber", "value": "123456"}]}
- *       ]
- *     }
- *   ],
- *   "include": {"partyInfo": ["МАМА", "МЫЛА", "РАМУ", "ОКНА"]},
- *   "updateType": "FULL"
- * }
- * }</pre>
- */
-@Schema(description = "Запрос на сохранение и слияние участников")
+@Schema(description = "Запрос к MDM (CDI) на эндпинт '..cdi/../saveAndMerge' на сохранение(слияние) участника")
 public record SaveAndMergeDTO(
 
-        @Schema(description = "Участники", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotEmpty @Size(max = 1) List<@NotNull @Valid PartyDTO> party,
+        @Schema(description = "Участник запроса", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotEmpty(message = "Требуется 1 объект")
+        @Size(max = 1, message = "Требуется 1 объект")
+        List<@NotNull @Valid PartyDTO> party,
 
-        @Schema(description = "Какие блоки вернуть в ответе")
-        @Valid IncludeDTO include,
+        @Schema(description = "Запрашиваемых к ответу блоки данных участника", example = "[\"SOURCE\", \"REQUISITE\", \"ATTRIBUTE\", \"RELATION\"]")
+        @Valid
+        IncludeDTO include,
 
         @Schema(description = "Тип обновления", example = "FULL", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String updateType) {
+        @NotBlank(message = "Не должно быть пустым")
+        String updateType) {
 }

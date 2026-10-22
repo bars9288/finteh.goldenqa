@@ -1,14 +1,5 @@
 package ru.cqa.business.greeting.externalservice;
 
-/**
- * Внешний сервис, участвующий в сценарии (блок {@code servicesInfo}).
- *
- * <p>Второй тип адресата — нужен, чтобы шаблон был не теоретическим:
- * на нём видно, как реестр выбирает реализацию по типу.
- *
- * @param typeService имя сервиса, например {@code KAFKA-CLIENT}
- * @param scope       контур, например {@code DEV}
- */
 public record ExternalService(String typeService, String scope) {
 
     public ExternalService {
