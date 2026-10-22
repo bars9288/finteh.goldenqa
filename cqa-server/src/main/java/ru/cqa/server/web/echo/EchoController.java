@@ -15,22 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Эхо-ручки: что получили, то и вернули.
- *
- * <p>Доменной логики здесь нет и быть не должно — это чисто транспортный
- * инструмент для проверки связи, поэтому модуль cqa-business не задействован.
- */
+/** Эхо-ручки: что получили, то и вернули. */
 @Tag(name = "Эхо", description = "Возврат полученного запроса — проверка связи и разбора данных")
 @RestController
 @RequestMapping("/echo")
 public class EchoController {
 
     /**
-     * Чистое эхо: тело возвращается без изменений, с тем же Content-Type.
-     *
-     * <p>Параметры адресной строки сюда не попадают — они не часть тела.
-     * Чтобы увидеть их, есть {@link #details}.
+     * Чистое эхо: тело возвращается без изменений, с тем же Content-Type
+     * Параметры адресной строки сюда не попадают — они не часть тела. Для них есть {@link #details}.
      */
     @Operation(summary = "Вернуть тело запроса без изменений",
                description = "Content-Type ответа повторяет Content-Type запроса. Параметры адресной строки игнорируются: они не входят в тело.")
