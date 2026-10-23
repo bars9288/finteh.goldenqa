@@ -9,11 +9,14 @@ import java.util.List;
 
 import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.ATTR_TYPE;
 
+/**
+ * 4. Правило атрибута — ОБЩАЯ проверка: у каждого атрибута обязателен реквизит {@code type}
+ * (не null и не пустой).
+ *
+ * <p>ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY → ATTRIBUTE → FIELD.
+ * Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class AttributeTypeRule  implements Rule<PartyDTO> {
-
-    //   *** ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY -> ATTRUBUTE -> FIELD
-    // 4. Правило атрибута - ОБЩАЯ проверка: у каждого атрибута обязателен реквизит type (не null и не пустой)
-    //   Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {

@@ -8,10 +8,12 @@ import ru.cqa.dto.PartyDTO;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 18. Правило сохранения атрибутов — ОБЩАЯ проверка на ВСЕ атрибуты.
+ *
+ * <p>ЧАСТНАЯ проверка АТРИБУТОВ Физического лица.
+ */
 public class AttributeAllRule implements Rule<PartyDTO> {
-
-    //   *** ЧАСТНАЯ проверка АТРИБУТОВ Физического Лица
-    // 18. Правило сохранения атрибутов - ОБЩАЯ проверка на ВСЕ атрибуты
 
     @Override
     public List<String> check(PartyDTO party) {

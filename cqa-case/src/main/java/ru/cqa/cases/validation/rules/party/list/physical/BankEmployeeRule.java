@@ -8,10 +8,12 @@ import java.util.List;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.BANK_EMPLOYEE_FLAG;
 
+/**
+ * 17. Признак сотрудника банка — {@code TRUE}, {@code FALSE} или {@code UNKNOWN}; пустое допустимо.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class BankEmployeeRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //17. Признак сотрудника банка — TRUE, FALSE или UNKNOWN; пустое допустимо
 
     @Override
     public List<String> check(PartyDTO party) {

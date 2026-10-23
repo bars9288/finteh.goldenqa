@@ -8,11 +8,13 @@ import java.util.List;
 import static ru.cqa.cases.validation.constants.RequisitesNames.ACTUALITY_DATE;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.checkDateTimeZnMsk;
 
+/**
+ * 3. ОБЩАЯ проверка реквизитов: дата актуальности {@code actualityDate} обязательна,
+ * формат {@code ДД.ММ.ГГГГ ЧЧ:мм:СС МСК}. Пояс необязателен, но если указан — только московский.
+ *
+ * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class ActualitydateRule implements Rule<PartyDTO> {
-
-    //3. ОБЩАЯ проверка реквизитов: Дата актуальности — обязательна, формат ДД.ММ.ГГГГ ЧЧ:мм:СС МСК;
-    // пояс необязателен, но если указан — только московский
-    //   Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {

@@ -9,11 +9,13 @@ import java.util.Map;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.*;
 
+/**
+ * 7. Фамилия, Имя, Отчество передаётся только в {@code name}, {@code surname}, {@code patronymic}
+ * ИЛИ только в {@code fullNameRawSource}.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class FIOchekRule  implements Rule<PartyDTO> {
-
-
-// ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-//7. Фамилия, Имя, Отчество передаётся только в name, surname, patronymic ИЛИ только в fullNameRawSource
 
     @Override
     public List<String> check(PartyDTO party) {
@@ -24,7 +26,8 @@ public class FIOchekRule  implements Rule<PartyDTO> {
         boolean fioAny = fio.stream().anyMatch(n -> !isBlank(f.get(n)));
         boolean full = !isBlank(f.get(FULL_NAME_RAW_SOURCE));
 
-        // уточнить вопрос по обязательности отчества!!! - пока поле отчество обязательно и требуется заполнить его не пустым
+        // TODO уточнить вопрос по обязательности отчества!!!
+        //  пока поле отчество обязательно и требуется заполнить его не пустым
 
         if (full && fioAny) {
             return List.of("party[0].field: заполнено и ФИО, и " + FULL_NAME_RAW_SOURCE + " — допустимо что-то одно");

@@ -10,11 +10,14 @@ import java.util.List;
 import static ru.cqa.cases.validation.constants.RequisitesNames.ACTUALITY_DATE;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.checkDateTimeZnMsk;
 
+/**
+ * 6. Правило для атрибута(-ов) — ОБЩАЯ проверка: у каждого атрибута обязателен реквизит
+ * {@code actualityDate}, формат {@code ДД.ММ.ГГГГ ЧЧ:мм:СС МСК}.
+ * Пояс необязателен, но если указан — только московский.
+ *
+ * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class ActualitydateAttrRule implements Rule<PartyDTO> {
-
-    //6. Правило для атрибута(-ов) - ОБЩАЯ проверка: у каждого атрибута обязателен реквизит actualityDate,
-    //    формат ДД.ММ.ГГГГ ЧЧ:мм:СС МСК; пояс необязателен, но если указан — только московский
-    //   Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {

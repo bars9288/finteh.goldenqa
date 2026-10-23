@@ -9,11 +9,14 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.CREATED_DATE;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.checkDateTimeZnMsk;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.isDdMmYyyy;
 
+/**
+ * 2. ОБЩАЯ проверка реквизита: дата создания {@code createdDate} обязательна,
+ * формат {@code ДД.ММ.ГГГГ} или {@code ДД.ММ.ГГГГ ЧЧ:мм:СС МСК}.
+ * Пояс необязателен, но если указан — только московский.
+ *
+ * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class CreateddateRule implements Rule<PartyDTO> {
-
-    //2. ОБЩАЯ проверка реквизита: Дата создания — createdDate обязательна, формат ДД.ММ.ГГГГ или ДД.ММ.ГГГГ ЧЧ:мм:СС МСК;
-    // пояс необязателен, но если указан — только московский
-    //   Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {

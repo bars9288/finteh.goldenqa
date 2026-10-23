@@ -8,10 +8,12 @@ import java.util.List;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.VIP;
 
+/**
+ * 16. VIP — {@code TRUE}, {@code FALSE} или {@code UNKNOWN}; пустое допустимо.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class VipRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //16. VIP — TRUE, FALSE или UNKNOWN; пустое допустимо
 
     @Override
     public List<String> check(PartyDTO party) {

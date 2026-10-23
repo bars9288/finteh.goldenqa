@@ -11,10 +11,12 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.BIRTHDATE_RAW_SO
 import static ru.cqa.cases.validation.constants.RequisitesNames.DEATH_DATE;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.parseDdMmYyyy;
 
+/**
+ * 9. Дата смерти — только в {@code deathDate}, формат {@code ДД.ММ.ГГГГ}, позже даты рождения.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class DeathDateRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //9. Дата смерти — только в deathDate, формат ДД.ММ.ГГГГ, позже даты рождения
 
     @Override
     public List<String> check(PartyDTO party) {

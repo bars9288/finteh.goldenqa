@@ -10,10 +10,12 @@ import java.util.List;
 import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.ATTR_TYPE;
 import static ru.cqa.cases.validation.constants.AttributesTypes.ADDRESS;
 
+/**
+ * 20. Правило атрибута — адрес {@code ADDRESS}: реквизит {@code type} обязателен (не null и не пустой).
+ *
+ * <p>Вопрос по корректной логике: ИЛИ {@code rawSource}, ИЛИ набор полей из {@code ГАР / ФИАС / КЛАДР}.
+ */
 public class AttributeAddressRule implements Rule<PartyDTO> {
-
-    //20. Правило атрибута - адрес ADDRESS: реквизит type обязателен (не null и не пустой)
-    // вопрос по корретной логике ИЛИ ИЛИ rawSource и набора полей из ГАР ФИАС КЛАДР
 
     @Override
     public List<String> check(PartyDTO party) {

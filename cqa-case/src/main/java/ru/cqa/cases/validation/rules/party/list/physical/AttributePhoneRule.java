@@ -10,9 +10,11 @@ import java.util.List;
 import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.RAW_SOURCE;
 import static ru.cqa.cases.validation.constants.AttributesTypes.PHONE;
 
+/**
+ * 21. Правило атрибута — телефон {@code PHONE}: телефон передаётся строкой в реквизите
+ * {@code rawSource}, обязателен (не null и не пустой).
+ */
 public class AttributePhoneRule  implements Rule<PartyDTO> {
-
-    //21. Правило атрибута - телефон PHONE: телефон передаётся строкой в реквизите rawSource, обязателен (не null и не пустой)
 
     @Override
     public List<String> check(PartyDTO party) {

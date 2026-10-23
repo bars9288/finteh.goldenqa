@@ -10,9 +10,11 @@ import java.util.List;
 import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.RAW_SOURCE;
 import static ru.cqa.cases.validation.constants.AttributesTypes.EMAIL;
 
+/**
+ * 22. Правило атрибута — почта {@code EMAIL}: адрес передаётся строкой в реквизите
+ * {@code rawSource}, обязателен и содержит {@code @}.
+ */
 public class AttributeEmailRule implements Rule<PartyDTO> {
-
-//22. Правило атрибута - почта EMAIL: адрес передаётся строкой в реквизите rawSource, обязателен и содержит @
 
     @Override
     public List<String> check(PartyDTO party) {

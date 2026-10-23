@@ -9,10 +9,13 @@ import java.util.Locale;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.FOREIGN_MONETARY_RESIDENT_FLAG;
 
+/**
+ * 13. Признак валютного резидентства — {@code TRUE}, {@code FALSE} или {@code UNKNOWN},
+ * регистр не важен; пустое допустимо.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class ForMonetResidRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //13. Признак валютного резидентства — TRUE, FALSE или UNKNOWN, регистр не важен; пустое допустимо
 
     @Override
     public List<String> check(PartyDTO party) {

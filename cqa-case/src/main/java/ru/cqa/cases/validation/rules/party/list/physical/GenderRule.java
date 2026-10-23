@@ -11,10 +11,13 @@ import java.util.Map;
 import static ru.cqa.cases.validation.constants.RequisitesNames.GENDER;
 import static ru.cqa.cases.validation.constants.RequisitesNames.GENDER_RAW_SOURCE;
 
+/**
+ * 10. Пол — только в {@code genderRawSource}, значения {@code MALE} или {@code FEMALE};
+ * поле {@code gender} не заполняется.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class GenderRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //10. Пол — только в genderRawSource, значения MALE или FEMALE; поле gender не заполняется
 
     @Override
     public List<String> check(PartyDTO party) {

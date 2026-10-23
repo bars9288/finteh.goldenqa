@@ -9,11 +9,13 @@ import java.util.List;
 
 import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.PRIMARY;
 
+/**
+ * 5. Правило атрибута — ОБЩАЯ проверка: ни у одного атрибута не допускается заполненный
+ * реквизит {@code primary} (null или пусто — ок).
+ *
+ * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class PrimaryRule implements Rule<PartyDTO> {
-
-    //5. Правило атрибута - ОБЩАЯ проверка: ни у одного атрибута не допускается заполненный реквизит primary
-    // (null или пусто — ок)
-    // Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {

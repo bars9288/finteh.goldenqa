@@ -11,10 +11,12 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.BIRTHDATE;
 import static ru.cqa.cases.validation.constants.RequisitesNames.BIRTHDATE_RAW_SOURCE;
 import static ru.cqa.cases.validation.utils.DateFormatUtils.isDdMmYyyy;
 
+/**
+ * 8. Дата рождения в формате {@code ДД.ММ.ГГГГ} передаётся только в {@code birthdateRawSource}.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class BirthdayDateRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //8. Дата рождения в формате ДД.ММ.ГГГГ передаётся только в birthdateRawSource
 
     @Override
     public List<String> check(PartyDTO party) {

@@ -11,10 +11,13 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.SNILS;
 import static ru.cqa.cases.validation.constants.RequisitesNames.SNILS_RAW_SOURCE;
 import static ru.cqa.cases.validation.constants.RequisitesPatternRegex.SNILS_FORMAT;
 
+/**
+ * 15. СНИЛС — только в {@code snilsRawSource}, формат {@code 123-123-123 12};
+ * поле {@code snils} не заполняется.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class SnilsRule  implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //15. СНИЛС — только в snilsRawSource, формат 123-123-123 12; поле snils не заполняется
 
     @Override
     public List<String> check(PartyDTO party) {

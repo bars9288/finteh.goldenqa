@@ -12,11 +12,12 @@ import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.*;
 import static ru.cqa.cases.validation.constants.AttributesTypes.DOCUMENT_PASSPORT;
 import static ru.cqa.cases.validation.constants.AttributesTypes.PASSPORT;
 
+/**
+ * 19. Правило атрибута — документ {@code DOCUMENT_PASSPORT}: обязательно наличие реквизитов
+ * {@code type} = {@code PASSPORT}, поля уточнения типа документа {@code qualifierType},
+ * а также обязательных реквизитов. Реквизит {@code rawSource}, если передан, должен быть пустым.
+ */
 public class AttributeDocumentRule implements Rule<PartyDTO> {
-
-    //19. Правило атрибута - документ DOCUMENT_PASSPORT обязательно наличие реквизитов type=PASSPORT поля уточнения тип
-    // а документа qualifierType а так же обязательных реквизитов;
-    //    реквизит rawSource, если передан, должен быть пустым
 
     @Override
     public List<String> check(PartyDTO party) {

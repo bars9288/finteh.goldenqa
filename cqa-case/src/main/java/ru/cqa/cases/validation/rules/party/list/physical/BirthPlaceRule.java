@@ -8,10 +8,13 @@ import java.util.Map;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.BIRTH_PLACE;
 
+/**
+ * 11. Место рождения — только из {@code birthPlace}, обязательно;
+ * {@code birthPlaceCountry}, {@code birthPlaceRegion} и т.п. его не заменяют.
+ *
+ * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
+ */
 public class BirthPlaceRule implements Rule<PartyDTO> {
-
-    // ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица
-    //11. Место рождения — только из birthPlace, обязательно; birthPlaceCountry, birthPlaceRegion и т.п. его не заменяют
 
     @Override
     public List<String> check(PartyDTO party) {

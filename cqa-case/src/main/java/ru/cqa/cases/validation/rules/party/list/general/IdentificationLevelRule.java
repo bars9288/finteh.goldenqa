@@ -7,11 +7,13 @@ import java.util.List;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.IDENTIFICATION_LEVEL;
 
+/**
+ * 1. ОБЩАЯ проверка: поле уровень идентификации ({@code identificationLevel}) обязательно.
+ *
+ * <p>ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY.
+ * Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
+ */
 public class IdentificationLevelRule implements Rule<PartyDTO> {
-
-//   *** ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY
-//1. ОБЩАЯ проверка: Поле уровень идентификации обязателен
-//   Применяется для всех типов Party (Физическое лицо / Юридическое лицо)
 
     @Override
     public List<String> check(PartyDTO party) {
