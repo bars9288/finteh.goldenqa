@@ -17,10 +17,6 @@ public final class DateFormatUtils {
     private DateFormatUtils() {
     }
 
-    /**
-     * Дата со временем и необязательным поясом: {@code ДД.ММ.ГГГГ ЧЧ:мм:СС [пояс]}, части через один пробел.
-     * Пояс, если указан, — только московский ({@link #MOSCOW_ZONES}).
-     */
     public static List<String> checkDateTimeZnMsk(String[] parts, String fieldPath, String formatError) {
         String path = fieldPath + ": ";
         if ((parts.length != 2 && parts.length != 3) || !isDdMmYyyyHhMmSs(parts[0] + " " + parts[1])) {
@@ -32,13 +28,16 @@ public final class DateFormatUtils {
         return List.of();
     }
 
-    /** Дата из строки ДД.ММ.ГГГГ; {@code null}, если формат не тот или такой даты нет. */
     public static LocalDate parseDdMmYyyy(String value) {
         try {
             return LocalDate.parse(value, DD_MM_YYYY_STRICT);
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+
+    public static boolean isDdMmYyyyHhMmSs(String value) {
+        return parsesAs(value, DD_MM_YYYY_HH_MM_SS_STRICT);
     }
 
     public static boolean parsesAs(String value, DateTimeFormatter formatter) {
@@ -48,10 +47,6 @@ public final class DateFormatUtils {
         } catch (DateTimeParseException e) {
             return false;
         }
-    }
-
-    public static boolean isDdMmYyyyHhMmSs(String value) {
-        return parsesAs(value, DD_MM_YYYY_HH_MM_SS_STRICT);
     }
 
     public static boolean isBlank(String value) {

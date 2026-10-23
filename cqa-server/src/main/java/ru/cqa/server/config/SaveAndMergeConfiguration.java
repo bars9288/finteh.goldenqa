@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import ru.cqa.cases.validation.physical.PhysicalRules;
 import ru.cqa.cases.validation.SaveAndMergeValidator;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
@@ -20,7 +19,7 @@ public class SaveAndMergeConfiguration {
 
     @Bean
     public SaveAndMergeValidator saveAndMergeValidator(Validator validator) {
-        return new SaveAndMergeValidator(validator, PhysicalRules.TO_SAVE_PHYSICAL);
+        return new SaveAndMergeValidator(validator, PhysicalRules1.TO_SAVE_PHYSICAL);
     }
 
     @Bean

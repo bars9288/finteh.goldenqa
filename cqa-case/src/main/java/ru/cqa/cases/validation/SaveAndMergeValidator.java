@@ -5,7 +5,6 @@ import java.util.List;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import ru.cqa.cases.validation.physical.PhysicalRule;
 import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 
