@@ -13,7 +13,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.IDENTIFICATION_L
  * <p>ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY.
  * Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
  */
-public class IdentificationLevelRule implements Rule<PartyDTO> {
+public final class IdentificationLevelRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

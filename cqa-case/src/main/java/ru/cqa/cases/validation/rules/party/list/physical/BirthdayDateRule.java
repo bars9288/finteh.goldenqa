@@ -16,7 +16,7 @@ import static ru.cqa.cases.validation.utils.DateFormatUtils.isDdMmYyyy;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class BirthdayDateRule implements Rule<PartyDTO> {
+public final class BirthdayDateRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

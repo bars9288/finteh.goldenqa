@@ -1,4 +1,4 @@
-package ru.cqa.cases.validation.rules.party.list.physical;
+package ru.cqa.cases.validation.rules.party.list.general;
 
 import ru.cqa.cases.validation.rules.Rule;
 import ru.cqa.dto.AttributeDTO;
@@ -14,7 +14,7 @@ import static ru.cqa.cases.validation.constants.AttributesTypes.EMAIL;
  * 22. Правило атрибута — почта {@code EMAIL}: адрес передаётся строкой в реквизите
  * {@code rawSource}, обязателен и содержит {@code @}.
  */
-public class AttributeEmailRule implements Rule<PartyDTO> {
+public final class AttributeEmailRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

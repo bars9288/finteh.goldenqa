@@ -17,7 +17,7 @@ import static ru.cqa.cases.validation.utils.DateFormatUtils.checkDateTimeZnMsk;
  *
  * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
  */
-public class ActualitydateAttrRule implements Rule<PartyDTO> {
+public final class ActualitydateAttrRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

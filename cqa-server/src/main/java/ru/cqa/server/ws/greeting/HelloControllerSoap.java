@@ -7,9 +7,10 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import ru.cqa.business.greeting.GreetingRegistry;
 import ru.cqa.business.greeting.operator.Operator;
 import ru.cqa.dto.soap.OperatorSoapDTO;
+import ru.cqa.server.web.greeting.GreetingOperatorController;
 
 /**
- * SOAP-аналог {@link ru.cqa.server.web.greeting.HelloController}.
+ * SOAP-аналог {@link GreetingOperatorController}.
  *
  * <p>Java-логика не менялась вообще: тот же {@link GreetingRegistry}, та же
  * доменная модель {@link Operator}. Отличается только транспорт — вместо

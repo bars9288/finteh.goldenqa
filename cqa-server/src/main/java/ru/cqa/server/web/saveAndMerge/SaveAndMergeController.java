@@ -1,62 +1,52 @@
 package ru.cqa.server.web.saveAndMerge;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
-import ru.cqa.cases.validation.SaveAndMergeValidationException;
-import ru.cqa.cases.validation.SaveAndMergeValidator;
+import ru.cqa.cases.validation.constants.PartyType;
+import ru.cqa.cases.validation.exceptions.SaveAndMergeValidationException;
+import ru.cqa.cases.validation.validators.SaveAndMergeValidator;
+import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
-import ru.cqa.server.web.ApiPaths;
+import ru.cqa.cases.validation.constants.ApiPaths;
 import ru.cqa.server.web.journal.JournalFilter;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Приём запроса saveAndMerge: проверка и, если ошибок нет, пересылка в МДМ как прозрачный прокси.
- *
- * <p>Тело принимается сырыми байтами: в МДМ уходит ровно то, что прислал клиент,
- * а не JSON, заново собранный из DTO (поля вне DTO, порядок и формат чисел
- * сохраняются), вместе с заголовками клиента — см. {@link MdmClient}.
- * Для проверки те же байты разбираются в {@link SaveAndMergeDTO}.
- *
- * <p>{@code @Valid} на теле намеренно не стоит: всю проверку — форму и правила —
- * делает {@link SaveAndMergeValidator} и возвращает все ошибки одним списком.
- *
- * <p>Сам запрос и ответ пишет в журнал {@link JournalFilter}; контроллер дописывает
- * к той же записи итог проверки и ошибки конфигурации — по id из атрибута запроса.
+ * Приём запроса saveAndMerge по REST: проверка и, если ошибок нет, пересылка в МДМ как прозрачный прокси.
  */
 @Tag(name = "saveAndMerge", description = "Сохранение и слияние участников")
 @RestController
 @RequestMapping(path = ApiPaths.SAVE_AND_MERGE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SaveAndMergeController {
 
-    private final SaveAndMergeValidator validator;
+    private final Map<PartyType, SaveAndMergeValidator> validators;
     private final MdmClient mdmClient;
     private final JsonMapper jsonMapper;
     private final JournalWriter journal;
 
-    /** {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. SaveAndMergeConfiguration. */
-    public SaveAndMergeController(SaveAndMergeValidator validator, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
+    /**
+     * {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. SaveAndMergeConfiguration.
+     */
+    public SaveAndMergeController(Map<PartyType, SaveAndMergeValidator> validators, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
                                   JournalWriter journal) {
-        this.validator = validator;
+        this.validators = validators;
         this.mdmClient = mdmClient;
         this.jsonMapper = jsonMapper;
         this.journal = journal;
@@ -73,7 +63,7 @@ public class SaveAndMergeController {
             @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
         SaveAndMergeDTO body = jsonMapper.readValue(raw, SaveAndMergeDTO.class);
         try {
-            validator.validate(body);
+            validatorFor(body).validate(body);
         } catch (SaveAndMergeValidationException e) {
             journal.validated(journalId, e.getErrors());
             throw e;
@@ -82,34 +72,12 @@ public class SaveAndMergeController {
         return mdmClient.saveAndMerge(journalId, headers, raw);
     }
 
-    /** Действует только на этот контроллер, общий ApiExceptionHandler не трогает. */
-    @ExceptionHandler(SaveAndMergeValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public SaveAndMergeResponse onInvalid(SaveAndMergeValidationException exception) {
-        return SaveAndMergeResponse.failed(exception.getErrors());
-    }
-
-    /**
-     * Клиент МДМ не собрался: не заданы адрес или учётные данные контура (нет .env).
-     * Это наша конфигурация, а не ошибка клиента — поэтому 500, а не 400 из ApiExceptionHandler.
-     */
-    @ExceptionHandler(BeanCreationException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public SaveAndMergeResponse onMdmNotConfigured(
-            BeanCreationException exception,
-            @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
-        String error = "МДМ не настроена: " + exception.getMostSpecificCause().getMessage();
-        journal.internalError(journalId, error);
-        return SaveAndMergeResponse.failed(List.of(error));
-    }
-
-    /**
-     * МДМ не ответила: нет соединения, таймаут.
-     * В журнал ошибку уже записал MdmClient (journal_call.call_error).
-     */
-    @ExceptionHandler(RestClientException.class)
-    @ResponseStatus(HttpStatus.BAD_GATEWAY)
-    public SaveAndMergeResponse onMdmUnavailable(RestClientException exception) {
-        return SaveAndMergeResponse.failed(List.of("МДМ недоступна: " + exception.getMessage()));
+    private SaveAndMergeValidator validatorFor(SaveAndMergeDTO body) {
+        List<PartyDTO> parties = body.party();
+        String type = parties == null || parties.isEmpty() || parties.get(0) == null ? null : parties.get(0).type();
+        return PartyType.of(type)
+                .map(validators::get)
+                .orElseThrow(() -> new SaveAndMergeValidationException(
+                        List.of("party[0].type: ожидается одно из " + Arrays.toString(PartyType.values()))));
     }
 }

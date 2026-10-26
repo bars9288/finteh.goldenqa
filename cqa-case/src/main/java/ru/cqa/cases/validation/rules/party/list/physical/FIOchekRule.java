@@ -15,7 +15,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.*;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class FIOchekRule  implements Rule<PartyDTO> {
+public final class FIOchekRule  implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

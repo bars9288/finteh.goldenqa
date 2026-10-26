@@ -5,7 +5,6 @@ import ru.cqa.cases.validation.rules.Rule;
 import ru.cqa.dto.PartyDTO;
 
 import java.util.List;
-import java.util.Locale;
 
 import static ru.cqa.cases.validation.constants.RequisitesNames.FOREIGN_MONETARY_RESIDENT_FLAG;
 
@@ -15,7 +14,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.FOREIGN_MONETARY
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class ForMonetResidRule implements Rule<PartyDTO> {
+public final class ForMonetResidRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

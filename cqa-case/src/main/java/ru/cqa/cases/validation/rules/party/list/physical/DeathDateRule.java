@@ -16,7 +16,7 @@ import static ru.cqa.cases.validation.utils.DateFormatUtils.parseDdMmYyyy;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class DeathDateRule implements Rule<PartyDTO> {
+public final class DeathDateRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

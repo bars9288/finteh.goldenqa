@@ -1,4 +1,4 @@
-package ru.cqa.cases.validation.rules.party.list.physical;
+package ru.cqa.cases.validation.rules.party.list.general;
 
 import ru.cqa.cases.validation.rules.Rule;
 import ru.cqa.dto.AttributeDTO;
@@ -14,7 +14,7 @@ import static ru.cqa.cases.validation.constants.AttributesTypes.PHONE;
  * 21. Правило атрибута — телефон {@code PHONE}: телефон передаётся строкой в реквизите
  * {@code rawSource}, обязателен (не null и не пустой).
  */
-public class AttributePhoneRule  implements Rule<PartyDTO> {
+public final class AttributePhoneRule  implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

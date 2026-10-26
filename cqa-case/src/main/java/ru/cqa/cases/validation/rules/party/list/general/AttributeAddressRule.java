@@ -1,4 +1,4 @@
-package ru.cqa.cases.validation.rules.party.list.physical;
+package ru.cqa.cases.validation.rules.party.list.general;
 
 import ru.cqa.cases.validation.rules.Rule;
 import ru.cqa.dto.AttributeDTO;
@@ -15,7 +15,7 @@ import static ru.cqa.cases.validation.constants.AttributesTypes.ADDRESS;
  *
  * <p>Вопрос по корректной логике: ИЛИ {@code rawSource}, ИЛИ набор полей из {@code ГАР / ФИАС / КЛАДР}.
  */
-public class AttributeAddressRule implements Rule<PartyDTO> {
+public final class AttributeAddressRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

@@ -13,7 +13,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.INN_RAW_SOURCE;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class InnRule  implements Rule<PartyDTO> {
+public final class InnRule  implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

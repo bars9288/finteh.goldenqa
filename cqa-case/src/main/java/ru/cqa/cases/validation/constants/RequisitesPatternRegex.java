@@ -1,6 +1,5 @@
 package ru.cqa.cases.validation.constants;
 
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class RequisitesPatternRegex {
@@ -14,6 +13,9 @@ public final class RequisitesPatternRegex {
 
     /* Даты */
     public static final Pattern DD_MM_YYYY         = Pattern.compile("\\d{2}\\.\\d{2}\\.\\d{4}");
+
+    /* ФИО: первая буква заглавная, остальные строчные, только русские */
+    public static final Pattern RU_CAPITALIZED     = Pattern.compile("[А-ЯЁ][а-яё]*");
 
     private RequisitesPatternRegex() {
     }

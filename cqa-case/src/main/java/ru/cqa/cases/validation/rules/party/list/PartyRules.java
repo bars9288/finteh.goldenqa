@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class PartyRules {
 
-    public ArrayList<Rule<PartyDTO>> generalValues() {
+    public final ArrayList<Rule<PartyDTO>> generalValues() {
         ArrayList<Rule<PartyDTO>> rules = new ArrayList<>();
         rules.addAll(
                 List.of(
@@ -23,5 +23,5 @@ public abstract class PartyRules {
         return  rules;
     }
 
-    abstract public List<Rule<PartyDTO>> values();
+    abstract public List<Rule<PartyDTO>> ruleValues();
 }

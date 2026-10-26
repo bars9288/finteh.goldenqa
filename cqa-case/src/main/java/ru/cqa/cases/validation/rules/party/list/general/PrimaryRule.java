@@ -15,7 +15,7 @@ import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.PRIMAR
  *
  * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
  */
-public class PrimaryRule implements Rule<PartyDTO> {
+public final class PrimaryRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

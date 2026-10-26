@@ -13,13 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.core.JacksonException;
 
-/**
- * Единая точка превращения ошибок в HTTP-ответ.
- *
- * <p>Домен сообщает о некорректных данных через {@link IllegalArgumentException};
- * здесь это становится ответом 400, а не 500. Контроллеры при этом остаются
- * чистыми — без try/catch.
- */
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -28,19 +22,11 @@ public class ApiExceptionHandler {
         return badRequest(exception.getMessage());
     }
 
-    /**
-     * Параметр запроса вообще не передан. Без этого обработчика Spring вернул бы
-     * ответ другого формата — клиенту пришлось бы разбирать две разные схемы ошибки.
-     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ProblemDetail onMissingParameter(MissingServletRequestParameterException exception) {
         return badRequest("Параметр '" + exception.getParameterName() + "' обязателен");
     }
 
-    /**
-     * Тело запроса не прошло Bean Validation ({@code @Valid}). Ошибки собраны
-     * по всем полям сразу, чтобы клиент исправил запрос за один заход.
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail onInvalidBody(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new TreeMap<>();
@@ -52,16 +38,11 @@ public class ApiExceptionHandler {
         return problem;
     }
 
-    /** Тела нет вовсе или это не JSON — до валидации дело не дошло. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ProblemDetail onUnreadableBody(HttpMessageNotReadableException exception) {
         return badRequest("Тело запроса отсутствует или не является корректным JSON");
     }
 
-    /**
-     * Тело прочитано сырыми байтами и разобрано в DTO вручную (saveAndMerge) — но это не JSON
-     * или JSON не той формы. Ответ тот же, что у {@link #onUnreadableBody}.
-     */
     @ExceptionHandler(JacksonException.class)
     public ProblemDetail onUnparsableBody(JacksonException exception) {
         return badRequest("Тело запроса отсутствует или не является корректным JSON");

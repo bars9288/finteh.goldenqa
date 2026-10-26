@@ -13,7 +13,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.VIP;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class VipRule implements Rule<PartyDTO> {
+public final class VipRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

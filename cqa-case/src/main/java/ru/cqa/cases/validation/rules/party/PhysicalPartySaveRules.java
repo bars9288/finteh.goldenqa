@@ -2,19 +2,23 @@ package ru.cqa.cases.validation.rules.party;
 
 import ru.cqa.cases.validation.rules.Rule;
 import ru.cqa.cases.validation.rules.party.list.PartyRules;
+import ru.cqa.cases.validation.rules.party.list.general.AttributeAddressRule;
+import ru.cqa.cases.validation.rules.party.list.general.AttributeEmailRule;
+import ru.cqa.cases.validation.rules.party.list.general.AttributePhoneRule;
 import ru.cqa.cases.validation.rules.party.list.physical.*;
 import ru.cqa.dto.PartyDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 public final class PhysicalPartySaveRules extends PartyRules {
 
-    public List<Rule<PartyDTO>> values() {
+    public List<Rule<PartyDTO>> ruleValues() {
         ArrayList<Rule<PartyDTO>> rules = new ArrayList<>(super.generalValues());
         rules.addAll(
                 List.of(
-                        new AttributeAllRule(),
+                        new AttributePhysicFIlterRule(),
                         new FIOchekRule(),
                         new BirthdayDateRule(),
                         new DeathDateRule(),

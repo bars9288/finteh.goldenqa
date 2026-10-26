@@ -2,24 +2,36 @@ package ru.cqa.server.config;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.Map;
 
-import jakarta.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import ru.cqa.cases.validation.SaveAndMergeValidator;
+import ru.cqa.cases.validation.constants.PartyType;
+import ru.cqa.cases.validation.rules.party.LegalPartySaveRules;
+import ru.cqa.cases.validation.rules.party.PhysicalPartySaveRules;
+import ru.cqa.cases.validation.validators.SaveAndMergeValidator;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
+
+import static ru.cqa.cases.validation.constants.PartyType.*;
 
 @Configuration
 public class SaveAndMergeConfiguration {
 
+    Logger logger = LoggerFactory.getLogger(SaveAndMergeConfiguration.class);
+
     @Bean
-    public SaveAndMergeValidator saveAndMergeValidator(Validator validator) {
-        return new SaveAndMergeValidator(validator, PhysicalRules1.TO_SAVE_PHYSICAL);
+    public Map<PartyType, SaveAndMergeValidator> saveAndMergeValidators(jakarta.validation.Validator validator) {
+        logger.info("Инициализация правил и валидации ../saveAndMerge");
+        return Map.of(
+                PHYSICAL, new SaveAndMergeValidator(validator, new PhysicalPartySaveRules().ruleValues()),
+                LEGAL, new SaveAndMergeValidator(validator, new LegalPartySaveRules().ruleValues()));
     }
 
     @Bean
@@ -43,6 +55,8 @@ public class SaveAndMergeConfiguration {
                 .baseUrl(baseUrl)
                 .requestFactory(requestFactory)
                 .build();
+
+        logger.info("Инициализация клиента ПРОКСИ на MDM успешно завершена");
 
         return new MdmClient(restClient, baseUrl, env.getRequiredProperty(connection + "endpoints.save-and-merge"), journal);
     }

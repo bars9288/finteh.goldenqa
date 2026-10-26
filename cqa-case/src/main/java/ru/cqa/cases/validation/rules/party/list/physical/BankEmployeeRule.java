@@ -13,7 +13,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.BANK_EMPLOYEE_FL
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class BankEmployeeRule implements Rule<PartyDTO> {
+public final class BankEmployeeRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

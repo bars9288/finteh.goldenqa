@@ -7,22 +7,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import ru.cqa.business.greeting.externalservice.ExternalServiceGreetingService;
 import ru.cqa.business.greeting.GreetingRegistry;
 import ru.cqa.business.greeting.GreetingService;
 import ru.cqa.business.greeting.operator.OperatorGreetingService;
+import ru.cqa.cases.validation.rules.greeting.GreetingRules;
+import ru.cqa.cases.validation.validators.GreetingValidator;
 
 @Configuration
 public class GreetingConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(GreetingConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(GreetingConfiguration.class);
 
-    @Bean
+    @Bean @Order(1)
     public GreetingService<?> operatorGreetingService() {
         return new OperatorGreetingService();
     }
 
-    @Bean
+    @Bean @Order(2)
     public GreetingService<?> externalServiceGreetingService() {
         return new ExternalServiceGreetingService();
     }
@@ -32,7 +35,13 @@ public class GreetingConfiguration {
         GreetingRegistry registry = new GreetingRegistry(services);
         StringJoiner types = new StringJoiner(", ");
         registry.supportedTypes().forEach(type -> types.add(type.getSimpleName()));
-        log.info("Реестр приветствий собран, обслуживаемые типы: {}", types);
+        logger.info("Реестр приветствий собран, обслуживаемые типы: {}", types);
         return registry;
+    }
+
+    @Bean
+    public GreetingValidator greetingValidator(jakarta.validation.Validator validator) {
+        logger.info("Инициализация правил и валидации ../hello");
+        return new GreetingValidator(validator, new GreetingRules().ruleValues());
     }
 }

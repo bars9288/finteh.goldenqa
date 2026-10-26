@@ -1,4 +1,4 @@
-package ru.cqa.cases.validation.rules.party.list.physical;
+package ru.cqa.cases.validation.rules.party.list.legal;
 
 import ru.cqa.cases.validation.constants.AttributesTypes;
 import ru.cqa.cases.validation.rules.Rule;
@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 18. Правило сохранения атрибутов — ОБЩАЯ проверка на ВСЕ атрибуты.
+ * 31. Правило сохранения атрибутов — ОБЩАЯ проверка на ВСЕ атрибуты.
  *
- * <p>ЧАСТНАЯ проверка АТРИБУТОВ Физического лица.
+ * <p>ЧАСТНАЯ проверка АТРИБУТОВ Юридического лица.
  */
-public class AttributeAllRule implements Rule<PartyDTO> {
+public final class AttributeLegalFIlterRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
@@ -23,16 +23,16 @@ public class AttributeAllRule implements Rule<PartyDTO> {
         }
         boolean typesNull = attrs.stream().anyMatch(a -> a == null || isBlank(a.type()));
         String typesErr = attrs.stream()
-                .filter(a -> a != null && !isBlank(a.type()) && !AttributesTypes.physicalValues.contains(a.type()))
+                .filter(a -> a != null && !isBlank(a.type()) && !AttributesTypes.legalValues.contains(a.type()))
                 .map(AttributeDTO::type)
                 .collect(Collectors.joining(", "));
         if (typesErr.isEmpty() && !typesNull) {
             return List.of();
         }
         if (typesErr.isEmpty()) {
-            return List.of("party[0].attribute[i]. Недопустимы пустые и null значения типа Атрибута ФЛ");
+            return List.of("party[0].attribute[i]. Недопустимы пустые и null значения типа Атрибута ЮЛ");
         }
-        return List.of("party[0].attribute[i]. Недопустимые типы для Атрибута ФЛ: " + typesErr
+        return List.of("party[0].attribute[i]. Недопустимые типы для Атрибута ЮЛ: " + typesErr
                 + (typesNull ? ", а так же недопустимы пустые и null значения" : ""));
     }
 }

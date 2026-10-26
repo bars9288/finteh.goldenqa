@@ -14,7 +14,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.BIRTH_PLACE;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class BirthPlaceRule implements Rule<PartyDTO> {
+public final class BirthPlaceRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

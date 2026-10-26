@@ -1,9 +1,8 @@
 package ru.cqa.cases.validation.constants;
 
-import java.util.Set;
-
 public final class RequisitesNames {
 
+    /* ФЛ */
     public static final String NAME                           = "name";
     public static final String SURNAME                        = "surname";
     public static final String PATRONYMIC                     = "patronymic";
@@ -26,9 +25,12 @@ public final class RequisitesNames {
     public static final String CREATED_DATE                   = "createdDate";
     public static final String ACTUALITY_DATE                 = "actualityDate";
 
-    public static final Set<String> values = Set.of(NAME, SURNAME, PATRONYMIC, FULL_NAME_RAW_SOURCE, BIRTHDATE,
-            BIRTHDATE_RAW_SOURCE, DEATH_DATE, GENDER, GENDER_RAW_SOURCE, BIRTH_PLACE, CITIZENSHIP, FOREIGN_MONETARY_RESIDENT_FLAG,
-            INN, INN_RAW_SOURCE, SNILS, SNILS_RAW_SOURCE, IDENTIFICATION_LEVEL, VIP, BANK_EMPLOYEE_FLAG, CREATED_DATE, ACTUALITY_DATE);
+    /* ЮЛ */
+    public static final String OPF_RAW_SOURCE                 = "opfRawSource";
+    public static final String SHORT_NAME                     = "shortName";
+    public static final String FOREIGN_NAME                   = "foreignName";
+    public static final String NAME_RAW_SOURCE                = "nameRawSource";
+    public static final String SHORT_NAME_RAW_SOURCE          = "shortNameRawSource";
 
     private RequisitesNames() {
     }

@@ -16,7 +16,7 @@ import static ru.cqa.cases.validation.constants.AttributesRequisitesNames.ATTR_T
  * <p>ПРОВЕРКА ОБЯЗАТЕЛЬНЫХ КЛЮЧЕЙ ДЛЯ PARTY → ATTRIBUTE → FIELD.
  * Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
  */
-public class AttributeTypeRule  implements Rule<PartyDTO> {
+public final class AttributeTypeRule  implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

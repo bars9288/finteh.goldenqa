@@ -6,9 +6,10 @@ import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import ru.cqa.business.greeting.GreetingRegistry;
 import ru.cqa.dto.soap.ExternalServiceSoapDTO;
+import ru.cqa.server.web.greeting.GreetingServiceController;
 
 /**
- * SOAP-аналог {@link ru.cqa.server.web.greeting.ServiceHelloController}.
+ * SOAP-аналог {@link GreetingServiceController}.
  *
  * <p>Тот же шаблон: реестр выбирает реализацию по типу адресата, транспорт на
  * это никак не влияет.

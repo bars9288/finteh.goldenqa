@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/echo")
 public class EchoController {
 
-    /**
-     * Чистое эхо: тело возвращается без изменений, с тем же Content-Type
-     * Параметры адресной строки сюда не попадают — они не часть тела. Для них есть {@link #details}.
-     */
+
     @Operation(summary = "Вернуть тело запроса без изменений",
                description = "Content-Type ответа повторяет Content-Type запроса. Параметры адресной строки игнорируются: они не входят в тело.")
     @PostMapping

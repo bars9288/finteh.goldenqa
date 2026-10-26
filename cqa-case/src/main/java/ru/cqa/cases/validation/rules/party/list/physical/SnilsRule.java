@@ -17,7 +17,7 @@ import static ru.cqa.cases.validation.constants.RequisitesPatternRegex.SNILS_FOR
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class SnilsRule  implements Rule<PartyDTO> {
+public final class SnilsRule  implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

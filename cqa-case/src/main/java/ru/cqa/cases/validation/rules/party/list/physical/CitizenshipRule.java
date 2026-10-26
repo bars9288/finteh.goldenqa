@@ -14,7 +14,7 @@ import static ru.cqa.cases.validation.constants.RequisitesPatternRegex.UNKNOWN;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class CitizenshipRule implements Rule<PartyDTO> {
+public final class CitizenshipRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

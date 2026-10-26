@@ -17,7 +17,7 @@ import static ru.cqa.cases.validation.constants.RequisitesNames.GENDER_RAW_SOURC
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public class GenderRule implements Rule<PartyDTO> {
+public final class GenderRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {

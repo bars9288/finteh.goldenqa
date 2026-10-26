@@ -17,7 +17,7 @@ import static ru.cqa.cases.validation.constants.AttributesTypes.PASSPORT;
  * {@code type} = {@code PASSPORT}, поля уточнения типа документа {@code qualifierType},
  * а также обязательных реквизитов. Реквизит {@code rawSource}, если передан, должен быть пустым.
  */
-public class AttributeDocumentRule implements Rule<PartyDTO> {
+public final class AttributeDocumentRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
