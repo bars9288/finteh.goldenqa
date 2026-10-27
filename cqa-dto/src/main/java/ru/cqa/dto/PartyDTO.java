@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 @Schema(description = "Участник")
 public record PartyDTO(
@@ -21,7 +20,7 @@ public record PartyDTO(
         String sourceSystem,
 
         @Schema(description = "Реквизиты участника")
-        @NotEmpty(message = "Не должна быь коллекция пустой")
+        @NotEmpty(message = "Не должна быть коллекция пустой")
         List<@NotNull @Valid FieldDTO> field,
 
         @Schema(description = "Уникальный идентификатор строки", example = "123456789abcdef", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -30,9 +29,4 @@ public record PartyDTO(
 
         @Schema(description = "Атрибуты участника")
         List<@Valid AttributeDTO> attribute) {
-
-
-    public Map<String, String> fieldMap() {
-        return FieldDTO.toMap(field);
-    }
 }

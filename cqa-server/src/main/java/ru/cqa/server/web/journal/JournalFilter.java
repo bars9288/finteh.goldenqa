@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -51,25 +52,26 @@ public class JournalFilter extends OncePerRequestFilter {
      */
     public static final String REQUEST_ID = "ru.cqa.server.web.journal.JournalFilter.requestId";
 
-    /**
-     * Служебные адреса — не REST-ручки, в журнал не пишутся: документация API,
-     * её статика, SOAP (свой сервлет на /services) и страница ошибки.
-     */
-    private static final List<String> NOT_JOURNALED = List.of(
-            "/swagger-ui", "/v3/api-docs", "/scalar", "/webjars", "/services/", "/favicon.ico", "/error");
-
     private static final Logger log = LoggerFactory.getLogger(JournalFilter.class);
 
     private final JournalWriter journal;
 
-    public JournalFilter(JournalWriter journal) {
+    /**
+     * Служебные адреса — не REST-ручки, в журнал не пишутся: документация API,
+     * её статика, SOAP (свой сервлет на spring.webservices.path) и страница ошибки.
+     */
+    private final List<String> notJournaled;
+
+    public JournalFilter(JournalWriter journal, @Value("${spring.webservices.path}") String soapPath) {
         this.journal = journal;
+        this.notJournaled = List.of(
+                "/swagger-ui", "/v3/api-docs", "/scalar", "/webjars", soapPath + "/", "/favicon.ico", "/error");
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        return NOT_JOURNALED.stream().anyMatch(path::startsWith);
+        return notJournaled.stream().anyMatch(path::startsWith);
     }
 
     @Override

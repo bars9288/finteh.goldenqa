@@ -6,19 +6,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.cqa.cases.validation.exceptions.GreetingValidationException;
-import ru.cqa.server.web.saveAndMerge.SaveAndMergeResponse;
+import ru.cqa.businesslogic.exceptions.GreetingValidationException;
+import ru.cqa.server.web.ErrorResponse;
 
 @RestControllerAdvice(assignableTypes = {GreetingOperatorController.class, GreetingServiceController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GreetingExceptionHandler {
 
-    /**
-     * Действует только на этот контроллер, общий ApiExceptionHandler не трогает.
-     */
+    /** Ошибки проверки оператора — 400 со списком ошибок. */
     @ExceptionHandler(GreetingValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public SaveAndMergeResponse onInvalid(GreetingValidationException exception) {
-        return SaveAndMergeResponse.failed(exception.getErrors());
+    public ErrorResponse onInvalid(GreetingValidationException exception) {
+        return ErrorResponse.failed(exception.getErrors());
     }
 }

@@ -4,8 +4,9 @@
     Здесь только API аннотаций (Jackson, Bean Validation, OpenAPI, JAXB) —
     без парсеров, валидаторов и Spring. Реализации подключает cqa-server.
 
-    Направление зависимостей: cqa-server → cqa-dto → cqa-business.
-    DTO умеет собрать доменный объект, домен про DTO не знает.
+    Направление зависимостей: cqa-server → cqa-businesslogic → cqa-dto.
+    DTO — только данные, без методов и без зависимостей на свои модули;
+    в домен их превращает cqa-businesslogic.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -38,13 +39,6 @@
     </properties>
 
     <dependencies>
-        <!-- доменные объекты, которые собирает DTO -->
-        <dependency>
-            <groupId>ru.cqa</groupId>
-            <artifactId>cqa-business</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- @JsonProperty и прочие; сам парсер живёт в cqa-server -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

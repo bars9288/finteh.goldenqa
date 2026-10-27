@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-@Schema(description = "Запрос к MDM (CDI) на эндпинт '..cdi/../saveAndMerge' на сохранение(слияние) участника")
+@Schema(description = "Запрос к MDM saveAndMerge на сохранение (слияние) участника")
 public record SaveAndMergeDTO(
 
         @Schema(description = "Участник запроса", requiredMode = Schema.RequiredMode.REQUIRED)

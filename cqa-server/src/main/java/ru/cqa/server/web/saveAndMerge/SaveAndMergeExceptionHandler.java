@@ -1,20 +1,24 @@
 package ru.cqa.server.web.saveAndMerge;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
-import ru.cqa.cases.validation.exceptions.SaveAndMergeValidationException;
+import ru.cqa.businesslogic.exceptions.SaveAndMergeValidationException;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
+import ru.cqa.server.web.ErrorResponse;
 import ru.cqa.server.web.journal.JournalFilter;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestControllerAdvice(assignableTypes = {SaveAndMergeController.class})
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SaveAndMergeExceptionHandler {
 
     private final JournalWriter journal;
@@ -29,17 +33,15 @@ public class SaveAndMergeExceptionHandler {
      */
     @ExceptionHandler(RestClientException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
-    public SaveAndMergeResponse onMdmUnavailable(RestClientException exception) {
-        return SaveAndMergeResponse.failed(List.of("МДМ недоступна: " + exception.getMessage()));
+    public ErrorResponse onMdmUnavailable(RestClientException exception) {
+        return ErrorResponse.failed(List.of("МДМ недоступна: " + exception.getMessage()));
     }
 
-    /**
-     * Действует только на этот контроллер, общий ApiExceptionHandler не трогает.
-     */
+    /** Ошибки проверки запроса — 400 со списком ошибок; в журнал их уже записал контроллер. */
     @ExceptionHandler(SaveAndMergeValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public SaveAndMergeResponse onInvalid(SaveAndMergeValidationException exception) {
-        return SaveAndMergeResponse.failed(exception.getErrors());
+    public ErrorResponse onInvalid(SaveAndMergeValidationException exception) {
+        return ErrorResponse.failed(exception.getErrors());
     }
 
     /**
@@ -48,11 +50,11 @@ public class SaveAndMergeExceptionHandler {
      */
     @ExceptionHandler(BeanCreationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public SaveAndMergeResponse onMdmNotConfigured(
+    public ErrorResponse onMdmNotConfigured(
             BeanCreationException exception,
             @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
         String error = "МДМ не настроена: " + exception.getMostSpecificCause().getMessage();
         journal.internalError(journalId, error);
-        return SaveAndMergeResponse.failed(List.of(error));
+        return ErrorResponse.failed(List.of(error));
     }
 }

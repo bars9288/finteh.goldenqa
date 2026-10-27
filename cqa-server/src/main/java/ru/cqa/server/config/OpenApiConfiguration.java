@@ -44,14 +44,6 @@ public class OpenApiConfiguration {
     /** Запуск без предварительной сборки Maven — build-info.properties может не быть. */
     private static final String VERSION_UNKNOWN = "dev";
 
-    /** Имя бина Wsdl11Definition в WebServiceConfiguration + путь spring.webservices.path. */
-    private static final String WSDL_PATH = "/services/greeting.wsdl";
-
-    private static final String WSDL_ECHO_PATH = "/services/echo.wsdl";
-
-    /** Единый адрес всех SOAP-операций: spring.webservices.path. */
-    private static final String SOAP_PATH = "/services";
-
     /** SOAP 1.1 принимает только text/xml; с application/xml будет глухая 500. */
     private static final String SOAP_CONTENT_TYPE = "text/xml";
 
@@ -86,11 +78,15 @@ public class OpenApiConfiguration {
 
     @Bean
     public OpenAPI cqaOpenApi(@Value("${spring.application.name}") String applicationName,
+                              @Value("${spring.webservices.path}") String soapPath,
                               ObjectProvider<BuildProperties> buildProperties) {
 
         String version = Optional.ofNullable(buildProperties.getIfAvailable())
                 .map(BuildProperties::getVersion)
                 .orElse(VERSION_UNKNOWN);
+        // имена WSDL — имена бинов Wsdl11Definition в WebServiceConfiguration
+        String wsdlGreeting = soapPath + "/greeting.wsdl";
+        String wsdlEcho = soapPath + "/echo.wsdl";
 
         return new OpenAPI()
                 .info(new Info()
@@ -98,12 +94,12 @@ public class OpenApiConfiguration {
                         .version(version)
                         .description("Сервис " + applicationName + ". Описание REST-ручек сформировано "
                                 + "автоматически по контроллерам. Часть операций доступна также "
-                                + "по SOAP; контракты: " + WSDL_PATH + " (приветствия), "
-                                + WSDL_ECHO_PATH + " (эхо)."))
+                                + "по SOAP; контракты: " + wsdlGreeting + " (приветствия), "
+                                + wsdlEcho + " (эхо)."))
                 .externalDocs(new ExternalDocumentation()
                         .description("WSDL — контракт SOAP-сервиса приветствий")
-                        .url(WSDL_PATH))
-                .path(SOAP_PATH, soapEndpoint());
+                        .url(wsdlGreeting))
+                .path(soapPath, soapEndpoint(wsdlGreeting, wsdlEcho));
     }
 
     /**
@@ -112,7 +108,7 @@ public class OpenApiConfiguration {
      * <p>Операция выбирается не адресом, а корневым элементом внутри
      * {@code <soap:Body>} — поэтому все варианты лежат примерами в одном теле.
      */
-    private PathItem soapEndpoint() {
+    private PathItem soapEndpoint(String wsdlGreeting, String wsdlEcho) {
         Content requestContent = new Content().addMediaType(SOAP_CONTENT_TYPE, new MediaType()
                 .schema(new StringSchema().description("SOAP-конверт целиком"))
                 .addExamples("Приветствие оператору", example(ENVELOPE_HELLO,
@@ -131,7 +127,7 @@ public class OpenApiConfiguration {
                 .description("Единый адрес всех SOAP-операций. Выберите пример конверта — "
                         + "операция определяется корневым элементом тела, а не адресом. "
                         + "Content-Type обязан быть text/xml: с application/xml вернётся 500 без пояснений. "
-                        + "Полный контракт — в WSDL: " + WSDL_PATH + ", " + WSDL_ECHO_PATH + ".")
+                        + "Полный контракт — в WSDL: " + wsdlGreeting + ", " + wsdlEcho + ".")
                 .operationId("soapCall")
                 .requestBody(new RequestBody().required(true).content(requestContent))
                 .responses(new ApiResponses()

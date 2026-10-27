@@ -1,13 +1,32 @@
 cqa:
+  api:
+    paths:
+      # REST POST: проверка запроса saveAndMerge и пересылка в МДМ
+      save-and-merge: ${CQA_PATH_SAVE_AND_MERGE:/mdm/saveAndMerge}
+      # REST GET/POST: приветствие оператору (имя и фамилия)
+      greeting-operator: ${CQA_PATH_GREETING_OPERATOR:/hello}
+      # REST GET/POST: приветствие внешнему сервису
+      greeting-service: ${CQA_PATH_GREETING_SERVICE:/helloService}
+      # REST POST: эхо — вернуть полученный запрос, проверка связи
+      echo: ${CQA_PATH_ECHO:/echo}
+      # SOAP POST: единый адрес всех SOAP-операций, WSDL — <путь>/greeting.wsdl, <путь>/echo.wsdl
+      soap: ${CQA_PATH_SOAP:/services}
+  save-and-merge:
+    mdm:
+      scope: ${CQA_MDM_SCOPE:DEV}
   connections:
-    CDI:
+    MDM:
       DEV:
         type: REST
-        url: ${CDI_DEV_URL}
+        url: ${MDM_DEV_URL}
         connect-timeout: 10s
         read-timeout: 30s
         endpoints:
-          save-and-merge: ${CDI_DEV_REST_SAM}
+          save-and-merge: ${MDM_DEV_REST_SAM}
         auth:
-          username: ${CDI_DEV_USER}
-          password: ${CDI_DEV_PASSWORD}
+          username: ${MDM_DEV_USER}
+          password: ${MDM_DEV_PASSWORD}
+
+spring:
+  webservices:
+    path: ${cqa.api.paths.soap}

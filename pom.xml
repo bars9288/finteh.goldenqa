@@ -20,8 +20,7 @@
     <!-- модули добавляются по мере появления ЗДЕСЬ -->
     <modules>
         <module>cqa-server</module>
-        <module>cqa-case</module>
-        <module>cqa-business</module>
+        <module>cqa-businesslogic</module>
         <module>cqa-dto</module>
     </modules>
 

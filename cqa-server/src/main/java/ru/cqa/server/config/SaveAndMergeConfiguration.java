@@ -12,14 +12,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import ru.cqa.cases.validation.constants.PartyType;
-import ru.cqa.cases.validation.rules.party.LegalPartySaveRules;
-import ru.cqa.cases.validation.rules.party.PhysicalPartySaveRules;
-import ru.cqa.cases.validation.validators.SaveAndMergeValidator;
+import ru.cqa.businesslogic.constants.PartyType;
+import ru.cqa.businesslogic.validation.rules.party.legal.LegalPartySaveRules;
+import ru.cqa.businesslogic.validation.rules.party.physical.PhysicalPartySaveRules;
+import ru.cqa.businesslogic.validation.validators.SaveAndMergeValidator;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
-
-import static ru.cqa.cases.validation.constants.PartyType.*;
 
 @Configuration
 public class SaveAndMergeConfiguration {
@@ -38,7 +36,7 @@ public class SaveAndMergeConfiguration {
     @Lazy
     public MdmClient mdmClient(Environment env, JournalWriter journal) {
         String scope = env.getRequiredProperty("cqa.save-and-merge.mdm.scope");
-        String connection = "cqa.connections.CDI." + scope + ".";
+        String connection = "cqa.connections.MDM." + scope + ".";
 
         // прозрачный прокси: в МДМ не уходит ничего, чего не прислал клиент —
         // ни попытки перейти на HTTP/2 (Upgrade: h2c), ни своего Accept-Encoding

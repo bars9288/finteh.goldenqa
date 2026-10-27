@@ -10,14 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.business.greeting.externalservice.ExternalService;
-import ru.cqa.business.greeting.GreetingRegistry;
+import ru.cqa.businesslogic.greeting.GreetingRegistry;
+import ru.cqa.businesslogic.greeting.externalservice.ExternalService;
+import ru.cqa.businesslogic.greeting.externalservice.ExternalServiceMapper;
 import ru.cqa.dto.ExternalServiceDTO;
 import ru.cqa.dto.HelloResponseDTO;
 
-import static ru.cqa.cases.validation.constants.ApiPaths.GREETING_SERVICE;
+import static ru.cqa.server.web.ApiPaths.GREETING_SERVICE;
 
-@Tag(name = "Дежурная проверка", description = "Ручка для проверкии доступности приложения")
+@Tag(name = "Дежурная проверка", description = "Ручка для проверки доступности приложения")
 @RestController
 @RequestMapping(path = GREETING_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class GreetingServiceController {
@@ -39,7 +40,7 @@ public class GreetingServiceController {
     @Operation(summary = "Приветствие внешнему сервису, параметры в теле запроса")
     @PostMapping
     public HelloResponseDTO hello(@Valid @RequestBody ExternalServiceDTO body) {
-        return respond(body.toExternalService());
+        return respond(ExternalServiceMapper.from(body));
     }
 
     private HelloResponseDTO respond(ExternalService service) {

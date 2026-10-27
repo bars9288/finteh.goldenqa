@@ -41,13 +41,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- доменная логика: обычный jar, без Spring -->
-        <dependency>
-            <groupId>ru.cqa</groupId>
-            <artifactId>cqa-business</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- транспортные контракты: DTO тел запросов -->
         <dependency>
             <groupId>ru.cqa</groupId>
@@ -55,10 +48,10 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- сценарии и проверки кейсов: обычный jar, без Spring -->
+        <!-- бизнес-логика: домен, проверки запросов, DTO → домен; обычный jar, без Spring -->
         <dependency>
             <groupId>ru.cqa</groupId>
-            <artifactId>cqa-case</artifactId>
+            <artifactId>cqa-businesslogic</artifactId>
             <version>${project.version}</version>
         </dependency>
 

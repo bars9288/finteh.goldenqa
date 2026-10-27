@@ -2,20 +2,16 @@ package ru.cqa.server.web.greeting;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.cqa.business.greeting.GreetingRegistry;
-import ru.cqa.business.greeting.operator.Operator;
-import ru.cqa.cases.validation.exceptions.GreetingValidationException;
-import ru.cqa.cases.validation.validators.GreetingValidator;
+import ru.cqa.businesslogic.greeting.GreetingRegistry;
+import ru.cqa.businesslogic.greeting.operator.Operator;
+import ru.cqa.businesslogic.greeting.operator.OperatorMapper;
+import ru.cqa.businesslogic.validation.validators.GreetingValidator;
 import ru.cqa.dto.HelloResponseDTO;
 import ru.cqa.dto.OperatorDTO;
-import ru.cqa.server.web.saveAndMerge.SaveAndMergeResponse;
-import tools.jackson.databind.json.JsonMapper;
 
-import static ru.cqa.cases.validation.constants.ApiPaths.GREETING_OPERATOR;
+import static ru.cqa.server.web.ApiPaths.GREETING_OPERATOR;
 
 @Tag(name = "Дежурная проверка", description = "Ручка для проверки доступности приложения")
 @RestController
@@ -24,44 +20,31 @@ public class GreetingOperatorController {
 
     private final GreetingRegistry greetings;
     private final GreetingValidator validator;
-    private final JsonMapper jsonMapper;
 
     /** Зависимость через конструктор: поле final, подмена в тестах тривиальна. */
-    public GreetingOperatorController(GreetingRegistry greetings, GreetingValidator validator, JsonMapper jsonMapper) {
+    public GreetingOperatorController(GreetingRegistry greetings, GreetingValidator validator) {
         this.greetings = greetings;
         this.validator = validator;
-        this.jsonMapper = jsonMapper;
     }
 
     @Operation(summary = "Приветствие, параметры в строке запроса")
     @GetMapping
     public HelloResponseDTO hello(@RequestParam("name") String name,
                                   @RequestParam("family") String family) {
-        try {
-            validator.validate(new OperatorDTO(name, family));
-        } catch (GreetingValidationException e) {
-            throw e;
-        }
-        return respond(name, family);
+        OperatorDTO operator = new OperatorDTO(name, family);
+        validator.validate(operator);
+        return respond(OperatorMapper.from(operator));
     }
 
     /**
-     * Тело обязательно и проверяется целиком до входа в метод: при пустом
-     * или неполном теле Spring отвечает 400, сюда управление не доходит.
+     * {@code @Valid} на теле намеренно не стоит: форму и правила проверяет {@link GreetingValidator}
+     * и возвращает все ошибки одним списком.
      */
     @Operation(summary = "Приветствие, параметры в теле запроса")
     @PostMapping
-    public HelloResponseDTO hello(@Valid @RequestBody OperatorDTO body) {
-        try {
-            validator.validate(body);
-        } catch (GreetingValidationException e) {
-            throw e;
-        }
-        return respond(body.toOperator());
-    }
-
-    private HelloResponseDTO respond(String name, String family) {
-        return respond(new Operator(name, family));
+    public HelloResponseDTO hello(@RequestBody OperatorDTO body) {
+        validator.validate(body);
+        return respond(OperatorMapper.from(body));
     }
 
     private HelloResponseDTO respond(Operator operator) {

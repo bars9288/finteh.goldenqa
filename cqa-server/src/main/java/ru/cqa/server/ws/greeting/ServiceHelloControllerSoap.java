@@ -4,7 +4,8 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import ru.cqa.business.greeting.GreetingRegistry;
+import ru.cqa.businesslogic.greeting.GreetingRegistry;
+import ru.cqa.businesslogic.greeting.externalservice.ExternalServiceMapper;
 import ru.cqa.dto.soap.ExternalServiceSoapDTO;
 import ru.cqa.server.web.greeting.GreetingServiceController;
 
@@ -26,6 +27,6 @@ public class ServiceHelloControllerSoap {
     @PayloadRoot(namespace = GreetingContractSoap.NAMESPACE, localPart = "serviceHelloRequest")
     @ResponsePayload
     public ServiceHelloResponseSoap hello(@RequestPayload ExternalServiceSoapDTO request) {
-        return new ServiceHelloResponseSoap(greetings.greet(request.toExternalService()));
+        return new ServiceHelloResponseSoap(greetings.greet(ExternalServiceMapper.from(request)));
     }
 }

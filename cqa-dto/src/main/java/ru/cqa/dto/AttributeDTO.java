@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 
 @Schema(description = "Атрибут участника")
@@ -22,9 +21,4 @@ public record AttributeDTO(
 
         @Schema(description = "Поля атрибута")
         List<@NotNull @Valid FieldDTO> field) {
-
-
-    public Map<String, String> fieldMap() {
-        return FieldDTO.toMap(field);
-    }
 }

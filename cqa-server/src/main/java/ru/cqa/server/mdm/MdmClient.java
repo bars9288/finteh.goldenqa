@@ -14,7 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 
 /**
- * Клиент МДМ (CDI): пересылает проверенный запрос saveAndMerge как прозрачный прокси.
+ * Клиент МДМ: пересылает проверенный запрос saveAndMerge как прозрачный прокси.
  *
  * <p>В МДМ уходят тело байт в байт и заголовки клиента (включая его {@code Authorization});
  * клиенту возвращаются статус, заголовки и тело МДМ — будто он обратился в МДМ напрямую.

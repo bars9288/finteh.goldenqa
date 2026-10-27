@@ -43,8 +43,3 @@ logging:
       total-size-cap: 50MB
       max-history: 28
       clean-history-on-start: true
-
-cqa:
-  save-and-merge:
-    mdm:
-      scope: DEV

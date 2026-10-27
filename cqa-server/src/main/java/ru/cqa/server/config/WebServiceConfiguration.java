@@ -2,6 +2,7 @@ package ru.cqa.server.config;
 
 import java.util.Properties;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -37,12 +38,13 @@ public class WebServiceConfiguration {
         return new SimpleXsdSchema(new ClassPathResource("schema/greeting.xsd"));
     }
 
-    /** Имя бина становится именем WSDL: greeting → /services/greeting.wsdl */
+    /** Имя бина становится именем WSDL: greeting → <путь>/greeting.wsdl */
     @Bean(name = "greeting")
-    public Wsdl11Definition greetingWsdl(XsdSchema greetingSchema) {
+    public Wsdl11Definition greetingWsdl(XsdSchema greetingSchema,
+                                         @Value("${spring.webservices.path}") String soapPath) {
         DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
         definition.setPortTypeName("GreetingPort");
-        definition.setLocationUri("/services");
+        definition.setLocationUri(soapPath);
         definition.setTargetNamespace(GreetingContractSoap.NAMESPACE);
         definition.setSchema(greetingSchema);
         return definition;
@@ -53,12 +55,13 @@ public class WebServiceConfiguration {
         return new SimpleXsdSchema(new ClassPathResource("schema/echo.xsd"));
     }
 
-    /** echo → /services/echo.wsdl */
+    /** echo → <путь>/echo.wsdl */
     @Bean(name = "echo")
-    public Wsdl11Definition echoWsdl(XsdSchema echoSchema) {
+    public Wsdl11Definition echoWsdl(XsdSchema echoSchema,
+                                     @Value("${spring.webservices.path}") String soapPath) {
         DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
         definition.setPortTypeName("EchoPort");
-        definition.setLocationUri("/services");
+        definition.setLocationUri(soapPath);
         definition.setTargetNamespace(EchoContractSoap.NAMESPACE);
         definition.setSchema(echoSchema);
         return definition;

@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.cqa.server.web.ApiPaths;
 
 /** Эхо-ручки: что получили, то и вернули. */
 @Tag(name = "Эхо", description = "Возврат полученного запроса — проверка связи и разбора данных")
 @RestController
-@RequestMapping("/echo")
+@RequestMapping(ApiPaths.ECHO)
 public class EchoController {
 
 

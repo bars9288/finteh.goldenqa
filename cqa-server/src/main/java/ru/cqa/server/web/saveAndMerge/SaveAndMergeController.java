@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.cases.validation.constants.PartyType;
-import ru.cqa.cases.validation.exceptions.SaveAndMergeValidationException;
-import ru.cqa.cases.validation.validators.SaveAndMergeValidator;
+import ru.cqa.businesslogic.constants.PartyType;
+import ru.cqa.businesslogic.exceptions.SaveAndMergeValidationException;
+import ru.cqa.businesslogic.validation.validators.SaveAndMergeValidator;
 import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
-import ru.cqa.cases.validation.constants.ApiPaths;
+import ru.cqa.server.web.ApiPaths;
 import ru.cqa.server.web.journal.JournalFilter;
 import tools.jackson.databind.json.JsonMapper;
 

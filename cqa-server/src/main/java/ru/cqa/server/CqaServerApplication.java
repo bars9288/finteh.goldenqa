@@ -6,7 +6,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ConfigurableApplicationContext;
-import ru.cqa.server.web.echo.HelloClass;
 
 @SpringBootApplication
 public class CqaServerApplication {
@@ -19,7 +18,7 @@ public class CqaServerApplication {
         {
             BuildProperties build = context.getBeanProvider(BuildProperties.class).getIfAvailable();
             String version = build != null ? build.getVersion() : null;
-            log.info(HelloClass.getHello(version));
+            log.info(StartupBanner.text(version));
         }
     }
 }
