@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static ru.cqa.businesslogic.constants.RequisitesNames.*;
+
 /**
  * 7. Фамилия, Имя, Отчество передаётся только в {@code name}, {@code surname}, {@code patronymic}
  * ИЛИ только в {@code fullNameRawSource}.

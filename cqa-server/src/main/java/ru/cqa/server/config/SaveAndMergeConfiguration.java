@@ -19,6 +19,8 @@ import ru.cqa.businesslogic.validation.validators.SaveAndMergeValidator;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
 
+import static ru.cqa.businesslogic.constants.PartyType.*;
+
 @Configuration
 public class SaveAndMergeConfiguration {
 

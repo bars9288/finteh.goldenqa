@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static ru.cqa.businesslogic.constants.AttributesRequisitesNames.*;
 import static ru.cqa.businesslogic.constants.AttributesTypes.DOCUMENT_PASSPORT;
 import static ru.cqa.businesslogic.constants.AttributesTypes.PASSPORT;
 
