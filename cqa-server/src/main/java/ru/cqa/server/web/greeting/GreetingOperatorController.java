@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.cqa.businesslogic.greeting.GreetingRegistry;
-import ru.cqa.businesslogic.greeting.operator.Operator;
-import ru.cqa.businesslogic.greeting.operator.OperatorMapper;
-import ru.cqa.businesslogic.validation.validators.GreetingValidator;
+import ru.cqa.cases.greeting.GreetingRegistry;
+import ru.cqa.cases.greeting.operator.Operator;
+import ru.cqa.cases.greeting.operator.OperatorMapper;
+import ru.cqa.business.validation.validators.GreetingValidator;
 import ru.cqa.dto.HelloResponseDTO;
 import ru.cqa.dto.OperatorDTO;
 

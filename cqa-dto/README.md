@@ -8,7 +8,7 @@
 
 Описывает, что приходит и уходит «по проводу»: структура JSON и XML, ограничения формы
 (Bean Validation), описание для Swagger, разметка JAXB для SOAP. Ни логики, ни преобразований —
-в домен DTO переводит `cqa-businesslogic` (`OperatorMapper`, `ExternalServiceMapper`, `FieldMaps`).
+в домен DTO переводит `cqa-business` (`OperatorMapper`, `ExternalServiceMapper`, `FieldMaps`).
 
 ## Границы — что сюда НЕ кладём
 
@@ -48,7 +48,7 @@ ru.cqa.dto
 ```
 
 Ограничения формы для saveAndMerge с примерами —
-[README_JakartaValid](../cqa-businesslogic/src/main/java/ru/cqa/businesslogic/validation/rules/party/README_JakartaValid.md).
+[README_JakartaValid](../cqa-business/src/main/java/ru/cqa/business/validation/rules/party/README_JakartaValid.md).
 
 ## Сборка
 

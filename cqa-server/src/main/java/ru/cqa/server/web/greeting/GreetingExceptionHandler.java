@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.cqa.businesslogic.exceptions.GreetingValidationException;
+import ru.cqa.business.exceptions.GreetingValidationException;
 import ru.cqa.server.web.ErrorResponse;
 
 @RestControllerAdvice(assignableTypes = {GreetingOperatorController.class, GreetingServiceController.class})

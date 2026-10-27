@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.cqa.businesslogic.constants.PartyType;
-import ru.cqa.businesslogic.validation.rules.party.legal.LegalPartySaveRules;
-import ru.cqa.businesslogic.validation.rules.party.physical.PhysicalPartySaveRules;
-import ru.cqa.businesslogic.validation.validators.SaveAndMergeValidator;
+import ru.cqa.business.constants.PartyType;
+import ru.cqa.business.validation.rules.party.legal.LegalPartySaveRules;
+import ru.cqa.business.validation.rules.party.physical.PhysicalPartySaveRules;
+import ru.cqa.business.validation.validators.SaveAndMergeValidator;
 
-import static ru.cqa.businesslogic.constants.PartyType.*;
+import static ru.cqa.business.constants.PartyType.*;
 
 @Configuration
 public class SaveAndMergeConfiguration {

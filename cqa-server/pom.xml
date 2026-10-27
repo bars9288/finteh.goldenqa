@@ -51,7 +51,7 @@
         <!-- бизнес-логика: домен, проверки запросов, DTO → домен; обычный jar, без Spring -->
         <dependency>
             <groupId>ru.cqa</groupId>
-            <artifactId>cqa-businesslogic</artifactId>
+            <artifactId>cqa-business</artifactId>
             <version>${project.version}</version>
         </dependency>
 

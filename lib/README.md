@@ -44,7 +44,7 @@
 **Стартеры — пустые агрегаторы.** `spring-boot-starter-*` не содержат классов и
 в собранный fat-jar не попадают, хотя область видимости у них `compile`.
 
-**Свои модули сюда не кладутся.** `cqa-dto`, `cqa-businesslogic` — часть
+**Свои модули сюда не кладутся.** `cqa-dto`, `cqa-business` — часть
 проекта, а не внешние зависимости.
 
 **`spring-boot-jarmode-tools` здесь нет намеренно.** Его добавляет в fat-jar сам
@@ -69,7 +69,7 @@ mvn -o clean package dependency:copy-dependencies \
 ```
 
 Важно: `package` и `-am` обязательны. Без них плагин не найдёт свои модули
-(`cqa-dto`, `cqa-businesslogic`) — они не установлены в `~/.m2`, и резолв
+(`cqa-dto`, `cqa-business`) — они не установлены в `~/.m2`, и резолв
 падает с `Could not find artifact ru.cqa:...`.
 
 Дальше содержимое `cqa-server/target/deps` (кроме `cqa-*.jar`) раскладывается
