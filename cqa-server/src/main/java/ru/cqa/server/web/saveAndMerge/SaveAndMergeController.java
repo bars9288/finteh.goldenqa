@@ -42,7 +42,7 @@ public class SaveAndMergeController {
     private final JournalWriter journal;
 
     /**
-     * {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. SaveAndMergeConfiguration.
+     * {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. ExternalServicesConfiguration.
      */
     public SaveAndMergeController(Map<PartyType, SaveAndMergeValidator> validators, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
                                   JournalWriter journal) {

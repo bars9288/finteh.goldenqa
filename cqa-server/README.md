@@ -77,7 +77,8 @@ SOAP-ошибки обрабатывает свой `SoapFaultMappingExceptionRe
 ```
 ru.cqa.server
 ├── CqaServerApplication, StartupBanner   точка входа и баннер в лог
-├── config        бины: валидаторы и правила, приветствия, клиент МДМ, SOAP, OpenAPI, журнал
+├── config        бины: валидаторы и правила, приветствия, клиенты внешних систем
+│                 (ExternalServicesConfiguration: МДМ, Kafka), SOAP, OpenAPI, журнал
 ├── web           ApiPaths, ApiExceptionHandler, ErrorResponse
 │   ├── saveAndMerge   контроллер + обработчик ошибок
 │   ├── greeting       контроллеры приветствий + обработчик ошибок
@@ -85,6 +86,7 @@ ru.cqa.server
 │   └── journal        JournalFilter, CachedBodyRequest — журнал входящих REST-запросов
 ├── ws            SOAP-эндпоинты: greeting, echo
 ├── mdm           MdmClient — прозрачный прокси в МДМ
+├── kafka         KafkaClient — заглушка, бин пока равен null
 └── db/sqlite     диалект SQLite; journal — таблицы, репозитории, JournalWriter, резервный файл
 ```
 
