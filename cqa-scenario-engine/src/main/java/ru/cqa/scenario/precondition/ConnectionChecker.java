@@ -1,7 +1,7 @@
 package ru.cqa.scenario.precondition;
 
 import ru.cqa.scenario.connection.ConnectionDefinition;
-import ru.cqa.scenario.model.Dependency;
+import ru.cqa.scenario.definition.model.Dependency;
 
 /** Проверяет доступность зависимости через предоставленное описание подключения. */
 public interface ConnectionChecker {

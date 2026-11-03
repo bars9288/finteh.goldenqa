@@ -1,6 +1,6 @@
 package ru.cqa.cases.mdm.validation.rules.greeting;
 
-import ru.cqa.cases.mdm.validation.rules.Rule;
+import ru.cqa.validation.Rule;
 import ru.cqa.dto.OperatorDTO;
 
 import java.util.ArrayList;

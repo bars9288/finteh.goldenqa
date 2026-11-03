@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.cqa.cases.mdm.constants.PartyType;
-import ru.cqa.cases.mdm.exceptions.SaveAndMergeValidationException;
+import ru.cqa.validators.mdm.SaveAndMergeValidatorException;
 import ru.cqa.validators.mdm.SaveAndMergeValidator;
 import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
@@ -64,7 +64,7 @@ public class SaveAndMergeController {
         SaveAndMergeDTO body = jsonMapper.readValue(raw, SaveAndMergeDTO.class);
         try {
             validatorFor(body).validateBody(body);
-        } catch (SaveAndMergeValidationException e) {
+        } catch (SaveAndMergeValidatorException e) {
             journal.validated(journalId, e.getErrors());
             throw e;
         }
@@ -77,7 +77,7 @@ public class SaveAndMergeController {
         String type = parties == null || parties.isEmpty() || parties.get(0) == null ? null : parties.get(0).type();
         return PartyType.of(type)
                 .map(validators::get)
-                .orElseThrow(() -> new SaveAndMergeValidationException(
+                .orElseThrow(() -> new SaveAndMergeValidatorException(
                         List.of("party[0].type: ожидается одно из " + Arrays.toString(PartyType.values()))));
     }
 }

@@ -1,4 +1,4 @@
-package ru.cqa.scenario.model;
+package ru.cqa.scenario.definition.model;
 
 import java.util.Objects;
 

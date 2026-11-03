@@ -1,218 +1,229 @@
-{
-  // 1. МЕТАДАННЫЕ СЦЕНАРИЯ
-  "scenarioUUID": "550e8400-e29b-41d4-a716-446655440000",
-  "version": "1.2.0",
-  "scenarioType": "E2E_POSITIVE", // COMMON, NEGATIVE, E2E_POSITIVE, E2E_NEGATIVE, SMOKE
-  "scenarioTitle": "Создание ФЛ в MDM и сквозная проверка (БД + Kafka + UI)",
-  "description": "Сценарий проверяет полный цикл: REST-запрос на создание, проверку в БД, наличие события в шине и отображение на фронтенде.",
-  "tags": ["MDM", "SBL", "Smoke", "Regression"],
 
-  // 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (Подставляются в ${...} в любом месте сценария)
-  "variables": {
-    "TEST_LOGIN": "auto_test_user_01",
-    "TEST_PASSWORD": "SecurePass123!",
-    "RANDOM_SUFFIX": "{{uuid}}", // Специальный маркер для генерации UUID движком
-    "TIMEOUT_MS": 5000
+{
+  // Уникальный идентификатор сценария
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+
+  // Версия формата сценария
+  "version": "1.0",
+
+  // Метаданные для отображения в интерфейсе CQA
+  "metadata": {
+    "name": "Проверка создания пользователя",
+    "description": "Проверка создания пользователя через REST API с последующей проверкой данных в БД и публикацией события в Kafka",
+    "category": "API Integration",
+    "tags": [
+      "http",
+      "sql",
+      "kafka",
+      "soap",
+      "integration"
+    ]
   },
 
-  // 3. ЗАВИСИМОСТИ И ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА (Pre-flight check)
-  "checkedSystems": ["MDM_REST", "SBL-DEV_DB", "KAFKA_BROKER", "WAY4_UI"],
-  "necessarySystems": [
+  // Общие параметры исполнения сценария
+  "execution": {
+    "timeout": "PT5M",
+    "continueAfterFailure": false
+  },
+
+  // Ссылки на заранее настроенные подключения
+  "dependencies": [
     {
-      "name": "MDM_REST",
-      "need": true,
-      "description": "Основной API для тестирования"
+      "connectionId": "user-service-api",
+      "type": "http",
+      "required": true,
+      "description": "REST API сервиса пользователей"
     },
     {
-      "name": "SBL-DEV_DB",
-      "linkSystem": "SBL-DEV",
-      "need": true,
-      "description": "База данных для проверки факта сохранения"
+      "connectionId": "users-postgres",
+      "type": "sql",
+      "required": true,
+      "description": "PostgreSQL с данными пользователей"
     },
     {
-      "name": "KAFKA_BROKER",
-      "need": false,
-      "description": "Если недоступен, шаг проверки Kafka будет помечен как WARNING, но не упадет"
+      "connectionId": "events-kafka",
+      "type": "kafka",
+      "required": true,
+      "description": "Kafka для публикации событий"
     },
     {
-      "name": "WAY4_UI",
-      "linkSystem": "WAY4-DEV",
-      "need": true,
-      "description": "Фронтенд для финальной визуальной проверки"
+      "connectionId": "user-soap-service",
+      "type": "soap",
+      "required": false,
+      "description": "SOAP-сервис для дополнительной проверки"
     }
   ],
 
-  // 4. ШАГИ СЦЕНАРИЯ
-  "stepsScenario": [
+  // Упорядоченные шаги сценария
+  "steps": [
     {
-      "numberStep": 1,
-      "isContinueOnError": false, // Если ошибка на этом шаге, весь сценарий прекращается сразу
-      "description": "Авторизация в системе и получение токена доступа",
+      "id": "step-001",
+      "name": "Создание пользователя",
+      "description": "Отправка HTTP-запроса на создание пользователя",
+      "continueOnError": false,
+
       "moves": [
         {
-          "numberMove": 1,
-          "actionType": "HTTP_REQUEST", // Ключ для полиморфного маппинга в Java
-          "description": "POST запрос на endpoint /api/v1/auth",
-          "request": {
-            "method": "POST",
-            "url": "https://mdm-dev.internal/api/v1/auth",
-            "headers": {
-              "Content-Type": " ",
-              "Accept": "application/json"
+          "id": "move-http-001",
+          "type": "http",
+          "connectionId": "user-service-api",
+          "method": "POST",
+          "path": "/api/users",
+
+          "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+
+          "requestBody": {
+            "name": "Ivan",
+            "email": "ivan@example.com"
+          },
+
+          // Проверки результата HTTP-запроса
+          "assertions": [
+            {
+              "id": "assert-http-001",
+              "type": "equals",
+              "actualExpression": "$.status",
+              "expectedValue": "SUCCESS"
             },
-            "body": {
-              "username": "${TEST_LOGIN}",
-              "password": "${TEST_PASSWORD}"
+            {
+              "id": "assert-http-002",
+              "type": "equals",
+              "actualExpression": "$.data.email",
+              "expectedValue": "ivan@example.com"
             }
-          },
-          "expectedResponse": {
-            "status": 200,
-            "responseTimeMs": "< 1000", // Продвинутая проверка: время ответа
-            "bodyContains": ["\"accessToken\":", "\"expiresIn\":"]
-          },
-          "extract": {
-            // Сохраняем значение из JSON-ответа в контекст сценария для следующих шагов
-            // Формат: "Имя_Переменной_В_Контексте": "JSONPath_или_Regex_выражение"
-            "AUTH_TOKEN": "$.data.accessToken",
-            "USER_ID": "$.data.userId"
-          }
-        }
-      ]
-    },
-    {
-      "numberStep": 2,
-      "isContinueOnError": false,
-      "description": "Создание Физического Лица (ФЛ)",
-      "moves": [
-        {
-          "numberMove": 1,
-          "actionType": "HTTP_REQUEST",
-          "description": "Отправка данных нового ФЛ",
-          "request": {
-            "method": "POST",
-            "url": "https://mdm-dev.internal/api/v1/persons",
-            "headers": {
-              "Authorization": "Bearer ${AUTH_TOKEN}", // Используем извлеченный токен
-              "Content-Type": "application/json"
+          ],
+
+          // Извлечение данных из HTTP-ответа
+          "extracts": [
+            {
+              "id": "extract-http-001",
+              "type": "jsonpath",
+              "sourceExpression": "$.data.id",
+              "targetVariable": "userId"
             },
-            "body": {
-              "lastName": "Иванов",
-              "firstName": "Иван",
-              "externalId": "TEST-${RANDOM_SUFFIX}" // Генерируем уникальный ID
+            {
+              "id": "extract-http-002",
+              "type": "jsonpath",
+              "sourceExpression": "$.data.email",
+              "targetVariable": "userEmail"
             }
-          },
-          "expectedResponse": {
-            "status": 201,
-            "bodyContains": ["\"status\": \"SUCCESS\""]
-          },
-          "extract": {
-            "CREATED_PERSON_ID": "$.data.personId"
-          }
+          ]
         }
       ]
     },
+
     {
-      "numberStep": 3,
-      "isContinueOnError": false,
-      "description": "Прямая проверка записи в реляционной базе данных",
+      "id": "step-002",
+      "name": "Проверка пользователя в БД",
+      "description": "Проверка сохранения пользователя в PostgreSQL",
+      "continueOnError": false,
+
       "moves": [
         {
-          "numberMove": 1,
-          "actionType": "SQL_QUERY",
-          "description": "Проверка наличия записи в таблице persons",
-          "request": {
-            "dataSource": "SBL-DEV_DB", // Ссылка на necessarySystems
-            "query": "SELECT first_name, last_name FROM mdm.persons WHERE external_id = '${TEST_EXTERNAL_ID_PREFIX}%' ORDER BY created_at DESC LIMIT 1"
-          },
-          "expectedResponse": {
-            "rowCount": 1,
-            // Проверка конкретных значений в колонках первой строки результата
-            "columnValues": {
-              "first_name": "Иван",
-              "last_name": "Иванов"
+          "id": "move-sql-001",
+          "type": "sql",
+          "connectionId": "users-postgres",
+
+          "statement": "SELECT id, email, name FROM users WHERE id = :userId",
+
+          "assertions": [
+            {
+              "id": "assert-sql-001",
+              "type": "equals",
+              "actualExpression": "$[0].email",
+              "expectedValue": "ivan@example.com"
             }
-          }
-        }
-      ]
-    },
-    {
-      "numberStep": 4,
-      "isContinueOnError": true, // Не критично, если шина временно недоступна
-      "description": "Проверка асинхронного события в Kafka",
-      "moves": [
-        {
-          "numberMove": 1,
-          "actionType": "KAFKA_CONSUME",
-          "description": "Ожидание сообщения о создании ФЛ в топике",
-          "request": {
-            "brokerUrl": "${KAFKA_BROKER_URL}",
-            "topic": "mdm.person.created.v1",
-            "groupId": "cqa-test-consumer-${RANDOM_SUFFIX}",
-            "timeoutMs": "${TIMEOUT_MS}",
-            "filter": {
-              "keyContains": "${CREATED_PERSON_ID}"
+          ],
+
+          "extracts": [
+            {
+              "id": "extract-sql-001",
+              "type": "jsonpath",
+              "sourceExpression": "$[0].id",
+              "targetVariable": "databaseUserId"
             }
-          },
-          "expectedResponse": {
-            "messageCount": 1,
-            "payloadContains": ["\"eventType\": \"CREATED\"", "\"lastName\": \"Иванов\""]
-          }
+          ]
         }
       ]
     },
+
     {
-      "numberStep": 5,
-      "isContinueOnError": false,
-      "description": "Сквозная проверка отображения данных в веб-интерфейсе (Playwright)",
+      "id": "step-003",
+      "name": "Публикация события в Kafka",
+      "description": "Публикация события о создании пользователя",
+      "continueOnError": false,
+
       "moves": [
         {
-          "numberMove": 1,
-          "actionType": "PLAYWRIGHT_ACTION",
-          "description": "Поиск созданного ФЛ через UI и проверка его имени",
-          "request": {
-            "action": "NAVIGATE_AND_ASSERT",
-            "browser": "chromium",
-            "url": "https://way4-dev.internal/persons/search",
-            "steps": [
-              {
-                "type": "FILL",
-                "selector": "#search-input",
-                "value": "Иванов"
-              },
-              {
-                "type": "CLICK",
-                "selector": "#search-button"
-              },
-              {
-                "type": "WAIT_FOR_SELECTOR",
-                "selector": ".person-card",
-                "timeoutMs": 3000
-              }
-            ]
+          "id": "move-kafka-001",
+          "type": "kafka",
+          "connectionId": "events-kafka",
+          "topic": "user.created",
+
+          "key": "${userId}",
+
+          "payload": {
+            "eventType": "USER_CREATED",
+            "userId": "${userId}",
+            "email": "${userEmail}"
           },
-          "expectedResponse": {
-            "isVisible": true,
-            "textContentContains": "Иванов Иван"
-          }
+
+          "assertions": [
+            {
+              "id": "assert-kafka-001",
+              "type": "equals",
+              "actualExpression": "$.topic",
+              "expectedValue": "user.created"
+            }
+          ],
+
+          "extracts": [
+            {
+              "id": "extract-kafka-001",
+              "type": "jsonpath",
+              "sourceExpression": "$.partition",
+              "targetVariable": "kafkaPartition"
+            }
+          ]
         }
       ]
     },
+
     {
-      "numberStep": 6,
-      "isContinueOnError": true,
-      "description": "Teardown: Очистка тестовых данных (опционально)",
+      "id": "step-004",
+      "name": "Дополнительная проверка через SOAP",
+      "description": "Вызов SOAP-сервиса для проверки пользователя",
+      "continueOnError": true,
+
       "moves": [
         {
-          "numberMove": 1,
-          "actionType": "SQL_QUERY",
-          "description": "Удаление тестовой записи",
-          "request": {
-            "dataSource": "SBL-DEV_DB",
-            "query": "DELETE FROM mdm.persons WHERE external_id LIKE 'TEST-%'"
-          },
-          "expectedResponse": {
-            "rowCount": ">= 1"
-          }
+          "id": "move-soap-001",
+          "type": "soap",
+          "connectionId": "user-soap-service",
+          "action": "GetUser",
+
+          "envelope": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><GetUser><UserId>${userId}</UserId></GetUser></soap:Body></soap:Envelope>",
+
+          "assertions": [
+            {
+              "id": "assert-soap-001",
+              "type": "equals",
+              "actualExpression": "$.Envelope.Body.GetUserResponse.Status",
+              "expectedValue": "SUCCESS"
+            }
+          ],
+
+          "extracts": [
+            {
+              "id": "extract-soap-001",
+              "type": "jsonpath",
+              "sourceExpression": "$.Envelope.Body.GetUserResponse.User.Name",
+              "targetVariable": "soapUserName"
+            }
+          ]
         }
       ]
     }

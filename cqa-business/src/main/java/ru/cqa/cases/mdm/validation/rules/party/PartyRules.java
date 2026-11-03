@@ -1,8 +1,8 @@
 package ru.cqa.cases.mdm.validation.rules.party;
 
-import ru.cqa.cases.mdm.validation.rules.Rule;
+import ru.cqa.validation.Rule;
 import ru.cqa.cases.mdm.validation.rules.party.common.*;
-import ru.cqa.mdm.validation.rules.party.common.*;
+import ru.cqa.cases.mdm.validation.rules.party.common.*;
 import ru.cqa.dto.PartyDTO;
 
 import java.util.ArrayList;

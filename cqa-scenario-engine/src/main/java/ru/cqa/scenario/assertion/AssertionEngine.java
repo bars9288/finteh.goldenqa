@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import ru.cqa.scenario.execution.ExecutionContext;
-import ru.cqa.scenario.model.Assertion;
+import ru.cqa.scenario.definition.model.Assertion;
 import ru.cqa.scenario.result.MoveResult;
 
 /** Находит evaluator-ы по типу и агрегирует результаты набора утверждений. */

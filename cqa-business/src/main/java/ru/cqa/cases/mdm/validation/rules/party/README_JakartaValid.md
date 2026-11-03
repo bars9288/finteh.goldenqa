@@ -22,8 +22,8 @@
 2. Контроллер выбирает валидатор по `party[0].type`: `PHYSICAL` или `LEGAL`. Если `party`
    пустой или тип другой, ответ сразу `400` с одной ошибкой
    `party[0].type: ожидается одно из [PHYSICAL, LEGAL]` — форма тогда не проверяется.
-3. Базовый [Validator](../../validators/Validator.java) (его наследник —
-   [SaveAndMergeValidator](../../validators/SaveAndMergeValidator.java)) вызывает
+3. Базовый [Validator](../../../../../../../../../../../cqa-validation/src/main/java/ru/cqa/validation/Validator.java) (его наследник —
+   [SaveAndMergeValidator](../../../../../validators/mdm/SaveAndMergeValidator.java)) вызывает
    `validator.validate(request)` — проверяется всё дерево объектов разом, без остановки
    на первой ошибке.
 4. Каждое нарушение превращается в строку `путь: сообщение`; строки сортируются по алфавиту.

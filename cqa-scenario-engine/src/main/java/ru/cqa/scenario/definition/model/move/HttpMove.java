@@ -1,5 +1,5 @@
 
-package ru.cqa.scenario.model.move;
+package ru.cqa.scenario.definition.model.move;
 
 import java.util.List;
 import java.util.Map;
@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import ru.cqa.scenario.model.Assertion;
-import ru.cqa.scenario.model.Extract;
-import ru.cqa.scenario.model.Move;
+import ru.cqa.scenario.definition.model.Assertion;
+import ru.cqa.scenario.definition.model.Extract;
+import ru.cqa.scenario.definition.model.Move;
 
 @Schema(description = "HTTP-запрос к внешнему сервису")
 public record HttpMove(

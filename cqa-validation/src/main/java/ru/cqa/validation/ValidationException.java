@@ -1,8 +1,8 @@
-package ru.cqa.cases.mdm.exceptions;
+package ru.cqa.validation;
 
 import java.util.List;
 
-// класс abstract, чтобы голый ValidationException нельзя было бросить.
+/** Базовая ошибка проверки с неизменяемым списком сообщений. */
 public abstract class ValidationException extends RuntimeException {
 
     private final List<String> errors;

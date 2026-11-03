@@ -1,6 +1,6 @@
 package ru.cqa.cases.mdm.validation.rules.party.physical;
 
-import ru.cqa.cases.mdm.validation.rules.Rule;
+import ru.cqa.validation.Rule;
 import ru.cqa.utils.FieldMaps;
 import ru.cqa.dto.AttributeDTO;
 import ru.cqa.dto.PartyDTO;

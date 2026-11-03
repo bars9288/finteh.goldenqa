@@ -1,6 +1,6 @@
 package ru.cqa.cases.mdm.validation.rules.party.legal;
 
-import ru.cqa.cases.mdm.validation.rules.Rule;
+import ru.cqa.validation.Rule;
 import ru.cqa.cases.mdm.validation.rules.party.PartyRules;
 import ru.cqa.dto.PartyDTO;
 

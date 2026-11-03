@@ -12,11 +12,12 @@
 | Модуль              | Назначение                                                    | Зависит от                       | Фреймворк   | Подробнее                                  |
 |---------------------|---------------------------------------------------------------|----------------------------------|-------------|--------------------------------------------|
 | `cqa-server`        | Spring Boot приложение: REST/SOAP-ручки, журнал, прокси в МДМ | `cqa-business`, `cqa-dto`        | Spring Boot | [README](cqa-server/README.md)             |
-| `cqa-scenario-engine` | Логические сценарии, шаги, проверки и ожидаемые результаты | `cqa-business`                  | нет         | [README](cqa-scenario-engine/README.md)   |
-| `cqa-business`      | Бизнес-логика: домен, проверки запросов, DTO → домен          | `cqa-dto`                        | нет         | [README](cqa-business/README.md)           |
+| `cqa-scenario-engine` | Логические сценарии, шаги, проверки и ожидаемые результаты | `cqa-validation`                 | нет         | [README](cqa-scenario-engine/README.md)   |
+| `cqa-business`      | Бизнес-логика: домен, проверки запросов, DTO → домен          | `cqa-validation`, `cqa-dto`       | нет         | [README](cqa-business/README.md)           |
+| `cqa-validation`    | Общие контракты и механизм проверки входных моделей           | `jakarta.validation-api`          | нет         | [README](cqa-validation/README.md)         |
 | `cqa-dto`           | Транспортные контракты: только данные и аннотации, без методов | —                                | нет         | [README](cqa-dto/README.md)                |
 
-Граф зависимостей: `cqa-server → cqa-business → cqa-dto`; `cqa-scenario-engine → cqa-business`. Подключение движка сценариев к серверу пока не реализовано.
+Граф зависимостей: `cqa-server → cqa-business → cqa-validation`; `cqa-business → cqa-dto`; `cqa-scenario-engine → cqa-validation`. Подключение движка сценариев к серверу пока не реализовано.
 
 ## Архитектурные правила
 

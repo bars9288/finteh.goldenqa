@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.cqa.cases.mdm.exceptions.GreetingValidationException;
+import ru.cqa.validators.GreetingValidatorException;
 import ru.cqa.server.web.ErrorResponse;
 
 @RestControllerAdvice(assignableTypes = {GreetingOperatorController.class, GreetingServiceController.class})
@@ -14,9 +14,9 @@ import ru.cqa.server.web.ErrorResponse;
 public class GreetingExceptionHandler {
 
     /** Ошибки проверки оператора — 400 со списком ошибок. */
-    @ExceptionHandler(GreetingValidationException.class)
+    @ExceptionHandler(GreetingValidatorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse onInvalid(GreetingValidationException exception) {
+    public ErrorResponse onInvalid(GreetingValidatorException exception) {
         return ErrorResponse.failed(exception.getErrors());
     }
 }

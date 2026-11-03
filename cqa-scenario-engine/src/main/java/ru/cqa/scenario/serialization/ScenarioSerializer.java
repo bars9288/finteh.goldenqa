@@ -1,6 +1,6 @@
 package ru.cqa.scenario.serialization;
 
-import ru.cqa.scenario.model.Scenario;
+import ru.cqa.scenario.definition.model.Scenario;
 
 /** Преобразует модель сценария в JSON для экспорта. */
 public interface ScenarioSerializer {

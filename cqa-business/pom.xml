@@ -18,6 +18,11 @@
     <description>Бизнес-логика: доменные объекты, проверки запросов, преобразование DTO в домен</description>
 
     <dependencies>
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-validation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- DTO входящих запросов; с ним приезжает jakarta.validation-api -->
         <dependency>
             <groupId>ru.cqa</groupId>

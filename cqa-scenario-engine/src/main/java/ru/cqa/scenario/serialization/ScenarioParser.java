@@ -1,6 +1,6 @@
 package ru.cqa.scenario.serialization;
 
-import ru.cqa.scenario.model.Scenario;
+import ru.cqa.scenario.definition.model.Scenario;
 
 /** Преобразует JSON-представление сценария в модель ядра. */
 public interface ScenarioParser {

@@ -4,7 +4,8 @@
     Здесь только API аннотаций (Jackson, Bean Validation, OpenAPI, JAXB) —
     без парсеров, валидаторов и Spring. Реализации подключает cqa-server.
 
-    Направление зависимостей: cqa-server → cqa-business → cqa-dto.
+    Направление зависимостей: cqa-server → cqa-business → cqa-dto; общий механизм
+    Bean Validation находится в cqa-validation.
     DTO — только данные, без методов и без зависимостей на свои модули;
     в домен их превращает cqa-business.
 -->

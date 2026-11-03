@@ -1,11 +1,12 @@
 
-package ru.cqa.scenario.model;
+package ru.cqa.scenario.definition.model;
 
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import ru.cqa.scenario.model.move.*;
+import ru.cqa.scenario.definition.model.move.HttpMove;
+import ru.cqa.scenario.definition.model.move.KafkaMove;
+import ru.cqa.scenario.definition.model.move.SoapMove;
+import ru.cqa.scenario.definition.model.move.SqlMove;
 
 import java.util.List;
 

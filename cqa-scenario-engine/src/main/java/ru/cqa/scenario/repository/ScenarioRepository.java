@@ -2,7 +2,7 @@ package ru.cqa.scenario.repository;
 
 import java.util.Optional;
 import java.util.UUID;
-import ru.cqa.scenario.model.Scenario;
+import ru.cqa.scenario.definition.model.Scenario;
 
 /** Порт хранения; PostgreSQL-реализация будет вынесена в инфраструктурный модуль. */
 public interface ScenarioRepository {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
-import ru.cqa.cases.mdm.exceptions.SaveAndMergeValidationException;
+import ru.cqa.validators.mdm.SaveAndMergeValidatorException;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.web.ErrorResponse;
 import ru.cqa.server.web.journal.JournalFilter;
@@ -38,9 +38,9 @@ public class SaveAndMergeExceptionHandler {
     }
 
     /** Ошибки проверки запроса — 400 со списком ошибок; в журнал их уже записал контроллер. */
-    @ExceptionHandler(SaveAndMergeValidationException.class)
+    @ExceptionHandler(SaveAndMergeValidatorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse onInvalid(SaveAndMergeValidationException exception) {
+    public ErrorResponse onInvalid(SaveAndMergeValidatorException exception) {
         return ErrorResponse.failed(exception.getErrors());
     }
 

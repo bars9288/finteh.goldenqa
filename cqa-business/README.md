@@ -10,8 +10,9 @@
 ## Назначение
 
 Всё, что решает «правильный ли запрос и что он значит», без привязки к Spring и транспорту:
-правила и валидаторы запросов, доменные объекты и перевод в них DTO из `cqa-dto`.
-Сценарии и прогоны выделены в модуль `cqa-scenario-engine`; он использует проверки и доменную логику этого модуля.
+прикладные правила и валидаторы запросов, доменные объекты и перевод в них DTO из `cqa-dto`.
+Общий механизм валидации находится в `cqa-validation`; сценарии и прогоны выделены
+в независимый модуль `cqa-scenario-engine`.
 
 ## Границы — что сюда НЕ кладём
 
@@ -25,11 +26,12 @@
 ### Внутренние
 
 - `cqa-dto` — DTO входящих запросов: их проверяют правила и переводят в домен мапперы.
+- `cqa-validation` — общий базовый валидатор, интерфейс правила и базовое исключение.
 
 ### Внешние
 
-Только `jakarta.validation-api` (приезжает через `cqa-dto`): интерфейс
-`Validator`. Движок (hibernate-validator) передаёт `cqa-server`.
+Jakarta Validation API приходит через `cqa-dto` и `cqa-validation`. Реализацию провайдера
+(Hibernate Validator) подключает `cqa-server`.
 
 ## Структура пакетов
 
@@ -40,18 +42,20 @@ ru.cqa.mdm
 │   ├── operator              — Operator, OperatorGreetingService, OperatorMapper
 │   └── externalservice       — ExternalService, ExternalServiceGreetingService, ExternalServiceMapper
 ├── constants                 — имена реквизитов, типы атрибутов, регулярки, PartyType
-├── exceptions                — ValidationException и наследники
+├── exceptions                — специализированные ошибки валидаторов
 ├── utils                     — DateFormatUtils, FieldMaps
 └── validation                — проверки входящих запросов
-    ├── rules                 — Rule; greeting/, party/ (PartyRules + common/, physical/, legal/)
-    └── validators            — Validator<D, T>, SaveAndMergeValidator, GreetingValidator
+    ├── rules                 — реализации Rule; greeting/, party/ (PartyRules + common/, physical/, legal/)
+    └── validators            — SaveAndMergeValidator, GreetingValidator
+
+`Validator<D, T, E>`, `Rule<T>` и базовый `ValidationException` расположены в `cqa-validation`.
 ```
 
 Подробно о проверках saveAndMerge:
 [правила бизнес-логики](src/main/java/ru/cqa/cases/mdm/validation/rules/party/README.md) и
 [проверки формы DTO](src/main/java/ru/cqa/cases/mdm/validation/rules/party/README_JakartaValid.md).
 
-Как устроена проверка: `Validator<D, T>` — шаблонный метод `validate()`: форма (аннотации DTO
+Как устроена проверка: `Validator<D, T>` из `cqa-validation` реализует метод `validateBody()`: форма (аннотации DTO
 через `jakarta.validation.Validator`) → сущность для правил (`entity()`) → правила → при ошибках
 исключение наследника `ValidationException` (`exception()`).
 
