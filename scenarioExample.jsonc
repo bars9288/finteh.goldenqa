@@ -1,0 +1,220 @@
+{
+  // 1. МЕТАДАННЫЕ СЦЕНАРИЯ
+  "scenarioUUID": "550e8400-e29b-41d4-a716-446655440000",
+  "version": "1.2.0",
+  "scenarioType": "E2E_POSITIVE", // COMMON, NEGATIVE, E2E_POSITIVE, E2E_NEGATIVE, SMOKE
+  "scenarioTitle": "Создание ФЛ в MDM и сквозная проверка (БД + Kafka + UI)",
+  "description": "Сценарий проверяет полный цикл: REST-запрос на создание, проверку в БД, наличие события в шине и отображение на фронтенде.",
+  "tags": ["MDM", "SBL", "Smoke", "Regression"],
+
+  // 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (Подставляются в ${...} в любом месте сценария)
+  "variables": {
+    "TEST_LOGIN": "auto_test_user_01",
+    "TEST_PASSWORD": "SecurePass123!",
+    "RANDOM_SUFFIX": "{{uuid}}", // Специальный маркер для генерации UUID движком
+    "TIMEOUT_MS": 5000
+  },
+
+  // 3. ЗАВИСИМОСТИ И ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА (Pre-flight check)
+  "checkedSystems": ["MDM_REST", "SBL-DEV_DB", "KAFKA_BROKER", "WAY4_UI"],
+  "necessarySystems": [
+    {
+      "name": "MDM_REST",
+      "need": true,
+      "description": "Основной API для тестирования"
+    },
+    {
+      "name": "SBL-DEV_DB",
+      "linkSystem": "SBL-DEV",
+      "need": true,
+      "description": "База данных для проверки факта сохранения"
+    },
+    {
+      "name": "KAFKA_BROKER",
+      "need": false,
+      "description": "Если недоступен, шаг проверки Kafka будет помечен как WARNING, но не упадет"
+    },
+    {
+      "name": "WAY4_UI",
+      "linkSystem": "WAY4-DEV",
+      "need": true,
+      "description": "Фронтенд для финальной визуальной проверки"
+    }
+  ],
+
+  // 4. ШАГИ СЦЕНАРИЯ
+  "stepsScenario": [
+    {
+      "numberStep": 1,
+      "isContinueOnError": false, // Если ошибка на этом шаге, весь сценарий прекращается сразу
+      "description": "Авторизация в системе и получение токена доступа",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "HTTP_REQUEST", // Ключ для полиморфного маппинга в Java
+          "description": "POST запрос на endpoint /api/v1/auth",
+          "request": {
+            "method": "POST",
+            "url": "https://mdm-dev.internal/api/v1/auth",
+            "headers": {
+              "Content-Type": " ",
+              "Accept": "application/json"
+            },
+            "body": {
+              "username": "${TEST_LOGIN}",
+              "password": "${TEST_PASSWORD}"
+            }
+          },
+          "expectedResponse": {
+            "status": 200,
+            "responseTimeMs": "< 1000", // Продвинутая проверка: время ответа
+            "bodyContains": ["\"accessToken\":", "\"expiresIn\":"]
+          },
+          "extract": {
+            // Сохраняем значение из JSON-ответа в контекст сценария для следующих шагов
+            // Формат: "Имя_Переменной_В_Контексте": "JSONPath_или_Regex_выражение"
+            "AUTH_TOKEN": "$.data.accessToken",
+            "USER_ID": "$.data.userId"
+          }
+        }
+      ]
+    },
+    {
+      "numberStep": 2,
+      "isContinueOnError": false,
+      "description": "Создание Физического Лица (ФЛ)",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "HTTP_REQUEST",
+          "description": "Отправка данных нового ФЛ",
+          "request": {
+            "method": "POST",
+            "url": "https://mdm-dev.internal/api/v1/persons",
+            "headers": {
+              "Authorization": "Bearer ${AUTH_TOKEN}", // Используем извлеченный токен
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "lastName": "Иванов",
+              "firstName": "Иван",
+              "externalId": "TEST-${RANDOM_SUFFIX}" // Генерируем уникальный ID
+            }
+          },
+          "expectedResponse": {
+            "status": 201,
+            "bodyContains": ["\"status\": \"SUCCESS\""]
+          },
+          "extract": {
+            "CREATED_PERSON_ID": "$.data.personId"
+          }
+        }
+      ]
+    },
+    {
+      "numberStep": 3,
+      "isContinueOnError": false,
+      "description": "Прямая проверка записи в реляционной базе данных",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "SQL_QUERY",
+          "description": "Проверка наличия записи в таблице persons",
+          "request": {
+            "dataSource": "SBL-DEV_DB", // Ссылка на necessarySystems
+            "query": "SELECT first_name, last_name FROM mdm.persons WHERE external_id = '${TEST_EXTERNAL_ID_PREFIX}%' ORDER BY created_at DESC LIMIT 1"
+          },
+          "expectedResponse": {
+            "rowCount": 1,
+            // Проверка конкретных значений в колонках первой строки результата
+            "columnValues": {
+              "first_name": "Иван",
+              "last_name": "Иванов"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "numberStep": 4,
+      "isContinueOnError": true, // Не критично, если шина временно недоступна
+      "description": "Проверка асинхронного события в Kafka",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "KAFKA_CONSUME",
+          "description": "Ожидание сообщения о создании ФЛ в топике",
+          "request": {
+            "brokerUrl": "${KAFKA_BROKER_URL}",
+            "topic": "mdm.person.created.v1",
+            "groupId": "cqa-test-consumer-${RANDOM_SUFFIX}",
+            "timeoutMs": "${TIMEOUT_MS}",
+            "filter": {
+              "keyContains": "${CREATED_PERSON_ID}"
+            }
+          },
+          "expectedResponse": {
+            "messageCount": 1,
+            "payloadContains": ["\"eventType\": \"CREATED\"", "\"lastName\": \"Иванов\""]
+          }
+        }
+      ]
+    },
+    {
+      "numberStep": 5,
+      "isContinueOnError": false,
+      "description": "Сквозная проверка отображения данных в веб-интерфейсе (Playwright)",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "PLAYWRIGHT_ACTION",
+          "description": "Поиск созданного ФЛ через UI и проверка его имени",
+          "request": {
+            "action": "NAVIGATE_AND_ASSERT",
+            "browser": "chromium",
+            "url": "https://way4-dev.internal/persons/search",
+            "steps": [
+              {
+                "type": "FILL",
+                "selector": "#search-input",
+                "value": "Иванов"
+              },
+              {
+                "type": "CLICK",
+                "selector": "#search-button"
+              },
+              {
+                "type": "WAIT_FOR_SELECTOR",
+                "selector": ".person-card",
+                "timeoutMs": 3000
+              }
+            ]
+          },
+          "expectedResponse": {
+            "isVisible": true,
+            "textContentContains": "Иванов Иван"
+          }
+        }
+      ]
+    },
+    {
+      "numberStep": 6,
+      "isContinueOnError": true,
+      "description": "Teardown: Очистка тестовых данных (опционально)",
+      "moves": [
+        {
+          "numberMove": 1,
+          "actionType": "SQL_QUERY",
+          "description": "Удаление тестовой записи",
+          "request": {
+            "dataSource": "SBL-DEV_DB",
+            "query": "DELETE FROM mdm.persons WHERE external_id LIKE 'TEST-%'"
+          },
+          "expectedResponse": {
+            "rowCount": ">= 1"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,9 +4,9 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import ru.cqa.cases.greeting.GreetingRegistry;
-import ru.cqa.cases.greeting.operator.Operator;
-import ru.cqa.cases.greeting.operator.OperatorMapper;
+import ru.cqa.cases.grerting.GreetingRegistry;
+import ru.cqa.cases.grerting.operator.Operator;
+import ru.cqa.cases.grerting.operator.OperatorMapper;
 import ru.cqa.dto.soap.OperatorSoapDTO;
 import ru.cqa.server.web.greeting.GreetingOperatorController;
 

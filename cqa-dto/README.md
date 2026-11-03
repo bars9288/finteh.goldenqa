@@ -48,7 +48,7 @@ ru.cqa.dto
 ```
 
 Ограничения формы для saveAndMerge с примерами —
-[README_JakartaValid](../cqa-business/src/main/java/ru/cqa/business/validation/rules/party/README_JakartaValid.md).
+[README_JakartaValid](../cqa-business/src/main/java/ru/cqa/mdm/validation/rules/party/README_JakartaValid.md).
 
 ## Сборка
 

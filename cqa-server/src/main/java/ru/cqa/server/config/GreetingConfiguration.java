@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import ru.cqa.cases.greeting.externalservice.ExternalServiceGreetingService;
-import ru.cqa.cases.greeting.GreetingRegistry;
-import ru.cqa.cases.greeting.GreetingService;
-import ru.cqa.cases.greeting.operator.OperatorGreetingService;
-import ru.cqa.business.validation.rules.greeting.GreetingRules;
-import ru.cqa.business.validation.validators.GreetingValidator;
+import ru.cqa.cases.grerting.externalservice.ExternalServiceGreetingService;
+import ru.cqa.cases.grerting.GreetingRegistry;
+import ru.cqa.cases.grerting.GreetingService;
+import ru.cqa.cases.grerting.operator.OperatorGreetingService;
+import ru.cqa.cases.mdm.validation.rules.greeting.GreetingRules;
+import ru.cqa.validators.GreetingValidator;
 
 @Configuration
 public class GreetingConfiguration {

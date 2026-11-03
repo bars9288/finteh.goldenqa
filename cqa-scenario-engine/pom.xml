@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.cqa</groupId>
+        <artifactId>cqa-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>cqa-scenario-engine</artifactId>
+    <packaging>jar</packaging>
+
+    <name>CQA Scenario Engine</name>
+    <description>Логические сценарии тестирования и ожидаемые результаты</description>
+
+    <properties>
+        <jakarta-validation.version>3.1.1</jakarta-validation.version>
+        <hibernate-validator.version>9.1.3.Final</hibernate-validator.version>
+    </properties>
+
+    <dependencies>
+        <!-- Сценарии используют прикладные проверки и доменную логику -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-business</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${jakarta-validation.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+</project>

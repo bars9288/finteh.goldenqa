@@ -4,8 +4,8 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import ru.cqa.cases.greeting.GreetingRegistry;
-import ru.cqa.cases.greeting.externalservice.ExternalServiceMapper;
+import ru.cqa.cases.grerting.GreetingRegistry;
+import ru.cqa.cases.grerting.externalservice.ExternalServiceMapper;
 import ru.cqa.dto.soap.ExternalServiceSoapDTO;
 import ru.cqa.server.web.greeting.GreetingServiceController;
 

@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.business.constants.PartyType;
-import ru.cqa.business.exceptions.SaveAndMergeValidationException;
-import ru.cqa.business.validation.validators.SaveAndMergeValidator;
+import ru.cqa.cases.mdm.constants.PartyType;
+import ru.cqa.cases.mdm.exceptions.SaveAndMergeValidationException;
+import ru.cqa.validators.mdm.SaveAndMergeValidator;
 import ru.cqa.dto.PartyDTO;
 import ru.cqa.dto.SaveAndMergeDTO;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
@@ -63,7 +63,7 @@ public class SaveAndMergeController {
             @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
         SaveAndMergeDTO body = jsonMapper.readValue(raw, SaveAndMergeDTO.class);
         try {
-            validatorFor(body).validate(body);
+            validatorFor(body).validateBody(body);
         } catch (SaveAndMergeValidationException e) {
             journal.validated(journalId, e.getErrors());
             throw e;

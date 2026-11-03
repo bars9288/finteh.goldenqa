@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
-import ru.cqa.business.exceptions.SaveAndMergeValidationException;
+import ru.cqa.cases.mdm.exceptions.SaveAndMergeValidationException;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.web.ErrorResponse;
 import ru.cqa.server.web.journal.JournalFilter;

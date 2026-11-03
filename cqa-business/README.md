@@ -2,7 +2,7 @@
 
 Бизнес-логика: доменные объекты, проверки входящих запросов, преобразование DTO в домен.
 
-`ru.cqa.business` · артефакт `cqa-business` · [← к карте проекта](../README.md)
+`ru.cqa.mdm` · артефакт `cqa-business` · [← к карте проекта](../README.md)
 
 > **Статус:** проверки запроса saveAndMerge (физлицо, юрлицо) и приветствия; демо-домен приветствий.
 > 27.10.2026 в модуль влит бывший `cqa-case` (проверки запросов).
@@ -11,8 +11,7 @@
 
 Всё, что решает «правильный ли запрос и что он значит», без привязки к Spring и транспорту:
 правила и валидаторы запросов, доменные объекты и перевод в них DTO из `cqa-dto`.
-Дальше сюда же лягут сценарии и прогоны из ТЗ (блоки `mainInfo`, `clientsInfo`,
-`servicesInfo`, `RulesList`; формат — примерами в `scenarLib/src/example/`).
+Сценарии и прогоны выделены в модуль `cqa-scenario-engine`; он использует проверки и доменную логику этого модуля.
 
 ## Границы — что сюда НЕ кладём
 
@@ -35,7 +34,7 @@
 ## Структура пакетов
 
 ```
-ru.cqa.business
+ru.cqa.mdm
 ├── greeting                  — демо-домен приветствий
 │   ├── GreetingRegistry, GreetingService
 │   ├── operator              — Operator, OperatorGreetingService, OperatorMapper
@@ -49,8 +48,8 @@ ru.cqa.business
 ```
 
 Подробно о проверках saveAndMerge:
-[правила бизнес-логики](src/main/java/ru/cqa/business/validation/rules/party/README.md) и
-[проверки формы DTO](src/main/java/ru/cqa/business/validation/rules/party/README_JakartaValid.md).
+[правила бизнес-логики](src/main/java/ru/cqa/cases/mdm/validation/rules/party/README.md) и
+[проверки формы DTO](src/main/java/ru/cqa/cases/mdm/validation/rules/party/README_JakartaValid.md).
 
 Как устроена проверка: `Validator<D, T>` — шаблонный метод `validate()`: форма (аннотации DTO
 через `jakarta.validation.Validator`) → сущность для правил (`entity()`) → правила → при ошибках

@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.cqa.cases.greeting.GreetingRegistry;
-import ru.cqa.cases.greeting.operator.Operator;
-import ru.cqa.cases.greeting.operator.OperatorMapper;
-import ru.cqa.business.validation.validators.GreetingValidator;
+import ru.cqa.cases.grerting.GreetingRegistry;
+import ru.cqa.cases.grerting.operator.Operator;
+import ru.cqa.cases.grerting.operator.OperatorMapper;
+import ru.cqa.validators.GreetingValidator;
 import ru.cqa.dto.HelloResponseDTO;
 import ru.cqa.dto.OperatorDTO;
 
@@ -32,7 +32,7 @@ public class GreetingOperatorController {
     public HelloResponseDTO hello(@RequestParam("name") String name,
                                   @RequestParam("family") String family) {
         OperatorDTO operator = new OperatorDTO(name, family);
-        validator.validate(operator);
+        validator.validateBody(operator);
         return respond(OperatorMapper.from(operator));
     }
 
@@ -43,7 +43,7 @@ public class GreetingOperatorController {
     @Operation(summary = "Приветствие, параметры в теле запроса")
     @PostMapping
     public HelloResponseDTO hello(@RequestBody OperatorDTO body) {
-        validator.validate(body);
+        validator.validateBody(body);
         return respond(OperatorMapper.from(body));
     }
 

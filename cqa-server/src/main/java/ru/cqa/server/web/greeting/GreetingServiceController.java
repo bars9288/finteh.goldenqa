@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.cases.greeting.GreetingRegistry;
-import ru.cqa.cases.greeting.externalservice.ExternalService;
-import ru.cqa.cases.greeting.externalservice.ExternalServiceMapper;
+import ru.cqa.cases.grerting.GreetingRegistry;
+import ru.cqa.cases.grerting.externalservice.ExternalService;
+import ru.cqa.cases.grerting.externalservice.ExternalServiceMapper;
 import ru.cqa.dto.ExternalServiceDTO;
 import ru.cqa.dto.HelloResponseDTO;
 
