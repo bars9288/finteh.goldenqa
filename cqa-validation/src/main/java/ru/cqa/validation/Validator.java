@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintViolation;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Общая последовательность проверки Bean Validation и прикладных правил. */
 public abstract class Validator<D, T, E extends ValidationException> {
 
     private final jakarta.validation.Validator validator;

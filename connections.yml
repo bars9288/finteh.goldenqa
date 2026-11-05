@@ -9,6 +9,8 @@ cqa:
       greeting-service: ${CQA_PATH_GREETING_SERVICE:/helloService}
       # REST POST: эхо — вернуть полученный запрос, проверка связи
       echo: ${CQA_PATH_ECHO:/echo}
+      # REST POST: создание и сохранение сценария
+      scenarios: ${CQA_PATH_SCENARIOS:/scenarios}
       # SOAP POST: единый адрес всех SOAP-операций, WSDL — <путь>/greeting.wsdl, <путь>/echo.wsdl
       soap: ${CQA_PATH_SOAP:/services}
   save-and-merge:

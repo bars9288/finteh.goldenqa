@@ -55,6 +55,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Сценарные модели, валидация и прикладной поток создания сценария -->
+        <dependency>
+            <groupId>ru.cqa</groupId>
+            <artifactId>cqa-scenario-engine</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- SOAP: Spring Web Services -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,7 +1,7 @@
 package ru.cqa.scenario.extract;
 
 import ru.cqa.scenario.definition.model.Extract;
-import ru.cqa.scenario.result.MoveResult;
+import ru.cqa.scenario.runtime.result.MoveResult;
 
 /** Извлекает значение определённого формата из результата операции. */
 public interface Extractor {

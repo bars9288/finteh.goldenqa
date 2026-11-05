@@ -16,12 +16,12 @@
 | `definition.model.move` | типизированные описания HTTP, SQL, Kafka и SOAP операций без клиентов этих протоколов |
 | `execution` | контекст запуска, входные параметры, контракты runners и `SequentialExecutionStrategy` |
 | `executor` | `MoveExecutor` и реестр встроенных/плагинных исполнителей |
-| `plugin` | `ServiceLoader` SPI, реестр возможностей, описание и загрузчик JAR-плагинов |
-| `action` | декларации действий и их реестр |
+| `pluginOLD` | отложенные классы `ServiceLoader` SPI и загрузки JAR-плагинов |
+| `actionOLD` | отложенные декларации действий и их реестр |
 | `repository` | порт хранения сценариев, предназначенный для PostgreSQL-адаптера вне ядра |
 | `serialization` | порты разбора и записи JSON, без привязки к конкретной библиотеке |
 | `assertion`, `extract` | типизированные расширяемые evaluator/extractor и их диспетчеризация |
-| `precondition` | контракты проверки обязательных зависимостей до старта |
+| `preconditionOLD` | отложенные контракты проверки обязательных зависимостей |
 | `connection` | ссылки на внешнюю конфигурацию и SPI провайдеров подключений |
 | `definition.validation` | специализированный валидатор сценарной модели поверх общего `cqa-validation` |
 | `result` | результаты и состояния выполнения |
@@ -32,14 +32,11 @@
 flowchart TD
     Engine[ScenarioEngine] --> Repo[ScenarioRepository]
     Engine --> Validator[ScenarioValidator]
-    Engine --> Pre[PreconditionEngine]
     Engine --> Strategy[ExecutionStrategy]
-    Strategy --> ScenarioRunner[ScenarioRunner]
-    ScenarioRunner --> StepRunner[StepRunner]
+    Strategy --> StepRunner[StepRunner]
     StepRunner --> MoveRunner[MoveRunner]
     MoveRunner --> Registry[MoveExecutorRegistry]
     Registry --> Builtin[Встроенный MoveExecutor]
-    Registry --> Plugin[MoveExecutor из JAR-плагина]
     MoveRunner --> Result[MoveResult]
     Result --> Assert[AssertionEngine]
     Result --> Extract[ExtractEngine]
@@ -57,13 +54,13 @@ flowchart TD
 
 ## Плагины
 
-Встроенные реализации передаются в `DefaultMoveExecutorRegistry` при создании. Внешний JAR может публиковать реализации через `META-INF/services` для `ScenarioPlugin` и/или `MoveExecutorProvider`. `PluginManager.loadPlugins()` просматривает JAR-файлы в заданном каталоге, создаёт для них `URLClassLoader`, находит SPI через `ServiceLoader` и регистрирует исполнители/`ActionDefinition`. Classloader-ы удерживаются до `close()`.
+Подсистема плагинов пока отложена; её классы помечены суффиксом `OLD`. Встроенные реализации передаются в `DefaultMoveExecutorRegistry` при создании.
 
-Плагин не получает пароли из `Scenario` или `Move`. Параметры внешнего окружения передаются CQA через `PluginContext`; конкретная политика доверия, подписи и изоляции плагинов не входит в этот каркас.
+Контракты безопасности для плагинов не входят в текущий поток запуска сценария.
 
 ## JSON и PostgreSQL
 
-JSON — формат сценария для импорта и экспорта. `ScenarioParser`, `ScenarioSerializer` и `MoveDeserializer` являются библиотечно-независимыми портами; реализация Jackson или другой библиотеки может быть добавлена адаптером без изменения моделей ядра.
+JSON — формат сценария для импорта и экспорта. `ScenarioParser` и `ScenarioSerializer` являются библиотечно-независимыми портами. `MoveDeserializerOLD` пока не используется: выбор подтипа Move выполняет адаптер ScenarioParser.
 
 Модели размечены ограничениями Jakarta Bean Validation с каскадной проверкой вложенных компонентов. `ScenarioValidator` применяет общую последовательность проверки из `cqa-validation` и преобразует нарушения в `ScenarioValidatorException`. Jakarta Validation API доступен через `cqa-validation`; приложение подключает provider и передаёт настроенный `Validator` в конструктор.
 
@@ -71,7 +68,7 @@ JSON — формат сценария для импорта и экспорта
 
 ## Подключения и секреты
 
-Scenario и Move содержат `connectionId`, а не URL, username, password или token. `ConnectionResolver` получает `ConnectionDefinition` из внешней конфигурации CQA. Конкретный `ConnectionProvider` создаёт нейтральный `ConnectionHandle`; protocol-specific ресурсы реализуются вне ядра. Тест предусловий оформляется через `PreconditionEngine` и `ConnectionChecker`.
+Scenario и Move содержат `connectionId`, а не секреты. `ConnectionResolver` и `ConnectionProvider` задают будущую границу интеграции с внешней конфигурацией. Проверка предусловий для текущего MVP отложена; её классы помечены суффиксом `OLD`.
 
 ## Результаты и проверки
 

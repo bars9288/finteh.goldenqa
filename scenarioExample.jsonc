@@ -1,113 +1,102 @@
-
 {
-  // Уникальный идентификатор сценария
   "id": "550e8400-e29b-41d4-a716-446655440000",
-
-  // Версия формата сценария
   "version": "1.0",
 
-  // Метаданные для отображения в интерфейсе CQA
   "metadata": {
-    "name": "Проверка создания пользователя",
-    "description": "Проверка создания пользователя через REST API с последующей проверкой данных в БД и публикацией события в Kafka",
-    "category": "API Integration",
+    "name": "Создание пользователя и проверка данных",
+    "description": "Проверка создания пользователя через REST API, сохранения в БД и публикации события в Kafka",
+    "category": "integration",
     "tags": [
       "http",
       "sql",
       "kafka",
-      "soap",
-      "integration"
+      "integration",
+      "user-management"
     ]
   },
 
-  // Общие параметры исполнения сценария
-  "execution": {
-    "timeout": "PT5M",
-    "continueAfterFailure": false
-  },
-
-  // Ссылки на заранее настроенные подключения
   "dependencies": [
     {
-      "connectionId": "user-service-api",
+      "connectionId": "user-service",
       "type": "http",
       "required": true,
       "description": "REST API сервиса пользователей"
     },
     {
-      "connectionId": "users-postgres",
+      "connectionId": "user-database",
       "type": "sql",
       "required": true,
-      "description": "PostgreSQL с данными пользователей"
+      "description": "База данных пользователей"
     },
     {
-      "connectionId": "events-kafka",
+      "connectionId": "event-broker",
       "type": "kafka",
       "required": true,
-      "description": "Kafka для публикации событий"
-    },
-    {
-      "connectionId": "user-soap-service",
-      "type": "soap",
-      "required": false,
-      "description": "SOAP-сервис для дополнительной проверки"
+      "description": "Kafka для проверки событий"
     }
   ],
 
-  // Упорядоченные шаги сценария
+  "execution": {
+    "timeout": "120s",
+    "continueAfterFailure": false
+  },
+
   "steps": [
     {
       "id": "step-001",
       "name": "Создание пользователя",
-      "description": "Отправка HTTP-запроса на создание пользователя",
+      "description": "Отправка запроса на создание пользователя",
+
       "continueOnError": false,
 
       "moves": [
         {
-          "id": "move-http-001",
+          "id": "move-001",
           "type": "http",
-          "connectionId": "user-service-api",
+          "connectionId": "user-service",
+
           "method": "POST",
-          "path": "/api/users",
+          "path": "/api/v1/users",
 
           "headers": {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
 
-          "requestBody": {
-            "name": "Ivan",
-            "email": "ivan@example.com"
-          },
+          "requestBody": "{\"name\":\"Ivan Petrov\",\"email\":\"ivan.petrov@example.com\",\"role\":\"USER\"}",
 
-          // Проверки результата HTTP-запроса
           "assertions": [
             {
-              "id": "assert-http-001",
+              "id": "assert-001",
               "type": "equals",
               "actualExpression": "$.status",
               "expectedValue": "SUCCESS"
             },
             {
-              "id": "assert-http-002",
+              "id": "assert-002",
               "type": "equals",
-              "actualExpression": "$.data.email",
-              "expectedValue": "ivan@example.com"
+              "actualExpression": "$.user.email",
+              "expectedValue": "ivan.petrov@example.com"
+            },
+            {
+              "id": "assert-003",
+              "type": "equals",
+              "actualExpression": "$.user.role",
+              "expectedValue": "USER"
             }
           ],
 
-          // Извлечение данных из HTTP-ответа
           "extracts": [
             {
-              "id": "extract-http-001",
+              "id": "extract-001",
               "type": "jsonpath",
-              "sourceExpression": "$.data.id",
+              "sourceExpression": "$.user.id",
               "targetVariable": "userId"
             },
             {
-              "id": "extract-http-002",
+              "id": "extract-002",
               "type": "jsonpath",
-              "sourceExpression": "$.data.email",
+              "sourceExpression": "$.user.email",
               "targetVariable": "userEmail"
             }
           ]
@@ -117,30 +106,43 @@
 
     {
       "id": "step-002",
-      "name": "Проверка пользователя в БД",
-      "description": "Проверка сохранения пользователя в PostgreSQL",
+      "name": "Проверка сохранения пользователя в БД",
+      "description": "Проверка наличия созданного пользователя в базе данных",
+
       "continueOnError": false,
 
       "moves": [
         {
-          "id": "move-sql-001",
+          "id": "move-002",
           "type": "sql",
-          "connectionId": "users-postgres",
+          "connectionId": "user-database",
 
-          "statement": "SELECT id, email, name FROM users WHERE id = :userId",
+          "statement": "SELECT id, email, role, status FROM users WHERE id = :userId",
 
           "assertions": [
             {
-              "id": "assert-sql-001",
+              "id": "assert-004",
               "type": "equals",
               "actualExpression": "$[0].email",
-              "expectedValue": "ivan@example.com"
+              "expectedValue": "ivan.petrov@example.com"
+            },
+            {
+              "id": "assert-005",
+              "type": "equals",
+              "actualExpression": "$[0].role",
+              "expectedValue": "USER"
+            },
+            {
+              "id": "assert-006",
+              "type": "equals",
+              "actualExpression": "$[0].status",
+              "expectedValue": "ACTIVE"
             }
           ],
 
           "extracts": [
             {
-              "id": "extract-sql-001",
+              "id": "extract-003",
               "type": "jsonpath",
               "sourceExpression": "$[0].id",
               "targetVariable": "databaseUserId"
@@ -152,78 +154,38 @@
 
     {
       "id": "step-003",
-      "name": "Публикация события в Kafka",
-      "description": "Публикация события о создании пользователя",
+      "name": "Проверка публикации события",
+      "description": "Проверка события UserCreated в Kafka",
+
       "continueOnError": false,
 
       "moves": [
         {
-          "id": "move-kafka-001",
+          "id": "move-003",
           "type": "kafka",
-          "connectionId": "events-kafka",
-          "topic": "user.created",
+          "connectionId": "event-broker",
 
+          "topic": "users.events",
           "key": "${userId}",
 
-          "payload": {
-            "eventType": "USER_CREATED",
-            "userId": "${userId}",
-            "email": "${userEmail}"
-          },
+          "payload": "{\"eventType\":\"UserCreated\",\"userId\":\"${userId}\",\"email\":\"${userEmail}\"}",
 
           "assertions": [
             {
-              "id": "assert-kafka-001",
+              "id": "assert-007",
               "type": "equals",
-              "actualExpression": "$.topic",
-              "expectedValue": "user.created"
+              "actualExpression": "$.eventType",
+              "expectedValue": "UserCreated"
+            },
+            {
+              "id": "assert-008",
+              "type": "equals",
+              "actualExpression": "$.userId",
+              "expectedValue": "${userId}"
             }
           ],
 
-          "extracts": [
-            {
-              "id": "extract-kafka-001",
-              "type": "jsonpath",
-              "sourceExpression": "$.partition",
-              "targetVariable": "kafkaPartition"
-            }
-          ]
-        }
-      ]
-    },
-
-    {
-      "id": "step-004",
-      "name": "Дополнительная проверка через SOAP",
-      "description": "Вызов SOAP-сервиса для проверки пользователя",
-      "continueOnError": true,
-
-      "moves": [
-        {
-          "id": "move-soap-001",
-          "type": "soap",
-          "connectionId": "user-soap-service",
-          "action": "GetUser",
-
-          "envelope": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><GetUser><UserId>${userId}</UserId></GetUser></soap:Body></soap:Envelope>",
-
-          "assertions": [
-            {
-              "id": "assert-soap-001",
-              "type": "equals",
-              "actualExpression": "$.Envelope.Body.GetUserResponse.Status",
-              "expectedValue": "SUCCESS"
-            }
-          ],
-
-          "extracts": [
-            {
-              "id": "extract-soap-001",
-              "type": "jsonpath",
-              "sourceExpression": "$.Envelope.Body.GetUserResponse.User.Name",
-              "targetVariable": "soapUserName"
-            }
-          ]
+          "extracts": []
         }
       ]
     }

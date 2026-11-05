@@ -13,7 +13,7 @@
 - ядро не зависит от Spring, JDBC, PostgreSQL-драйверов, Kafka-клиентов и HTTP/SOAP-библиотек;
 - конфигурации подключений и секреты поступают через внешние адаптеры CQA;
 - интерфейсы `ScenarioRepository`, `ScenarioParser` и `ScenarioSerializer` не содержат PostgreSQL- или JSON-библиотечной реализации;
-- встроенные исполнители и внешние JAR-плагины регистрируются через контракты `MoveExecutor` и `ScenarioPlugin`.
+- встроенные исполнители регистрируются через `MoveExecutor`; плагины отложены в `pluginOLD`.
 
 ## Пакеты
 
@@ -22,10 +22,10 @@
 | `definition.model`, `definition.model.move` | сценарии, шаги, зависимости, перемещения и типизированные модели HTTP/SQL/Kafka/SOAP |
 | `execution` | жизненный цикл прогона и последовательная стратегия |
 | `executor` | контракт исполнителя перемещения и реестр |
-| `plugin`, `action` | SPI плагинов, загрузка через `ServiceLoader`, декларации действий |
+| `pluginOLD`, `actionOLD` | отложенная подсистема расширений; классы и пакеты помечены суффиксом `OLD` |
 | `repository`, `serialization` | порты хранения и JSON-парсинга/сериализации |
 | `assertion`, `extract` | контракты и диспетчеризация проверок и извлечения |
-| `precondition`, `connection`, `definition.validation` | проверки допуска, разрешение подключений и валидация модели |
+| `preconditionOLD`, `connection`, `definition.validation` | проверки предусловий отложены; подключения и валидация модели |
 | `result` | статусы и результаты перемещений, шагов и запусков |
 
 Подробнее: [ARCHITECTURE.md](ARCHITECTURE.md).

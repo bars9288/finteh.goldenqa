@@ -1,0 +1,103 @@
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "version": "1.0",
+
+  "metadata": {
+    "name": "Создание пользователя",
+    "description": "Проверка создания пользователя через REST API",
+    "category": "simple-check",
+    "tags": [
+      "http"
+    ]
+  },
+
+  "dependencies": [
+    {
+      "connectionId": "user-service",
+      "type": "http",
+      "required": true,
+      "description": "REST API сервиса пользователей"
+    }
+  ],
+
+  "execution": {
+    "timeout": "PT120S",
+    "continueAfterFailure": false
+  },
+
+  "steps": [
+    {
+      "id": "step-001",
+      "name": "Создание пользователя",
+      "description": "Отправка запроса на создание пользователя",
+
+      "continueOnError": false,
+
+      "moves": [
+        {
+          "id": "move-001",
+          "type": "http",
+          "connectionId": "user-simple-service",
+
+          "method": "POST",
+          "path": "http://mdm-test.com/api/v1/users",
+
+          "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+
+          "requestBody": "{\"nameSuorce\":\"Ivan Petrov\",\"email\":\"ivan.petrov@example.com\",\"role\":\"USER\"}",
+
+          "assertions": [
+            {
+              "id": "assert-001",
+              "type": "equals",
+              "actualExpression": "$.statusCode",
+              "expectedValue": 200
+            },
+            {
+              "id": "assert-002",
+              "type": "equals",
+              "actualExpression": "$.user.email",
+              "expectedValue": "ivan.petrov@example.com"
+            },
+            {
+              "id": "assert-003",
+              "type": "equals",
+              "actualExpression": "$.user.role",
+              "expectedValue": "USER"
+            },
+            {
+              "id": "assert-004",
+              "type": "equals",
+              "actualExpression": "$.user.name",
+              "expectedValue": "Ivan"
+            },
+            {
+              "id": "assert-005",
+              "type": "equals",
+              "actualExpression": "$.user.surname",
+              "expectedValue": "Petrov"
+            }
+          ],
+
+          "extracts": [
+            {
+              "id": "extract-001",
+              "type": "jsonpath",
+              "sourceExpression": "$.user.id",
+              "targetVariable": "userId"
+            },
+            {
+              "id": "extract-002",
+              "type": "jsonpath",
+              "sourceExpression": "$.user.email",
+              "targetVariable": "userEmail"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

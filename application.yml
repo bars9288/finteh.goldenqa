@@ -22,6 +22,9 @@ spring.sql.init:
 cqa.journal:
   fallback-dir: logs
 
+cqa.scenarios:
+  directory: ${CQA_SCENARIOS_DIR:scenarios}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
