@@ -1,14 +1,13 @@
 package ru.cqa.cases.mdm.validation.rules.party.common;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.List;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.RequisitesNames.CREATED_DATE;
-import static ru.cqa.utils.DateFormatUtils.checkDateTimeZnMsk;
-import static ru.cqa.utils.DateFormatUtils.isDdMmYyyy;
+import static ru.cqa.cases.mdm.constants.PartyFieldNames.CREATED_DATE;
+import static ru.cqa.utils.DateValidationUtils.validateDateTimeWithMoscowZone;
+import static ru.cqa.utils.DateValidationUtils.isValidDate;
 
 /**
  * 2. ОБЩАЯ проверка реквизита: дата создания {@code createdDate} обязательна,
@@ -17,19 +16,19 @@ import static ru.cqa.utils.DateFormatUtils.isDdMmYyyy;
  *
  * <p>Применяется для всех типов Party (Физическое лицо / Юридическое лицо).
  */
-public final class CreateddateRule implements Rule<PartyDTO> {
+public final class PartyCreatedDateRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
-        String raw = FieldMaps.of(party).get(CREATED_DATE);
-        if (isBlank(raw)) {
+        String createdDateValue = FieldMaps.of(party).get(CREATED_DATE);
+        if (isBlank(createdDateValue)) {
             return List.of("party[0].field." + CREATED_DATE + ": обязательно, не должно быть пустым");
         }
-        String[] parts = raw.strip().split("\\s");
-        if (parts.length == 1 && isDdMmYyyy(parts[0])) {
+        String[] dateTimeParts = createdDateValue.strip().split("\\s");
+        if (dateTimeParts.length == 1 && isValidDate(dateTimeParts[0])) {
             return List.of();
         }
-        return checkDateTimeZnMsk(parts, "party[0].field." + CREATED_DATE,
+        return validateDateTimeWithMoscowZone(dateTimeParts, "party[0].field." + CREATED_DATE,
                 "ожидается дата в формате ДД.ММ.ГГГГ или ДД.ММ.ГГГГ ЧЧ:мм:СС в Московском часовом поясе");
     }
 }

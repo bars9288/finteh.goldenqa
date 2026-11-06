@@ -1,12 +1,9 @@
-package ru.cqa.server.web.saveAndMerge;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+package ru.cqa.server.web.mdm;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,11 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.cases.mdm.constants.PartyType;
-import ru.cqa.validators.mdm.SaveAndMergeValidatorException;
-import ru.cqa.validators.mdm.SaveAndMergeValidator;
-import ru.cqa.dto.PartyDTO;
-import ru.cqa.dto.SaveAndMergeDTO;
+import ru.cqa.api.validation.SaveAndMergeValidatorException;
+import ru.cqa.api.validation.Validator;
+import ru.cqa.model.mdm.SaveAndMergeDTO;
 import ru.cqa.server.db.sqlite.journal.JournalWriter;
 import ru.cqa.server.mdm.MdmClient;
 import ru.cqa.server.web.ApiPaths;
@@ -36,20 +31,20 @@ import tools.jackson.databind.json.JsonMapper;
 @RequestMapping(path = ApiPaths.SAVE_AND_MERGE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SaveAndMergeController {
 
-    private final Map<PartyType, SaveAndMergeValidator> validators;
+    private final Validator<SaveAndMergeDTO> validator;
     private final MdmClient mdmClient;
     private final JsonMapper jsonMapper;
-    private final JournalWriter journal;
+    private final JournalWriter journalWriter;
 
     /**
      * {@code @Lazy}: клиент МДМ создаётся при первом запросе, см. ExternalServicesConfiguration.
      */
-    public SaveAndMergeController(Map<PartyType, SaveAndMergeValidator> validators, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
-                                  JournalWriter journal) {
-        this.validators = validators;
+    public SaveAndMergeController(Validator<SaveAndMergeDTO> validator, @Lazy MdmClient mdmClient, JsonMapper jsonMapper,
+                                  JournalWriter journalWriter) {
+        this.validator = validator;
         this.mdmClient = mdmClient;
         this.jsonMapper = jsonMapper;
-        this.journal = journal;
+        this.journalWriter = journalWriter;
     }
 
     /**
@@ -59,25 +54,17 @@ public class SaveAndMergeController {
     @PostMapping
     public ResponseEntity<byte[]> saveAndMerge(
             @RequestHeader HttpHeaders headers,
-            @RequestBody byte[] raw,
+            @RequestBody byte[] requestBody,
             @RequestAttribute(name = JournalFilter.REQUEST_ID, required = false) UUID journalId) {
-        SaveAndMergeDTO body = jsonMapper.readValue(raw, SaveAndMergeDTO.class);
+        SaveAndMergeDTO request = jsonMapper.readValue(requestBody, SaveAndMergeDTO.class);
         try {
-            validatorFor(body).validateBody(body);
-        } catch (SaveAndMergeValidatorException e) {
-            journal.validated(journalId, e.getErrors());
-            throw e;
+            validator.validateBody(request);
+        } catch (SaveAndMergeValidatorException exception) {
+            journalWriter.validated(journalId, exception.getErrors());
+            throw exception;
         }
-        journal.validated(journalId, List.of());
-        return mdmClient.saveAndMerge(journalId, headers, raw);
+        journalWriter.validated(journalId, List.of());
+        return mdmClient.saveAndMerge(journalId, headers, requestBody);
     }
 
-    private SaveAndMergeValidator validatorFor(SaveAndMergeDTO body) {
-        List<PartyDTO> parties = body.party();
-        String type = parties == null || parties.isEmpty() || parties.get(0) == null ? null : parties.get(0).type();
-        return PartyType.of(type)
-                .map(validators::get)
-                .orElseThrow(() -> new SaveAndMergeValidatorException(
-                        List.of("party[0].type: ожидается одно из " + Arrays.toString(PartyType.values()))));
-    }
 }
