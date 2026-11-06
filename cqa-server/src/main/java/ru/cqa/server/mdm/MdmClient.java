@@ -28,65 +28,65 @@ import ru.cqa.server.db.sqlite.journal.JournalWriter;
  */
 public class MdmClient {
 
-    private static final Set<String> NOT_FORWARDED = Set.of(
+    private static final Set<String> EXCLUDED_HEADER_NAMES = Set.of(
             "connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "proxy-connection",
             "te", "trailer", "transfer-encoding", "upgrade", "host", "content-length", "expect");
 
-    private static final String SERVICE = "MDM";
+    private static final String SERVICE_NAME = "MDM";
 
     private final RestClient restClient;
     private final String saveAndMergePath;
     /** Полный адрес — только для журнала; запрос идёт по пути относительно baseUrl клиента. */
     private final String saveAndMergeUrl;
-    private final JournalWriter journal;
+    private final JournalWriter journalWriter;
 
-    public MdmClient(RestClient restClient, String baseUrl, String saveAndMergePath, JournalWriter journal) {
+    public MdmClient(RestClient restClient, String baseUrl, String saveAndMergePath, JournalWriter journalWriter) {
         this.restClient = restClient;
         this.saveAndMergePath = saveAndMergePath;
         this.saveAndMergeUrl = UriComponentsBuilder.fromUriString(baseUrl).path(saveAndMergePath).toUriString();
-        this.journal = journal;
+        this.journalWriter = journalWriter;
     }
 
     /**
      * @param journalId id записи журнала входящего запроса; null — вызов не журналируется
      */
     public ResponseEntity<byte[]> saveAndMerge(UUID journalId, HttpHeaders requestHeaders, byte[] body) {
-        HttpHeaders sent = forwardable(requestHeaders);
-        UUID callId = journal.callStarted(journalId, SERVICE, Instant.now(), saveAndMergeUrl, sent);
-        ResponseEntity<byte[]> answer;
+        HttpHeaders forwardedHeaders = filterForwardableHeaders(requestHeaders);
+        UUID callId = journalWriter.callStarted(journalId, SERVICE_NAME, Instant.now(), saveAndMergeUrl, forwardedHeaders);
+        ResponseEntity<byte[]> mdmResponse;
         try {
-            answer = restClient.post()
+            mdmResponse = restClient.post()
                     .uri(saveAndMergePath)
-                    .headers(headers -> headers.addAll(sent))
+                    .headers(headers -> headers.addAll(forwardedHeaders))
                     .body(body)
                     .exchange((request, response) -> ResponseEntity.status(response.getStatusCode())
                             .headers(response.getHeaders())
                             .body(response.getBody().readAllBytes()));
-        } catch (RestClientException e) {
-            journal.callFailed(callId, Instant.now(), e.getMessage());
-            throw e;
+        } catch (RestClientException exception) {
+            journalWriter.callFailed(callId, Instant.now(), exception.getMessage());
+            throw exception;
         }
-        journal.callAnswered(callId, Instant.now(), answer.getStatusCode().value(), answer.getHeaders(), answer.getBody());
-        return ResponseEntity.status(answer.getStatusCode())
-                .headers(forwardable(answer.getHeaders()))
-                .body(answer.getBody());
+        journalWriter.callAnswered(callId, Instant.now(), mdmResponse.getStatusCode().value(), mdmResponse.getHeaders(), mdmResponse.getBody());
+        return ResponseEntity.status(mdmResponse.getStatusCode())
+                .headers(filterForwardableHeaders(mdmResponse.getHeaders()))
+                .body(mdmResponse.getBody());
     }
 
     /** Копия заголовков без hop-by-hop и без перечисленных в самом {@code Connection}. */
-    private static HttpHeaders forwardable(HttpHeaders source) {
-        Set<String> skip = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        skip.addAll(NOT_FORWARDED);
-        for (String value : source.getOrEmpty(HttpHeaders.CONNECTION)) {
+    private static HttpHeaders filterForwardableHeaders(HttpHeaders sourceHeaders) {
+        Set<String> excludedHeaderNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        excludedHeaderNames.addAll(EXCLUDED_HEADER_NAMES);
+        for (String value : sourceHeaders.getOrEmpty(HttpHeaders.CONNECTION)) {
             for (String name : value.split(",")) {
-                skip.add(name.strip().toLowerCase(Locale.ROOT));
+                excludedHeaderNames.add(name.strip().toLowerCase(Locale.ROOT));
             }
         }
-        HttpHeaders result = new HttpHeaders();
-        source.forEach((name, values) -> {
-            if (!skip.contains(name)) {
-                result.addAll(name, values);
+        HttpHeaders forwardedHeaders = new HttpHeaders();
+        sourceHeaders.forEach((name, values) -> {
+            if (!excludedHeaderNames.contains(name)) {
+                forwardedHeaders.addAll(name, values);
             }
         });
-        return result;
+        return forwardedHeaders;
     }
 }

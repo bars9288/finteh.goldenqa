@@ -24,14 +24,14 @@ import org.springframework.stereotype.Component;
 @Component
 class JournalSchema {
 
-    private static final Logger log = LoggerFactory.getLogger(JournalSchema.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JournalSchema.class);
 
     private static final String SQLITE_PREFIX = "jdbc:sqlite:";
 
     private final boolean ready;
 
-    JournalSchema(DataSource dataSource, @Value("${spring.datasource.url}") String url) {
-        this.ready = prepare(dataSource, url);
+    JournalSchema(DataSource dataSource, @Value("${spring.datasource.url}") String databaseUrl) {
+        this.ready = prepare(dataSource, databaseUrl);
     }
 
     /** true — БД готова; false — писать в неё бесполезно, журнал идёт в резервный файл. */
@@ -39,15 +39,15 @@ class JournalSchema {
         return ready;
     }
 
-    private static boolean prepare(DataSource dataSource, String url) {
+    private static boolean prepare(DataSource dataSource, String databaseUrl) {
         try {
-            createParentDirectories(url);
+            createParentDirectories(databaseUrl);
             // SQLite создаёт файл БД сам при первом подключении — его делает уже скрипт
             new ResourceDatabasePopulator(new ClassPathResource("db/schema.sql")).execute(dataSource);
-            log.info("БД журнала готова: {}", url);
+            LOGGER.info("БД журнала готова: {}", databaseUrl);
             return true;
-        } catch (Exception e) {
-            log.error("БД журнала недоступна ({}): журнал пишется в резервный файл", url, e);
+        } catch (Exception exception) {
+            LOGGER.error("БД журнала недоступна ({}): журнал пишется в резервный файл", databaseUrl, exception);
             return false;
         }
     }
@@ -56,11 +56,11 @@ class JournalSchema {
      * SQLite создаёт файл БД, но не каталоги на пути к нему — их создаём сами.
      * Путь — часть адреса между {@code jdbc:sqlite:} и параметрами {@code ?...}.
      */
-    private static void createParentDirectories(String url) throws IOException {
-        if (!url.startsWith(SQLITE_PREFIX)) {
+    private static void createParentDirectories(String databaseUrl) throws IOException {
+        if (!databaseUrl.startsWith(SQLITE_PREFIX)) {
             return;
         }
-        String path = url.substring(SQLITE_PREFIX.length());
+        String path = databaseUrl.substring(SQLITE_PREFIX.length());
         int params = path.indexOf('?');
         if (params >= 0) {
             path = path.substring(0, params);

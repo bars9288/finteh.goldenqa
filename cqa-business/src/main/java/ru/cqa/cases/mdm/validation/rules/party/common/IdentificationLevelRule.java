@@ -1,12 +1,11 @@
 package ru.cqa.cases.mdm.validation.rules.party.common;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.List;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.RequisitesNames.IDENTIFICATION_LEVEL;
+import static ru.cqa.cases.mdm.constants.PartyFieldNames.IDENTIFICATION_LEVEL;
 
 /**
  * 1. ОБЩАЯ проверка: поле уровень идентификации ({@code identificationLevel}) обязательно.

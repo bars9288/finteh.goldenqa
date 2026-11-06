@@ -1,24 +1,16 @@
 # CQA Validation
 
-Общий механизм проверки моделей, используемый бизнес-логикой и движком сценариев.
+Реализация общего контракта `FormValidator` из `cqa-api`.
+`BeanFormValidator` принимает `jakarta.validation.Validator`, проверяет аннотации
+моделей и возвращает отсортированные ошибки с путями полей. Служебный сегмент
+`.<list element>` удаляется из сообщений.
 
-`ru.cqa.validation` · артефакт `cqa-validation` · [← к карте проекта](../README.md)
+Модуль зависит только от `cqa-api` и `cqa-model` внутри проекта. Spring отсутствует.
+Провайдер Hibernate Validator предоставляет приложение; bootstrap связывает его с адаптером.
 
-## Состав
-
-- `Validator<D, T, E>` — базовый поток: Bean Validation входной модели, затем прикладные правила сущности;
-- `Rule<T>` — контракт прикладного правила;
-- `ValidationException` — базовая ошибка со списком сообщений.
-
-Модуль не зависит от `cqa-business`, `cqa-scenario-engine` или Spring. Конкретные валидаторы,
-правила и классы ошибок остаются в своих предметных модулях. Приложение подключает реализацию
-Jakarta Bean Validation provider; этот модуль содержит только API.
-
-## Зависимости
-
-- `jakarta.validation-api`.
-
-## Сборка
+`Validator<T>`, `Rule<T>` и исключения находятся в API. Предметные валидаторы
+в business и scenario-engine используют `FormValidator` через конструктор.
+Они не зависят от этого модуля и не наследуют его классы.
 
 ```bash
 mvn -pl cqa-validation -am package

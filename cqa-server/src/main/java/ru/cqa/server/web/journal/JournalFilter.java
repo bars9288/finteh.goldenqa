@@ -31,7 +31,7 @@ import ru.cqa.server.db.sqlite.journal.JournalWriter;
  * <p>Порядок для одного запроса:
  * <ol>
  *   <li>тело читается целиком, запрос пишется в журнал ({@code requestReceived});</li>
- *   <li>id записи кладётся в атрибут {@link #REQUEST_ID} — по нему контроллер
+ *   <li>requestId записи кладётся в атрибут {@link #REQUEST_ID} — по нему контроллер
  *       дописывает итог проверки, а клиент МДМ — свой вызов;</li>
  *   <li>обработка идёт дальше, ответ копится в памяти;</li>
  *   <li>ответ отправляется клиенту и пишется в журнал ({@code responseSent}).</li>
@@ -46,32 +46,32 @@ import ru.cqa.server.db.sqlite.journal.JournalWriter;
 public class JournalFilter extends OncePerRequestFilter {
 
     /**
-     * Атрибут запроса с id записи журнала ({@link UUID}); нет атрибута — запрос не журналируется.
+     * Атрибут запроса с requestId записи журнала ({@link UUID}); нет атрибута — запрос не журналируется.
      * Литерал, а не {@code getName() + ...}: используется в аннотации {@code @RequestAttribute},
      * а там допустимы только константы времени компиляции.
      */
     public static final String REQUEST_ID = "ru.cqa.server.web.journal.JournalFilter.requestId";
 
-    private static final Logger log = LoggerFactory.getLogger(JournalFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JournalFilter.class);
 
-    private final JournalWriter journal;
+    private final JournalWriter journalWriter;
 
     /**
      * Служебные адреса — не REST-ручки, в журнал не пишутся: документация API,
      * её статика, SOAP (свой сервлет на spring.webservices.path) и страница ошибки.
      */
-    private final List<String> notJournaled;
+    private final List<String> excludedPathPrefixes;
 
-    public JournalFilter(JournalWriter journal, @Value("${spring.webservices.path}") String soapPath) {
-        this.journal = journal;
-        this.notJournaled = List.of(
+    public JournalFilter(JournalWriter journalWriter, @Value("${spring.webservices.path}") String soapPath) {
+        this.journalWriter = journalWriter;
+        this.excludedPathPrefixes = List.of(
                 "/swagger-ui", "/v3/api-docs", "/scalar", "/webjars", soapPath + "/", "/favicon.ico", "/error");
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        return notJournaled.stream().anyMatch(path::startsWith);
+        return excludedPathPrefixes.stream().anyMatch(path::startsWith);
     }
 
     @Override
@@ -83,30 +83,30 @@ public class JournalFilter extends OncePerRequestFilter {
         byte[] body;
         try {
             body = request.getInputStream().readAllBytes();
-        } catch (IOException e) {
+        } catch (IOException exception) {
             // клиент оборвал передачу тела — запрос всё равно попадает в журнал
-            UUID id = requestReceived(request, receivedAt, requestHeaders, null);
-            safely(() -> journal.internalError(id, "Тело запроса не прочитано: " + e));
-            throw e;
+            UUID requestId = requestReceived(request, receivedAt, requestHeaders, null);
+            safely(() -> journalWriter.internalError(requestId, "Тело запроса не прочитано: " + exception));
+            throw exception;
         }
 
-        UUID id = requestReceived(request, receivedAt, requestHeaders, body);
-        if (id != null) {
-            request.setAttribute(REQUEST_ID, id);
+        UUID requestId = requestReceived(request, receivedAt, requestHeaders, body);
+        if (requestId != null) {
+            request.setAttribute(REQUEST_ID, requestId);
         }
 
         ContentCachingResponseWrapper cachingResponse = new ContentCachingResponseWrapper(response);
         try {
             chain.doFilter(new CachedBodyRequest(request, body), cachingResponse);
-        } catch (IOException | ServletException | RuntimeException e) {
+        } catch (IOException | ServletException | RuntimeException exception) {
             // исключение не обработал ни один @ExceptionHandler: ответ 500 Tomcat
             // сформирует уже после фильтра, тела его здесь нет
-            safely(() -> journal.internalError(id, "Необработанное исключение: " + e));
-            safely(() -> journal.responseSent(id, Instant.now(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            safely(() -> journalWriter.internalError(requestId, "Необработанное исключение: " + exception));
+            safely(() -> journalWriter.responseSent(requestId, Instant.now(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     new HttpHeaders(), null, null));
-            throw e;
+            throw exception;
         }
-        sendResponse(id, response, cachingResponse);
+        sendResponse(requestId, response, cachingResponse);
     }
 
     /**
@@ -115,7 +115,7 @@ public class JournalFilter extends OncePerRequestFilter {
      * <p>{@code flushBuffer()} — чтобы отправка случилась здесь, а не после фильтра:
      * иначе обрыв соединения клиентом журнал бы не увидел.
      */
-    private void sendResponse(UUID id, HttpServletResponse response, ContentCachingResponseWrapper cachingResponse)
+    private void sendResponse(UUID requestId, HttpServletResponse response, ContentCachingResponseWrapper cachingResponse)
             throws IOException {
         // до copyBodyToResponse: после него кэш тела пуст
         byte[] responseBody = cachingResponse.getContentAsByteArray();
@@ -125,21 +125,21 @@ public class JournalFilter extends OncePerRequestFilter {
         try {
             cachingResponse.copyBodyToResponse();
             response.flushBuffer();
-        } catch (IOException e) {
-            deliveryError = e.toString();
-            throw e;
+        } catch (IOException exception) {
+            deliveryError = exception.toString();
+            throw exception;
         } finally {
             String error = deliveryError;
-            safely(() -> journal.responseSent(id, Instant.now(), status, responseHeaders, responseBody, error));
+            safely(() -> journalWriter.responseSent(requestId, Instant.now(), status, responseHeaders, responseBody, error));
         }
     }
 
     private UUID requestReceived(HttpServletRequest request, Instant receivedAt, HttpHeaders headers, byte[] body) {
         try {
-            return journal.requestReceived(receivedAt, request.getRemoteAddr(), request.getRemotePort(),
+            return journalWriter.requestReceived(receivedAt, request.getRemoteAddr(), request.getRemotePort(),
                     request.getMethod(), request.getRequestURI(), request.getQueryString(), headers, body);
-        } catch (RuntimeException e) {
-            log.warn("Журнал: запрос не записан, обработка идёт дальше", e);
+        } catch (RuntimeException exception) {
+            LOGGER.warn("Журнал: запрос не записан, обработка идёт дальше", exception);
             return null;
         }
     }
@@ -163,8 +163,8 @@ public class JournalFilter extends OncePerRequestFilter {
     private static void safely(Runnable action) {
         try {
             action.run();
-        } catch (RuntimeException e) {
-            log.warn("Журнал: сбой записи, обработка идёт дальше", e);
+        } catch (RuntimeException exception) {
+            LOGGER.warn("Журнал: сбой записи, обработка идёт дальше", exception);
         }
     }
 }

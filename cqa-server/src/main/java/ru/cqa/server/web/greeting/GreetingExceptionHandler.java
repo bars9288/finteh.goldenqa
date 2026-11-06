@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.cqa.validators.GreetingValidatorException;
-import ru.cqa.server.web.ErrorResponse;
+import ru.cqa.api.validation.GreetingValidatorException;
+import ru.cqa.model.web.ErrorResponse;
 
-@RestControllerAdvice(assignableTypes = {GreetingOperatorController.class, GreetingServiceController.class})
+@RestControllerAdvice(assignableTypes = {OperatorGreetingController.class, ServiceGreetingController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GreetingExceptionHandler {
 

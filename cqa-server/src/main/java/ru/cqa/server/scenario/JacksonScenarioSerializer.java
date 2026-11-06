@@ -1,10 +1,10 @@
 package ru.cqa.server.scenario;
 
 import org.springframework.stereotype.Component;
+import ru.cqa.api.scenario.ScenarioSerializer;
+import ru.cqa.model.scenario.Scenario;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.scenario.serialization.ScenarioSerializer;
 
 /** Jackson-адаптер сериализации сценария для файлового хранилища. */
 @Component

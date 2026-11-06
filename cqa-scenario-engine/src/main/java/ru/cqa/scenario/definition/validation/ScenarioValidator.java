@@ -1,23 +1,24 @@
 package ru.cqa.scenario.definition.validation;
 
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.validation.Validator;
-
 import java.util.List;
+import java.util.Objects;
+import ru.cqa.api.validation.FormValidator;
+import ru.cqa.api.validation.ScenarioValidatorException;
+import ru.cqa.api.validation.Validator;
+import ru.cqa.model.scenario.Scenario;
 
-public class ScenarioValidator extends Validator<Scenario, Scenario, ScenarioValidatorException> {
+public final class ScenarioValidator implements Validator<Scenario> {
+    private final FormValidator formValidator;
 
-    public ScenarioValidator(jakarta.validation.Validator validator){
-        super(validator, List.of());
+    public ScenarioValidator(FormValidator formValidator) {
+        this.formValidator = Objects.requireNonNull(formValidator, "formValidator");
     }
 
     @Override
-    protected Scenario entity(Scenario request) {
-        return request;
-    }
-
-    @Override
-    protected ScenarioValidatorException exception(List<String> errors) {
-        return new ScenarioValidatorException(errors);
+    public void validateBody(Scenario request) {
+        List<String> errors = formValidator.validate(request);
+        if (!errors.isEmpty()) {
+            throw new ScenarioValidatorException(errors);
+        }
     }
 }

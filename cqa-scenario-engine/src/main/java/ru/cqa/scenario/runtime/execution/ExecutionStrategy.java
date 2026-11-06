@@ -1,7 +1,8 @@
 package ru.cqa.scenario.runtime.execution;
 
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.scenario.runtime.result.ExecutionResult;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.model.execution.ExecutionResult;
+import ru.cqa.model.scenario.Scenario;
 
 /** Политика порядка выполнения шагов сценария. */
 public interface ExecutionStrategy {

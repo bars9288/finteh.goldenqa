@@ -1,12 +1,12 @@
 package ru.cqa.scenario.runtime.execution;
 
 import java.util.Objects;
-
-import ru.cqa.scenario.definition.model.Move;
-import ru.cqa.scenario.runtime.executor.MoveExecutor;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.api.execution.MoveExecutor;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.execution.MoveStatus;
+import ru.cqa.model.scenario.Move;
 import ru.cqa.scenario.runtime.executor.MoveExecutorRegistry;
-import ru.cqa.scenario.runtime.result.MoveResult;
-import ru.cqa.scenario.runtime.result.MoveStatus;
 
 /** Находит executor по типу Move и преобразует ошибку executor-а в MoveResult. */
 public final class DefaultMoveRunner implements MoveRunner {

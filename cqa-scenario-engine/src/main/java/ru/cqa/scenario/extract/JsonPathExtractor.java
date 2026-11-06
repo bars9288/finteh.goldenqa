@@ -1,8 +1,9 @@
 package ru.cqa.scenario.extract;
 
-import ru.cqa.scenario.definition.model.Extract;
+import ru.cqa.api.extract.Extractor;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.scenario.Extract;
 import ru.cqa.scenario.runtime.expression.JsonPathReader;
-import ru.cqa.scenario.runtime.result.MoveResult;
 
 public final class JsonPathExtractor implements Extractor {
     @Override

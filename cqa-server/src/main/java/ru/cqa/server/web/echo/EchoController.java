@@ -1,10 +1,9 @@
 package ru.cqa.server.web.echo;
 
-import java.util.Map;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.cqa.model.echo.EchoDetails;
 import ru.cqa.server.web.ApiPaths;
 
 /** Эхо-ручки: что получили, то и вернули. */
@@ -21,7 +21,6 @@ import ru.cqa.server.web.ApiPaths;
 @RestController
 @RequestMapping(ApiPaths.ECHO)
 public class EchoController {
-
 
     @Operation(summary = "Вернуть тело запроса без изменений",
                description = "Content-Type ответа повторяет Content-Type запроса. Параметры адресной строки игнорируются: они не входят в тело.")

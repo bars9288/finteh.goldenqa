@@ -43,22 +43,22 @@ import tools.jackson.databind.json.JsonMapper;
 @Component
 public class JournalWriter {
 
-    private static final Logger log = LoggerFactory.getLogger(JournalWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JournalWriter.class);
 
-    private final JdbcAggregateTemplate template;
-    private final JournalRequestRepository requests;
-    private final JournalCallRepository calls;
-    private final JournalSchema schema;
-    private final JournalFallbackFile fallback;
+    private final JdbcAggregateTemplate jdbcTemplate;
+    private final JournalRequestRepository requestRepository;
+    private final JournalCallRepository callRepository;
+    private final JournalSchema journalSchema;
+    private final JournalFallbackFile fallbackFile;
     private final JsonMapper jsonMapper;
 
-    JournalWriter(JdbcAggregateTemplate template, JournalRequestRepository requests, JournalCallRepository calls,
-                  JournalSchema schema, JournalFallbackFile fallback, JsonMapper jsonMapper) {
-        this.template = template;
-        this.requests = requests;
-        this.calls = calls;
-        this.schema = schema;
-        this.fallback = fallback;
+    JournalWriter(JdbcAggregateTemplate jdbcTemplate, JournalRequestRepository requestRepository, JournalCallRepository callRepository,
+                  JournalSchema journalSchema, JournalFallbackFile fallbackFile, JsonMapper jsonMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.requestRepository = requestRepository;
+        this.callRepository = callRepository;
+        this.journalSchema = journalSchema;
+        this.fallbackFile = fallbackFile;
         this.jsonMapper = jsonMapper;
     }
 
@@ -77,7 +77,7 @@ public class JournalWriter {
                 httpMethod, endpoint, queryString, toJson(headers), contentType,
                 journalBody.kind(), journalBody.text(), ValidationStatus.NOT_RUN, null, null,
                 null, null, null, null, null);
-        write("requestReceived", request, () -> template.insert(request));
+        write("requestReceived", request, () -> jdbcTemplate.insert(request));
         return request.id();
     }
 
@@ -89,7 +89,7 @@ public class JournalWriter {
         ValidationStatus status = errors.isEmpty() ? ValidationStatus.PASSED : ValidationStatus.FAILED;
         String errorsJson = errors.isEmpty() ? null : toJson(errors);
         write("validated", columns("id", requestId, "validation_status", status, "validation_errors", errorsJson),
-                () -> expectOne(requests.updateValidation(requestId, status, errorsJson), requestId));
+                () -> expectOne(requestRepository.updateValidation(requestId, status, errorsJson), requestId));
     }
 
     /** Ошибка самого ЕТ: МДМ не настроена, тело не разобралось и т.п. */
@@ -98,7 +98,7 @@ public class JournalWriter {
             return;
         }
         write("internalError", columns("id", requestId, "internal_error", error),
-                () -> expectOne(requests.updateInternalError(requestId, error), requestId));
+                () -> expectOne(requestRepository.updateInternalError(requestId, error), requestId));
     }
 
     /**
@@ -117,7 +117,7 @@ public class JournalWriter {
         write("responseSent", columns("id", requestId, "finished_at", finishedAt, "resp_status", status,
                         "resp_headers", headersJson, "resp_body", journalBody.text(),
                         "delivered", delivered, "delivery_error", deliveryError),
-                () -> expectOne(requests.updateResponse(requestId, finishedAt, status, headersJson,
+                () -> expectOne(requestRepository.updateResponse(requestId, finishedAt, status, headersJson,
                         journalBody.text(), delivered, deliveryError), requestId));
     }
 
@@ -135,7 +135,7 @@ public class JournalWriter {
         JournalCall call = new JournalCall(
                 UUID.randomUUID(), requestId, service, sentAt, null, targetUrl, toJson(headers),
                 null, null, null, null, null, null);
-        write("callStarted", call, () -> template.insert(call));
+        write("callStarted", call, () -> jdbcTemplate.insert(call));
         return call.id();
     }
 
@@ -150,7 +150,7 @@ public class JournalWriter {
         write("callAnswered", columns("id", callId, "finished_at", finishedAt, "resp_status", status,
                         "resp_headers", headersJson, "resp_content_type", contentType,
                         "resp_body_kind", journalBody.kind(), "resp_body", journalBody.text()),
-                () -> expectOne(calls.updateAnswer(callId, finishedAt, status, headersJson, contentType,
+                () -> expectOne(callRepository.updateAnswer(callId, finishedAt, status, headersJson, contentType,
                         journalBody.kind(), journalBody.text()), callId));
     }
 
@@ -160,7 +160,7 @@ public class JournalWriter {
             return;
         }
         write("callFailed", columns("id", callId, "finished_at", finishedAt, "call_error", error),
-                () -> expectOne(calls.updateError(callId, finishedAt, error), callId));
+                () -> expectOne(callRepository.updateError(callId, finishedAt, error), callId));
     }
 
     /**
@@ -168,17 +168,17 @@ public class JournalWriter {
      *
      * @param data то же, что уходит в БД, — для резервного файла
      */
-    private void write(String operation, Object data, Runnable toDatabase) {
-        if (!schema.ready()) {
+    private void write(String operation, Object data, Runnable databaseWrite) {
+        if (!journalSchema.ready()) {
             // БД не поднялась при старте — не ждём таймаута соединения на каждой записи
-            fallback.write(operation, data);
+            fallbackFile.write(operation, data);
             return;
         }
         try {
-            toDatabase.run();
-        } catch (RuntimeException e) {
-            log.warn("Журнал: {} не записан в БД, пишу в резервный файл", operation, e);
-            fallback.write(operation, data);
+            databaseWrite.run();
+        } catch (RuntimeException exception) {
+            LOGGER.warn("Журнал: {} не записан в БД, пишу в резервный файл", operation, exception);
+            fallbackFile.write(operation, data);
         }
     }
 
@@ -203,8 +203,8 @@ public class JournalWriter {
     }
 
     /** Ни одной строки не обновлено: записи с таким id в БД нет (например, она ушла в резервный файл). */
-    private static void expectOne(int updated, UUID id) {
-        if (updated != 1) {
+    private static void expectOne(int updatedRows, UUID id) {
+        if (updatedRows != 1) {
             throw new IllegalStateException("В журнале нет записи " + id);
         }
     }

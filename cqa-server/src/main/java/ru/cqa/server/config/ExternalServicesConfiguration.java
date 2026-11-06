@@ -2,7 +2,6 @@ package ru.cqa.server.config;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,15 +18,15 @@ import ru.cqa.server.mdm.MdmClient;
 @Configuration
 public class ExternalServicesConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExternalServicesConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalServicesConfiguration.class);
 
     /** Общий HTTP-клиент приложения; его пул соединений используют MdmClient и сценарные HTTP Move. */
     @Bean
-    public HttpClient sharedHttpClient(Environment env) {
-        String scope = env.getProperty("cqa.save-and-merge.mdm.scope", "DEV");
-        String connection = "cqa.connections.MDM." + scope + ".";
-        Duration connectTimeout = env.getProperty(
-                connection + "connect-timeout", Duration.class, Duration.ofSeconds(10));
+    public HttpClient sharedHttpClient(Environment environment) {
+        String environmentId = environment.getProperty("cqa.save-and-merge.mdm.scope", "DEV");
+        String connectionPropertyPrefix = "cqa.connections.MDM." + environmentId + ".";
+        Duration connectTimeout = environment.getProperty(
+                connectionPropertyPrefix + "connect-timeout", Duration.class, Duration.ofSeconds(10));
         return HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(connectTimeout)
@@ -36,25 +35,25 @@ public class ExternalServicesConfiguration {
 
     @Bean
     @Lazy
-    public MdmClient mdmClient(Environment env, JournalWriter journal, HttpClient sharedHttpClient) {
-        String scope = env.getRequiredProperty("cqa.save-and-merge.mdm.scope");
-        String connection = "cqa.connections.MDM." + scope + ".";
+    public MdmClient mdmClient(Environment environment, JournalWriter journalWriter, HttpClient sharedHttpClient) {
+        String environmentId = environment.getRequiredProperty("cqa.save-and-merge.mdm.scope");
+        String connectionPropertyPrefix = "cqa.connections.MDM." + environmentId + ".";
 
         // прозрачный прокси: в МДМ не уходит ничего, чего не прислал клиент —
         // ни попытки перейти на HTTP/2 (Upgrade: h2c), ни своего Accept-Encoding
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(sharedHttpClient);
-        requestFactory.setReadTimeout(env.getRequiredProperty(connection + "read-timeout", Duration.class));
+        requestFactory.setReadTimeout(environment.getRequiredProperty(connectionPropertyPrefix + "read-timeout", Duration.class));
         requestFactory.enableCompression(false);
 
-        String baseUrl = env.getRequiredProperty(connection + "url");
+        String baseUrl = environment.getRequiredProperty(connectionPropertyPrefix + "url");
         RestClient restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .requestFactory(requestFactory)
                 .build();
 
-        logger.info("Инициализация клиента ПРОКСИ на MDM успешно завершена");
+        LOGGER.info("Инициализация клиента ПРОКСИ на MDM успешно завершена");
 
-        return new MdmClient(restClient, baseUrl, env.getRequiredProperty(connection + "endpoints.save-and-merge"), journal);
+        return new MdmClient(restClient, baseUrl, environment.getRequiredProperty(connectionPropertyPrefix + "endpoints.save-and-merge"), journalWriter);
     }
 
     /**
@@ -63,7 +62,7 @@ public class ExternalServicesConfiguration {
      */
     @Bean
     public KafkaClient kafkaClient() {
-        logger.info("Клиент Kafka — заглушка, бин равен null");
+        LOGGER.info("Клиент Kafka — заглушка, бин равен null");
         return null;
     }
 }

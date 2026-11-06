@@ -21,7 +21,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 /**
  * Резервный журнал: текстовый файл на случай, когда БД недоступна или запись в неё упала.
  *
- * <p>Файл на каждый день, дата — префиксом имени: {@code logs/2026-10-12-journal.log}.
+ * <p>Файл на каждый день, дата — префиксом имени: {@code logs/2026-10-12-journal.LOGGER}.
  * Одна строка — одна операция журнала: время по Москве, операция, данные в JSON:
  * <pre>
  * 2026-10-12T14:30:00.123+03:00 requestReceived {"id":"...","endpoint":"/api/saveAndMerge",...}
@@ -33,10 +33,10 @@ import tools.jackson.databind.ser.std.StdSerializer;
 @Component
 class JournalFallbackFile {
 
-    private static final Logger log = LoggerFactory.getLogger(JournalFallbackFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JournalFallbackFile.class);
 
     private static final DateTimeFormatter DAY =
-            DateTimeFormatter.ofPattern("uuuu-MM-dd").withZone(SqliteConverters.MOSCOW);
+            DateTimeFormatter.ofPattern("uuuu-MM-dd").withZone(SqliteConverters.MOSCOW_ZONE);
 
     private final Path dir;
     private final JsonMapper jsonMapper;
@@ -58,8 +58,8 @@ class JournalFallbackFile {
             Files.createDirectories(dir);
             Files.writeString(dir.resolve(DAY.format(now) + "-journal.log"), line, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (Exception e) {
-            log.error("Запись журнала потеряна — не удалось записать и в резервный файл: {} {}", operation, data, e);
+        } catch (Exception exception) {
+            LOGGER.error("Запись журнала потеряна — не удалось записать и в резервный файл: {} {}", operation, data, exception);
         }
     }
 

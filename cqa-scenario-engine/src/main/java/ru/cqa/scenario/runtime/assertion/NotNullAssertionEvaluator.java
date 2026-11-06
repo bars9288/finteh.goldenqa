@@ -1,9 +1,12 @@
 package ru.cqa.scenario.runtime.assertion;
 
-import ru.cqa.scenario.definition.model.Assertion;
-import ru.cqa.scenario.runtime.execution.ExecutionContext;
+import ru.cqa.api.assertion.AssertionEvaluator;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.model.assertion.AssertionResult;
+import ru.cqa.model.assertion.AssertionStatus;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.scenario.Assertion;
 import ru.cqa.scenario.runtime.expression.JsonPathReader;
-import ru.cqa.scenario.runtime.result.MoveResult;
 
 public final class NotNullAssertionEvaluator implements AssertionEvaluator {
     @Override

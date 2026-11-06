@@ -1,15 +1,14 @@
 package ru.cqa.cases.mdm.validation.rules.party.common;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.AttributeDTO;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.AttributeDTO;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.AttributesRequisitesNames.ATTR_TYPE;
-import static ru.cqa.cases.mdm.constants.AttributesTypes.ADDRESS;
+import static ru.cqa.cases.mdm.constants.AttributeFieldNames.ATTRIBUTE_TYPE;
+import static ru.cqa.cases.mdm.constants.AttributeTypes.ADDRESS;
 
 /**
  * 20. Правило атрибута — адрес {@code ADDRESS}: реквизит {@code type} обязателен (не null и не пустой).
@@ -20,18 +19,18 @@ public final class AttributeAddressRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
-        List<AttributeDTO> attrs = party.attribute();
-        if (attrs == null) {
+        List<AttributeDTO> attributes = party.attribute();
+        if (attributes == null) {
             return List.of();
         }
         List<String> errors = new ArrayList<>();
-        for (int i = 0; i < attrs.size(); i++) {
-            AttributeDTO a = attrs.get(i);
-            if (a == null || !ADDRESS.equals(a.type())) {
+        for (int attributeIndex = 0; attributeIndex < attributes.size(); attributeIndex++) {
+            AttributeDTO attribute = attributes.get(attributeIndex);
+            if (attribute == null || !ADDRESS.equals(attribute.type())) {
                 continue;
             }
-            if (isBlank(FieldMaps.of(a).get(ATTR_TYPE))) {
-                errors.add("party[0].attribute[" + i + "].field." + ATTR_TYPE + ": обязательно для " + ADDRESS);
+            if (isBlank(FieldMaps.of(attribute).get(ATTRIBUTE_TYPE))) {
+                errors.add("party[0].attribute[" + attributeIndex + "].field." + ATTRIBUTE_TYPE + ": обязательно для " + ADDRESS);
             }
         }
         return errors;

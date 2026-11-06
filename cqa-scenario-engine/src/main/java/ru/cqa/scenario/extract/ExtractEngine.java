@@ -6,8 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import ru.cqa.scenario.definition.model.Extract;
-import ru.cqa.scenario.runtime.result.MoveResult;
+import ru.cqa.api.extract.Extractor;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.scenario.Extract;
 
 /** Выбирает extract-оры по типу и формирует значения для контекста следующего шага. */
 public final class ExtractEngine {

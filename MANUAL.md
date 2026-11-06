@@ -32,10 +32,10 @@ flowchart TD
 
 ### 2.1. Точка входа
 
-Файл [`CqaServerApplication.java`](cqa-server/src/main/java/ru/cqa/server/CqaServerApplication.java) содержит `main`:
+Файл [`CqaApplication.java`](cqa-bootstrap/src/main/java/ru/cqa/bootstrap/CqaApplication.java) содержит `main`:
 
 1. `SpringApplication.run(...)` поднимает Spring-контекст.
-2. `@SpringBootApplication` включает автоконфигурацию Spring Boot и сканирование компонентов от пакета `ru.cqa.server` вниз.
+2. `@SpringBootApplication` включает автоконфигурацию Spring Boot и сканирование `ru.cqa.bootstrap`. Импортированный `ServerConfiguration` отдельно подключает компоненты `ru.cqa.server` и JDBC-репозитории журнала.
 3. Когда контекст готов, код получает версию сборки и печатает стартовый баннер.
 
 Во время запуска приложение также поднимает встроенный Tomcat. Порт по умолчанию задан как `8990` в корневом `application.yml`; его можно переопределить через `SERVER_PORT`.
@@ -58,7 +58,7 @@ Spring находит `FileScenarioRepository`, `JacksonScenarioParser` и `Jack
 - `JacksonScenarioParser` переводит JSON в объектную модель `Scenario`.
 - `JacksonScenarioSerializer` переводит `Scenario` обратно в JSON при сохранении.
 
-При создании сценария `ScenarioController` передаёт JSON в `ScenarioCreationService`: тот разбирает JSON, валидирует объект и сохраняет его. Для версии `1.0` имя сохранённого файла кодирует версию в Base64 URL-safe виде, поэтому в репозитории можно встретить суффикс `MS4w`.
+При создании сценария `ScenarioController` передаёт JSON через интерфейс `ScenarioCreator` в `ScenarioCreationService`: тот разбирает JSON, валидирует объект и сохраняет его. Для версии `1.0` имя сохранённого файла кодирует версию в Base64 URL-safe виде, поэтому в репозитории можно встретить суффикс `MS4w`.
 
 ### 2.4. Создание общего HTTP-клиента
 
@@ -70,11 +70,11 @@ Spring находит `FileScenarioRepository`, `JacksonScenarioParser` и `Jack
 
 ### 2.5. Сборка сценарного runtime
 
-[`ScenarioEngineConfiguration.java`](cqa-server/src/main/java/ru/cqa/server/scenario/ScenarioEngineConfiguration.java) связывает компоненты в цепочку:
+[`ScenarioEngineConfiguration.java`](cqa-bootstrap/src/main/java/ru/cqa/bootstrap/config/ScenarioEngineConfiguration.java) связывает компоненты в цепочку:
 
 | Бин | Для чего нужен |
 |---|---|
-| `ScenarioValidator` | Запускает Jakarta Bean Validation для модели сценария. |
+| `Validator<Scenario>` | `ScenarioValidator` делегирует проверку формы интерфейсу `FormValidator`. |
 | `MoveExecutorRegistry` | Регистрирует доступные исполнения Move. Сейчас зарегистрирован `HttpMoveExecutor`. |
 | `MoveRunner` | Ищет executor по типу Move и проверяет тип результата. |
 | `AssertionEngine` | Регистрирует evaluators типов `equals` и `notNull`. |
@@ -83,7 +83,7 @@ Spring находит `FileScenarioRepository`, `JacksonScenarioParser` и `Jack
 | `ExecutionStrategy` | Использует `SequentialExecutionStrategy`, исполняющую шаги по порядку. |
 | `ScenarioEngine` | Реализован как `DefaultScenarioEngine`; загружает и валидирует сценарий, создаёт контекст и запускает стратегию. |
 
-В результате старта приложения ручка уже получает готовый `ScenarioEngine` через конструктор контроллера. Каждый запуск сценария получает новый `ExecutionContext`, а singleton-компоненты движка переиспользуются.
+В результате старта приложения ручка уже получает готовый `ScenarioEngine` через конструктор контроллера. Каждый запуск сценария получает новый `DefaultExecutionContext`, доступный через интерфейс `ExecutionContext`, а singleton-компоненты движка переиспользуются.
 
 ## 3. Этап второй: ручка запуска сценария
 
@@ -260,7 +260,7 @@ Content-Type: application/json
 
 Mock получил запрос с `nameSuorce`, email и role, вернул HTTP `200` и JSON с `user.id`, `email`, `role`, `name`, `surname`. Движок выдал `ExecutionResult` со статусом `COMPLETED`, и все пять Assertions завершились `PASSED`.
 
-После этого Assertion статуса обновлён: он использует `$.statusCode` и числовое `200`. В файле сценария `simpeScenario.json` и в сохранённом файле сценария изменение уже отражено. Повторный прогон после этого изменения отдельно не выполнялся.
+После этого Assertion статуса обновлён: он использует `$.statusCode` и числовое `200`. В файле сценария `simpeScenario.json` и в сохранённом файле сценария изменение уже отражено. При рефакторинге 2026-11-06 этот поток повторно проверен: до и после переноса прошли одинаковые 46 проверок на локальных моках. Воспроизведение: `python3 scripts/smoke_scenarios.py` после сборки приложения.
 
 ## 5. Текущие границы MVP
 
@@ -275,9 +275,9 @@ Mock получил запрос с `nameSuorce`, email и role, вернул HT
 
 | Этап | Файл |
 |---|---|
-| Точка входа | `cqa-server/src/main/java/ru/cqa/server/CqaServerApplication.java` |
+| Точка входа | `cqa-bootstrap/src/main/java/ru/cqa/bootstrap/CqaApplication.java` |
 | Настройка HTTP-клиента | `cqa-server/src/main/java/ru/cqa/server/config/ExternalServicesConfiguration.java` |
-| Сборка сценарного runtime | `cqa-server/src/main/java/ru/cqa/server/scenario/ScenarioEngineConfiguration.java` |
+| Сборка сценарного runtime | `cqa-bootstrap/src/main/java/ru/cqa/bootstrap/config/ScenarioEngineConfiguration.java` |
 | Создание / чтение сценария | `cqa-server/src/main/java/ru/cqa/server/scenario/FileScenarioRepository.java` |
 | JSON → Scenario | `cqa-server/src/main/java/ru/cqa/server/scenario/JacksonScenarioParser.java` |
 | Ручка запуска | `cqa-server/src/main/java/ru/cqa/server/web/scenario/ScenarioExecutionController.java` |
@@ -289,4 +289,4 @@ Mock получил запрос с `nameSuorce`, email и role, вернул HT
 | Assertion по равенству | `cqa-scenario-engine/src/main/java/ru/cqa/scenario/runtime/assertion/EqualsAssertionEvaluator.java` |
 | Чтение expression | `cqa-scenario-engine/src/main/java/ru/cqa/scenario/runtime/expression/JsonPathReader.java` |
 | Extract | `cqa-scenario-engine/src/main/java/ru/cqa/scenario/extract/ExtractEngine.java` |
-| Модели результата | `cqa-scenario-engine/src/main/java/ru/cqa/scenario/runtime/result/` |
+| Модели результата | `cqa-model/src/main/java/ru/cqa/model/execution/` |

@@ -6,21 +6,20 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.api.execution.MoveExecutor;
+import ru.cqa.model.execution.HttpResponseData;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.execution.MoveStatus;
+import ru.cqa.model.scenario.move.HttpMove;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
-import ru.cqa.scenario.definition.model.move.HttpMove;
-import ru.cqa.scenario.runtime.execution.ExecutionContext;
-import ru.cqa.scenario.runtime.executor.MoveExecutor;
-import ru.cqa.scenario.runtime.result.HttpResponseData;
-import ru.cqa.scenario.runtime.result.MoveResult;
-import ru.cqa.scenario.runtime.result.MoveStatus;
 
 /** Выполняет HTTP-запрос, описанный в HttpMove. */
 @Component

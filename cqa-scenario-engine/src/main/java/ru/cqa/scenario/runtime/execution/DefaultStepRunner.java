@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import ru.cqa.scenario.definition.model.Move;
-import ru.cqa.scenario.definition.model.Step;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.model.assertion.AssertionResult;
+import ru.cqa.model.assertion.AssertionStatus;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.execution.MoveStatus;
+import ru.cqa.model.execution.StepResult;
+import ru.cqa.model.execution.StepStatus;
+import ru.cqa.model.scenario.Move;
+import ru.cqa.model.scenario.Step;
 import ru.cqa.scenario.extract.ExtractEngine;
 import ru.cqa.scenario.runtime.assertion.AssertionEngine;
-import ru.cqa.scenario.runtime.assertion.AssertionResult;
-import ru.cqa.scenario.runtime.assertion.AssertionStatus;
-import ru.cqa.scenario.runtime.result.MoveResult;
-import ru.cqa.scenario.runtime.result.MoveStatus;
-import ru.cqa.scenario.runtime.result.StepResult;
-import ru.cqa.scenario.runtime.result.StepStatus;
 
 /** Исполняет операции шага, проверяет ответы и сохраняет извлечённые переменные. */
 public final class DefaultStepRunner implements StepRunner {

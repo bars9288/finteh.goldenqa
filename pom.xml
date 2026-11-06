@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Корень намеренно нейтрален: он не знает ни про Spring, ни про любой
-    другой фреймворк. Здесь только состав модулей, уровень Java и версии
-    плагинов сборки. Spring Boot целиком заперт в модуле cqa-server.
+    Корень намеренно нейтрален: он не импортирует BOM и зависимости
+    фреймворков. Здесь только состав модулей, уровень Java и версии
+    плагинов сборки. Spring Boot используется только в cqa-server и cqa-bootstrap.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -17,18 +17,20 @@
 
     <name>CQA</name>
     <description>Единый тестировщик — корневой агрегатор модулей</description>
-    <!-- модули добавляются по мере появления ЗДЕСЬ -->
     <modules>
-        <module>cqa-server</module>
-        <module>cqa-scenario-engine</module>
+        <module>cqa-model</module>
+        <module>cqa-api</module>
         <module>cqa-validation</module>
         <module>cqa-business</module>
-        <module>cqa-dto</module>
+        <module>cqa-scenario-engine</module>
+        <module>cqa-server</module>
+        <module>cqa-bootstrap</module>
     </modules>
 
     <properties>
         <!-- единственное место, где задаётся версия проекта; модули ссылаются на ${revision} -->
         <revision>0.0.4</revision>
+        <spring-boot.version>4.1.1</spring-boot.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

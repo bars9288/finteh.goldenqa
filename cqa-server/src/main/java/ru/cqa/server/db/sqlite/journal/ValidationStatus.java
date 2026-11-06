@@ -1,6 +1,5 @@
 package ru.cqa.server.db.sqlite.journal;
 
-
 public enum ValidationStatus {
 
     PASSED,

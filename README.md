@@ -1,66 +1,70 @@
 # CQA
 
-Единый тестировщик (CommonQA) — сценарное тестирование систем-участников CDI/MDM.
-Корневой агрегатор Maven-модулей.
+CommonQA — сценарное тестирование систем-участников CDI/MDM. Работают создание
+и последовательный запуск HTTP-сценариев, assertions/extracts, проверка и проксирование
+saveAndMerge, журнал SQLite, REST/SOAP-приветствия и эхо.
 
-> **Статус реализации:** работает проверка и проксирование `saveAndMerge` (физлицо, юрлицо) по REST,
-> журнал запросов в SQLite, демо-ручки приветствия и эха по REST и SOAP. Модуль сценариев подготовлен как scaffold;
-> общий исполнитель сценариев ещё не реализован.
+## Модули и зависимости
 
-## Карта модулей
+| Модуль | Назначение | Зависимости внутри проекта |
+|---|---|---|
+| [cqa-model](cqa-model/README.md) | Общие DTO, описания сценариев, параметры, результаты и статусы | — |
+| [cqa-api](cqa-api/README.md) | Сервисные интерфейсы и публичные ошибки | model |
+| [cqa-validation](cqa-validation/README.md) | Реализация проверки формы через Bean Validation | api, model |
+| [cqa-business](cqa-business/README.md) | Прикладные валидаторы, правила и приветствия | api, model |
+| [cqa-scenario-engine](cqa-scenario-engine/README.md) | Создание и выполнение сценариев | api, model |
+| [cqa-server](cqa-server/README.md) | REST/SOAP, HTTP/JSON/файловые адаптеры, журнал | api, model |
+| [cqa-bootstrap](cqa-bootstrap/README.md) | Main, связывание реализаций и исполняемый JAR | все перечисленные модули |
 
-| Модуль              | Назначение                                                    | Зависит от                       | Фреймворк   | Подробнее                                  |
-|---------------------|---------------------------------------------------------------|----------------------------------|-------------|--------------------------------------------|
-| `cqa-server`        | Spring Boot приложение: REST/SOAP-ручки, журнал, прокси в МДМ | `cqa-business`, `cqa-dto`        | Spring Boot | [README](cqa-server/README.md)             |
-| `cqa-scenario-engine` | Логические сценарии, шаги, проверки и ожидаемые результаты | `cqa-validation`                 | нет         | [README](cqa-scenario-engine/README.md)   |
-| `cqa-business`      | Бизнес-логика: домен, проверки запросов, DTO → домен          | `cqa-validation`, `cqa-dto`       | нет         | [README](cqa-business/README.md)           |
-| `cqa-validation`    | Общие контракты и механизм проверки входных моделей           | `jakarta.validation-api`          | нет         | [README](cqa-validation/README.md)         |
-| `cqa-dto`           | Транспортные контракты: только данные и аннотации, без методов | —                                | нет         | [README](cqa-dto/README.md)                |
-
-Граф зависимостей: `cqa-server → cqa-business → cqa-validation`; `cqa-business → cqa-dto`; `cqa-scenario-engine → cqa-validation`. Подключение движка сценариев к серверу пока не реализовано.
-
-## Архитектурные правила
-
-Договорённости, которые определяют, куда класть новый код. Нарушение правила —
-повод для обсуждения, а не для молчаливого исключения.
-
-1. **Корневой `pom.xml` нейтрален.** Он не знает ни про Spring, ни про любой
-   другой фреймворк: только состав модулей, уровень Java, версия проекта и версии плагинов.
-2. **Spring заперт в `cqa-server`.** BOM импортируется там же, поэтому остальные
-   модули не получают ни версий Spring, ни его настроек сборки.
-3. **Стрелки зависимостей идут внутрь, к домену.** `cqa-business` не знает про
-   веб и фреймворк; от транспорта он видит только `cqa-dto` — данные без логики.
-   DTO в домен переводит `cqa-business`, сами DTO методов не содержат.
-4. **Адреса и подключения — в конфигурации, не в коде.** Пути ручек, контур и подключения МДМ
-   задаются в `connections.yml` и переопределяются переменными окружения или `.env`.
-5. _TODO: правило про точки расширения (протоколы, типы проверок)._
-
-## Требования
-
-- Java 21 (`maven.compiler.release=21`)
-- Maven 3.9+
-
-```bash
-export JAVA_HOME=/Users/sergey/Library/Java/JavaVirtualMachines/ms-21.0.11/Contents/Home
+```mermaid
+flowchart TD
+    Bootstrap[cqa-bootstrap] --> Server[cqa-server]
+    Bootstrap --> Business[cqa-business]
+    Bootstrap --> Engine[cqa-scenario-engine]
+    Bootstrap --> Validation[cqa-validation]
+    Server --> API[cqa-api]
+    Business --> API
+    Engine --> API
+    Validation --> API
+    API --> Model[cqa-model]
 ```
 
-## Сборка и запуск
+Реализации также напрямую используют типы из `cqa-model`. Между модулями
+реализаций зависимостей нет. Spring используется в `server` и `bootstrap`;
+корневой POM не импортирует Spring BOM и зависимости. Границы проверяет `ModuleBoundariesTest`.
+
+Контроллеры получают `ScenarioCreator`, `ScenarioEngine`, `Validator<T>` и
+`GreetingFacade` из API. Bootstrap выбирает реализации и передаёт их зависимости.
+Валидаторы делегируют проверку формы интерфейсу `FormValidator`; наследования
+от реализации в другом модуле больше нет. Внутренние runners и реестры остаются в движке.
+
+## Сборка, запуск и проверки
+
+Требуются Java 21+ и Maven 3.9+. Из корня проекта:
 
 ```bash
-# сборка всех модулей
-mvn clean package
-
-# запуск приложения
-mvn -pl cqa-server spring-boot:run
-
-# или собранным jar — из корня репозитория
-java -jar cqa-server/target/cqa-server-0.0.4.jar
+mvn clean verify
+java -jar cqa-bootstrap/target/cqa-bootstrap-0.0.4.jar
 ```
 
-Версия проекта задаётся одним свойством `revision` в корневом `pom.xml` (сейчас `0.0.4`).
+Исполняемый JAR теперь выпускает `cqa-bootstrap`; `cqa-server` собирается как библиотека.
+Версия задаётся свойством `revision` в корневом POM. После переноса классов используйте `clean`.
 
-После переименования или переноса классов собирайте с `clean`: старые `.class` в `target/`
-иначе остаются и могут, например, дать два контроллера на один адрес.
+В `verify` входят 6 тестов границ модулей, поведения валидации и совместимости SOAP-ответов с XSD. Проверка собранного приложения
+с локальными HTTP-заглушками запускается отдельно (Python 3, без дополнительных пакетов):
+
+```bash
+python3 scripts/smoke_scenarios.py
+```
+
+Скрипт запускает JAR и мок на временных портах, создаёт временные сценарии и SQLite-журнал,
+выполняет 46 проверок и останавливает процессы. Проверяются создание/дубликат/валидация,
+успешное выполнение, остановка и продолжение после ошибки, ожидаемый HTTP 503,
+ошибка extract, REST/SOAP, обе ветки saveAndMerge и журнал. Артефакты остаются
+во временном каталоге, путь выводится в результате. Внешние MDM-системы не используются.
+
+Подробный поток исполнения — [MANUAL.md](MANUAL.md).
+Соглашения об именовании Java — [CODE_STYLE.md](CODE_STYLE.md).
 
 ## Конфигурация
 
@@ -102,11 +106,3 @@ java -jar cqa-server/target/cqa-server-0.0.4.jar
 | `application.yml`, `connections.yml`, `.env.example` | конфигурация, см. выше         |
 | `cqa-journal.db`  | БД журнала (создаётся при запуске, в git не попадает)             |
 | `logs/`           | логи приложения и резервный файл журнала (в git не попадают)      |
-
-## Открытые вопросы
-
-- [x] Зафиксировать граф зависимостей между модулями
-- [x] Граница между `cqa-case` и `cqa-business` — `cqa-case` влит в `cqa-business`
-- [ ] Тесты
-- [ ] Точки расширения: протоколы (REST/SOAP/Kafka) и типы проверок
-- [ ] Автоматическая проверка архитектурных правил (ArchUnit / maven-enforcer)

@@ -1,13 +1,12 @@
 package ru.cqa.cases.mdm.validation.rules.party.physical;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.List;
 import java.util.Map;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.RequisitesNames.BIRTH_PLACE;
+import static ru.cqa.cases.mdm.constants.PartyFieldNames.BIRTH_PLACE;
 
 /**
  * 11. Место рождения — только из {@code birthPlace}, обязательно;
@@ -19,8 +18,8 @@ public final class BirthPlaceRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
-        Map<String, String> f = FieldMaps.of(party);
-        if (isBlank(f.get(BIRTH_PLACE))) {
+        Map<String, String> fieldsByName = FieldMaps.of(party);
+        if (isBlank(fieldsByName.get(BIRTH_PLACE))) {
             return List.of("party[0].field." + BIRTH_PLACE + ": не должно быть пустым — место рождения читается только из " + BIRTH_PLACE);
         }
         return List.of();

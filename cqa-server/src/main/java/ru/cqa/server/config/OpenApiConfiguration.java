@@ -85,8 +85,8 @@ public class OpenApiConfiguration {
                 .map(BuildProperties::getVersion)
                 .orElse(VERSION_UNKNOWN);
         // имена WSDL — имена бинов Wsdl11Definition в WebServiceConfiguration
-        String wsdlGreeting = soapPath + "/greeting.wsdl";
-        String wsdlEcho = soapPath + "/echo.wsdl";
+        String greetingWsdlPath = soapPath + "/greeting.wsdl";
+        String echoWsdlPath = soapPath + "/echo.wsdl";
 
         return new OpenAPI()
                 .info(new Info()
@@ -94,12 +94,12 @@ public class OpenApiConfiguration {
                         .version(version)
                         .description("Сервис " + applicationName + ". Описание REST-ручек сформировано "
                                 + "автоматически по контроллерам. Часть операций доступна также "
-                                + "по SOAP; контракты: " + wsdlGreeting + " (приветствия), "
-                                + wsdlEcho + " (эхо)."))
+                                + "по SOAP; контракты: " + greetingWsdlPath + " (приветствия), "
+                                + echoWsdlPath + " (эхо)."))
                 .externalDocs(new ExternalDocumentation()
                         .description("WSDL — контракт SOAP-сервиса приветствий")
-                        .url(wsdlGreeting))
-                .path(soapPath, soapEndpoint(wsdlGreeting, wsdlEcho));
+                        .url(greetingWsdlPath))
+                .path(soapPath, soapEndpoint(greetingWsdlPath, echoWsdlPath));
     }
 
     /**
@@ -108,7 +108,7 @@ public class OpenApiConfiguration {
      * <p>Операция выбирается не адресом, а корневым элементом внутри
      * {@code <soap:Body>} — поэтому все варианты лежат примерами в одном теле.
      */
-    private PathItem soapEndpoint(String wsdlGreeting, String wsdlEcho) {
+    private PathItem soapEndpoint(String greetingWsdlPath, String echoWsdlPath) {
         Content requestContent = new Content().addMediaType(SOAP_CONTENT_TYPE, new MediaType()
                 .schema(new StringSchema().description("SOAP-конверт целиком"))
                 .addExamples("Приветствие оператору", example(ENVELOPE_HELLO,
@@ -127,7 +127,7 @@ public class OpenApiConfiguration {
                 .description("Единый адрес всех SOAP-операций. Выберите пример конверта — "
                         + "операция определяется корневым элементом тела, а не адресом. "
                         + "Content-Type обязан быть text/xml: с application/xml вернётся 500 без пояснений. "
-                        + "Полный контракт — в WSDL: " + wsdlGreeting + ", " + wsdlEcho + ".")
+                        + "Полный контракт — в WSDL: " + greetingWsdlPath + ", " + echoWsdlPath + ".")
                 .operationId("soapCall")
                 .requestBody(new RequestBody().required(true).content(requestContent))
                 .responses(new ApiResponses()

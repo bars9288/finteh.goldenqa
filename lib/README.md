@@ -1,7 +1,7 @@
 # lib — склад jar-зависимостей
 
 Все jar, участвующие в работе приложения, разложены по тематикам.
-Содержимое собирается из дерева зависимостей модуля `cqa-server`, вручную сюда
+Содержимое собирается из дерева зависимостей модуля `cqa-bootstrap`, вручную сюда
 ничего не кладётся.
 
 **Склад — витрина, а не репозиторий.** Сборка его не использует: в pom нет ни
@@ -36,7 +36,7 @@
 Пакеты разные, конфликта нет, но в `json/` лежат обе линейки.
 
 **Валидация подключена явно.** `cqa-server` объявляет `spring-boot-starter-validation`
-(движок Hibernate Validator), а `cqa-dto` — только `jakarta.validation-api` для
+(движок Hibernate Validator), а `cqa-model` — только `jakarta.validation-api` для
 аннотаций. Те же jar приходят и транзитивно со `springdoc-openapi-starter-common`,
 поэтому состав папки `validation/` от этого не изменился — добавился лишь пустой
 стартер в `spring-boot/`.
@@ -44,7 +44,7 @@
 **Стартеры — пустые агрегаторы.** `spring-boot-starter-*` не содержат классов и
 в собранный fat-jar не попадают, хотя область видимости у них `compile`.
 
-**Свои модули сюда не кладутся.** `cqa-dto`, `cqa-validation`, `cqa-business` — часть
+**Свои модули сюда не кладутся.** `cqa-model`, `cqa-validation`, `cqa-business` — часть
 проекта, а не внешние зависимости.
 
 **`spring-boot-jarmode-tools` здесь нет намеренно.** Его добавляет в fat-jar сам
@@ -65,14 +65,14 @@ export JAVA_HOME=/Users/sergey/Library/Java/JavaVirtualMachines/ms-21.0.11/Conte
 mvn -o clean package dependency:copy-dependencies \
     -DskipTests -DincludeScope=test \
     -DoutputDirectory=target/deps \
-    -pl cqa-server -am
+    -pl cqa-bootstrap -am
 ```
 
 Важно: `package` и `-am` обязательны. Без них плагин не найдёт свои модули
-(`cqa-dto`, `cqa-business`) — они не установлены в `~/.m2`, и резолв
+(`cqa-model`, `cqa-business`) — они не установлены в `~/.m2`, и резолв
 падает с `Could not find artifact ru.cqa:...`.
 
-Дальше содержимое `cqa-server/target/deps` (кроме `cqa-*.jar`) раскладывается
+Дальше содержимое `cqa-bootstrap/target/deps` (кроме `cqa-*.jar`) раскладывается
 по папкам выше.
 Разделение runtime и test определяется по составу fat-jar: что попало в
 `BOOT-INF/lib` — runtime, остальное (кроме стартеров) — тестовое.

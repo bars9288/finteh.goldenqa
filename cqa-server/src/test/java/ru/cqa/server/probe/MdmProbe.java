@@ -86,11 +86,11 @@ public class MdmProbe {
         }
         for (String line : Files.readAllLines(DOT_ENV, StandardCharsets.UTF_8)) {
             String trimmed = line.trim();
-            int eq = trimmed.indexOf('=');
-            if (trimmed.isEmpty() || trimmed.startsWith("#") || eq < 0) {
+            int separatorIndex = trimmed.indexOf('=');
+            if (trimmed.isEmpty() || trimmed.startsWith("#") || separatorIndex < 0) {
                 continue;
             }
-            values.put(trimmed.substring(0, eq).trim(), trimmed.substring(eq + 1).trim());
+            values.put(trimmed.substring(0, separatorIndex).trim(), trimmed.substring(separatorIndex + 1).trim());
         }
         return values;
     }

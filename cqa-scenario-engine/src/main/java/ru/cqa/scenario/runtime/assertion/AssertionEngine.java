@@ -5,10 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import ru.cqa.scenario.runtime.execution.ExecutionContext;
-import ru.cqa.scenario.definition.model.Assertion;
-import ru.cqa.scenario.runtime.result.MoveResult;
+import ru.cqa.api.assertion.AssertionEvaluator;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.model.assertion.AssertionResult;
+import ru.cqa.model.execution.MoveResult;
+import ru.cqa.model.scenario.Assertion;
 
 /** Находит evaluator-ы по типу и агрегирует результаты набора утверждений. */
 public final class AssertionEngine {

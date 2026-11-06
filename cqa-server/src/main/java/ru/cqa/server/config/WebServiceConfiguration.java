@@ -1,19 +1,18 @@
 package ru.cqa.server.config;
 
 import java.util.Properties;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
 import org.springframework.ws.soap.server.endpoint.SoapFaultDefinition;
+import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
 import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 import org.springframework.ws.wsdl.wsdl11.Wsdl11Definition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
-import ru.cqa.server.ws.echo.EchoContractSoap;
-import ru.cqa.server.ws.greeting.GreetingContractSoap;
+import ru.cqa.model.echo.soap.EchoContractSoap;
+import ru.cqa.model.greeting.soap.GreetingContractSoap;
 
 /**
  * Настройка SOAP-слоя.

@@ -26,7 +26,7 @@ import tools.jackson.databind.json.JsonMapper;
  * Тело HTTP-сообщения в виде для журнала: тип и текст.
  *
  * <p>Тип определяется по содержимому, а не по Content-Type: тестировщику
- * присылают и JSON с {@code text/plain}, и мусор с {@code application/json}.
+ * присылают и JSON с {@code text/decompressedBody}, и мусор с {@code application/json}.
  * Content-Type используется только чтобы узнать кодировку.
  *
  * <p>Сжатое тело ({@code Content-Encoding: gzip} или {@code deflate}) для журнала
@@ -47,14 +47,14 @@ record JournalBody(BodyKind kind, String text) {
      * Предел распакованного тела. Защита от «zip-бомбы»: несколько килобайт gzip
      * могут развернуться в гигабайты. Больше предела — тело остаётся BINARY.
      */
-    private static final int MAX_INFLATED = 16 * 1024 * 1024;
+    private static final int MAX_DECOMPRESSED_BODY_BYTES = 16 * 1024 * 1024;
 
     static JournalBody of(byte[] body, HttpHeaders headers, JsonMapper jsonMapper) {
         if (body == null || body.length == 0) {
             return EMPTY;
         }
-        byte[] plain = decompress(body, headers.get(HttpHeaders.CONTENT_ENCODING));
-        if (plain == null) {
+        byte[] decompressedBody = decompress(body, headers.get(HttpHeaders.CONTENT_ENCODING));
+        if (decompressedBody == null) {
             return binary(body);
         }
         String text;
@@ -63,9 +63,9 @@ record JournalBody(BodyKind kind, String text) {
             text = charsetOf(headers.getFirst(HttpHeaders.CONTENT_TYPE)).newDecoder()
                     .onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(ByteBuffer.wrap(plain))
+                    .decode(ByteBuffer.wrap(decompressedBody))
                     .toString();
-        } catch (CharacterCodingException e) {
+        } catch (CharacterCodingException exception) {
             return binary(body);
         }
         return new JournalBody(kindOf(text, jsonMapper), text);
@@ -115,7 +115,7 @@ record JournalBody(BodyKind kind, String text) {
                     return null;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException exception) {
             return null;
         }
         return result;
@@ -128,16 +128,16 @@ record JournalBody(BodyKind kind, String text) {
     private static byte[] inflateDeflate(byte[] body) throws IOException {
         try {
             return inflate(new InflaterInputStream(new ByteArrayInputStream(body)));
-        } catch (IOException e) {
+        } catch (IOException exception) {
             return inflate(new InflaterInputStream(new ByteArrayInputStream(body), new Inflater(true)));
         }
     }
 
-    /** @return распакованные байты; null — больше {@link #MAX_INFLATED} */
+    /** @return распакованные байты; null — больше {@link #MAX_DECOMPRESSED_BODY_BYTES} */
     private static byte[] inflate(InputStream input) throws IOException {
         try (input) {
-            byte[] result = input.readNBytes(MAX_INFLATED + 1);
-            return result.length > MAX_INFLATED ? null : result;
+            byte[] result = input.readNBytes(MAX_DECOMPRESSED_BODY_BYTES + 1);
+            return result.length > MAX_DECOMPRESSED_BODY_BYTES ? null : result;
         }
     }
 
@@ -151,7 +151,7 @@ record JournalBody(BodyKind kind, String text) {
         try {
             jsonMapper.readTree(text);
             return BodyKind.JSON;
-        } catch (JacksonException e) {
+        } catch (JacksonException exception) {
             return BodyKind.TEXT;
         }
     }
@@ -164,7 +164,7 @@ record JournalBody(BodyKind kind, String text) {
         try {
             Charset charset = MediaType.parseMediaType(contentType).getCharset();
             return charset != null ? charset : StandardCharsets.UTF_8;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException exception) {
             // и кривой заголовок (InvalidMediaTypeException), и неизвестная кодировка (UnsupportedCharsetException)
             return StandardCharsets.UTF_8;
         }

@@ -9,10 +9,10 @@
 
 | Тип участника   | Набор                                                | Состав                       |
 |-----------------|------------------------------------------------------|------------------------------|
-| Физическое лицо | [PhysicalPartySaveRules](physical/PhysicalPartySaveRules.java) | общие 1–6 + частные 7–22     |
-| Юридическое лицо| [LegalPartySaveRules](legal/LegalPartySaveRules.java) | общие 1–6 + частное 31        |
+| Физическое лицо | [PhysicalPartyValidationRules](physical/PhysicalPartyValidationRules.java) | общие 1–6 + частные 7–22     |
+| Юридическое лицо| [LegalPartyValidationRules](legal/LegalPartyValidationRules.java) | общие 1–6 + частное 31        |
 
-Общие правила собраны в [PartyRules](PartyRules.java). Номер правила в этом файле
+Общие правила собраны в [PartyValidationRules](PartyValidationRules.java). Номер правила в этом файле
 совпадает с номером в комментарии класса.
 
 Классы лежат по папкам: `common/` — правила, которые подходят любому участнику, `physical/` и
@@ -87,7 +87,7 @@
 ```
 
 ### 2. Дата создания
-[CreateddateRule](common/CreateddateRule.java)
+[PartyCreatedDateRule](common/PartyCreatedDateRule.java)
 
 Реквизит `createdDate` обязателен. Формат — `ДД.ММ.ГГГГ` или `ДД.ММ.ГГГГ ЧЧ:мм:СС [пояс]`.
 Дата проверяется по календарю; пояс необязателен, но если указан — только московский:
@@ -119,7 +119,7 @@
 ```
 
 ### 3. Дата актуальности участника
-[ActualitydateRule](common/ActualitydateRule.java)
+[PartyActualityDateRule](common/PartyActualityDateRule.java)
 
 Реквизит `actualityDate` участника обязателен. Формат — только с временем:
 `ДД.ММ.ГГГГ ЧЧ:мм:СС [пояс]`, правила пояса — как в п. 2.
@@ -184,7 +184,7 @@
 ```
 
 ### 6. Дата актуальности атрибута
-[ActualitydateAttrRule](common/ActualitydateAttrRule.java)
+[AttributeActualityDateRule](common/AttributeActualityDateRule.java)
 
 Если атрибуты переданы, у каждого из них обязателен реквизит `actualityDate`;
 формат и пояс — как в п. 3. Нет атрибутов — проверять нечего.
@@ -214,7 +214,7 @@
 <details>
 <summary><h2>Физические лица</h2></summary>
 
-Набор [PhysicalPartySaveRules](physical/PhysicalPartySaveRules.java): общие правила 1–6 и частные ниже.
+Набор [PhysicalPartyValidationRules](physical/PhysicalPartyValidationRules.java): общие правила 1–6 и частные ниже.
 
 Полный запрос ФЛ, который проходит все правила:
 
@@ -264,7 +264,7 @@
 ### Реквизиты
 
 #### 7. ФИО
-[FIOchekRule](physical/FIOchekRule.java)
+[FullNameRule](physical/FullNameRule.java)
 
 ФИО передаётся **либо** тремя реквизитами `surname`, `name`, `patronymic`, **либо**
 одной строкой в `fullNameRawSource` — но не одновременно.
@@ -303,7 +303,7 @@
 ```
 
 #### 8. Дата рождения
-[BirthdayDateRule](physical/BirthdayDateRule.java)
+[BirthDateRule](physical/BirthDateRule.java)
 
 Дата рождения передаётся только в `birthdateRawSource` в формате `ДД.ММ.ГГГГ`;
 реквизит `birthdate` не заполняется — любое значение в нём ошибка.
@@ -428,7 +428,7 @@
 ```
 
 #### 13. Валютное резидентство
-[ForMonetResidRule](physical/ForMonetResidRule.java)
+[ForeignMonetaryResidentRule](physical/ForeignMonetaryResidentRule.java)
 
 Реквизит `foreignMonetaryResidentFlag` необязателен; значения `TRUE`, `FALSE`, `UNKNOWN`.
 **Регистр важен** — как у VIP (п. 16) и признака сотрудника банка (п. 17).
@@ -534,7 +534,7 @@
 ### Атрибуты
 
 #### 18. Допустимые типы атрибутов
-[AttributePhysicFIlterRule](physical/AttributePhysicFIlterRule.java)
+[PhysicalPartyAttributeTypeRule](physical/PhysicalPartyAttributeTypeRule.java)
 
 Тип каждого атрибута (`attribute.type`) — из списка: `DOCUMENT_PASSPORT`, `ADDRESS`,
 `PHONE`, `EMAIL`, `EXTERNAL_IDENTIFIER`. Регистр важен. Все нарушения собираются
@@ -670,17 +670,17 @@
 <details>
 <summary><h2>Юридические лица</h2></summary>
 
-Набор [LegalPartySaveRules](legal/LegalPartySaveRules.java): общие правила 1–6 и частное 31.
+Набор [LegalPartyValidationRules](legal/LegalPartyValidationRules.java): общие правила 1–6 и частное 31.
 
 ### Реквизиты
 
-_Пока нет._ Класс [NameRule](legal/NameRule.java) — заготовка: пока ничего не проверяет
+_Пока нет._ Класс [LegalPartyNameRule](legal/LegalPartyNameRule.java) — заготовка: пока ничего не проверяет
 и в набор не подключён.
 
 ### Атрибуты
 
 #### 31. Допустимые типы атрибутов ЮЛ
-[AttributeLegalFIlterRule](legal/AttributeLegalFIlterRule.java)
+[LegalPartyAttributeTypeRule](legal/LegalPartyAttributeTypeRule.java)
 
 То же, что правило 18 для ФЛ, но со своим списком. Тип каждого атрибута (`attribute.type`) —
 из списка: `ADDRESS`, `PHONE`, `EMAIL`, `EXTERNAL_IDENTIFIER`, `FLAG`, `TIN`, `CERTIFICATE`,

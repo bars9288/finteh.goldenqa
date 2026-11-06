@@ -1,12 +1,11 @@
 package ru.cqa.utils;
 
-import ru.cqa.dto.AttributeDTO;
-import ru.cqa.dto.FieldDTO;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import ru.cqa.model.mdm.AttributeDTO;
+import ru.cqa.model.mdm.FieldDTO;
+import ru.cqa.model.mdm.PartyDTO;
 
 /** Поля участника или атрибута в виде «имя → значение»: правилам удобнее искать по имени, чем перебирать список. */
 public final class FieldMaps {
@@ -23,14 +22,14 @@ public final class FieldMaps {
     }
 
     private static Map<String, String> toMap(List<FieldDTO> fields) {
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> valuesByName = new LinkedHashMap<>();
         if (fields != null) {
-            for (FieldDTO f : fields) {
-                if (f != null) {
-                    map.put(f.name(), f.value());
+            for (FieldDTO field : fields) {
+                if (field != null) {
+                    valuesByName.put(field.name(), field.value());
                 }
             }
         }
-        return map;
+        return valuesByName;
     }
 }

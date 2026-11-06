@@ -3,12 +3,13 @@ package ru.cqa.scenario.runtime.execution;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.scenario.definition.model.Step;
-import ru.cqa.scenario.runtime.result.ExecutionResult;
-import ru.cqa.scenario.runtime.result.ExecutionStatus;
-import ru.cqa.scenario.runtime.result.StepResult;
-import ru.cqa.scenario.runtime.result.StepStatus;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.model.execution.ExecutionResult;
+import ru.cqa.model.execution.ExecutionStatus;
+import ru.cqa.model.execution.StepResult;
+import ru.cqa.model.execution.StepStatus;
+import ru.cqa.model.scenario.Scenario;
+import ru.cqa.model.scenario.Step;
 
 /** Вызывает шаги строго в порядке сценария и прекращает прогон по политике ошибок. */
 public final class SequentialExecutionStrategy implements ExecutionStrategy {

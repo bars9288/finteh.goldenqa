@@ -1,16 +1,15 @@
 package ru.cqa.cases.mdm.validation.rules.party.physical;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.RequisitesNames.SNILS;
-import static ru.cqa.cases.mdm.constants.RequisitesNames.SNILS_RAW_SOURCE;
-import static ru.cqa.cases.mdm.constants.RequisitesPatternRegex.SNILS_FORMAT;
+import static ru.cqa.cases.mdm.constants.PartyFieldNames.SNILS;
+import static ru.cqa.cases.mdm.constants.PartyFieldNames.SNILS_RAW_SOURCE;
+import static ru.cqa.cases.mdm.constants.FieldPatterns.SNILS_FORMAT;
 
 /**
  * 15. СНИЛС — только в {@code snilsRawSource}, формат {@code 123-123-123 12};
@@ -18,17 +17,17 @@ import static ru.cqa.cases.mdm.constants.RequisitesPatternRegex.SNILS_FORMAT;
  *
  * <p>ЧАСТНЫЕ проверки РЕКВИЗИТОВ Физического лица.
  */
-public final class SnilsRule  implements Rule<PartyDTO> {
+public final class SnilsRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
-        Map<String, String> f = FieldMaps.of(party);
+        Map<String, String> fieldsByName = FieldMaps.of(party);
         List<String> errors = new ArrayList<>();
-        if (!isBlank(f.get(SNILS))) {
+        if (!isBlank(fieldsByName.get(SNILS))) {
             errors.add("party[0].field." + SNILS + ": не заполняется, СНИЛС указывайте в " + SNILS_RAW_SOURCE);
         }
-        String raw = f.get(SNILS_RAW_SOURCE);
-        if (!isBlank(raw) && !SNILS_FORMAT.matcher(raw.strip()).matches()) {
+        String snilsRawSource = fieldsByName.get(SNILS_RAW_SOURCE);
+        if (!isBlank(snilsRawSource) && !SNILS_FORMAT.matcher(snilsRawSource.strip()).matches()) {
             errors.add("party[0].field." + SNILS_RAW_SOURCE + ": ожидается формат \'123-123-123 12\'");
         }
         return errors;

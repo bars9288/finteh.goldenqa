@@ -1,12 +1,12 @@
 package ru.cqa.scenario.runtime.executor;
 
-import ru.cqa.scenario.definition.model.Move;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import ru.cqa.api.execution.MoveExecutor;
+import ru.cqa.model.scenario.Move;
 
 /** Базовый реестр исполнителей, допускающий регистрацию встроенных и плагинных реализаций. */
 public final class DefaultMoveExecutorRegistry implements MoveExecutorRegistry {

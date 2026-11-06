@@ -1,10 +1,8 @@
 package ru.cqa.server.web.scenario;
 
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.cqa.scenario.creation.ScenarioCreationService;
-import ru.cqa.scenario.definition.model.Scenario;
+import ru.cqa.api.scenario.ScenarioCreator;
+import ru.cqa.model.scenario.Scenario;
+import ru.cqa.model.scenario.ScenarioCreatedResponse;
 
 import static ru.cqa.server.web.ApiPaths.SCENARIOS;
 
@@ -21,9 +20,9 @@ import static ru.cqa.server.web.ApiPaths.SCENARIOS;
 @RestController
 @RequestMapping(path = SCENARIOS, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ScenarioController {
-    private final ScenarioCreationService scenarioCreation;
+    private final ScenarioCreator scenarioCreation;
 
-    public ScenarioController(ScenarioCreationService scenarioCreation) {
+    public ScenarioController(ScenarioCreator scenarioCreation) {
         this.scenarioCreation = scenarioCreation;
     }
 
@@ -36,6 +35,4 @@ public class ScenarioController {
                 .body(new ScenarioCreatedResponse(scenario.id(), scenario.version()));
     }
 
-    public record ScenarioCreatedResponse(UUID id, String version) {
-    }
 }

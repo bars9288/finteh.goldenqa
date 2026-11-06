@@ -12,3 +12,4 @@ package ru.cqa.server.ws.greeting;
 
 import jakarta.xml.bind.annotation.XmlNsForm;
 import jakarta.xml.bind.annotation.XmlSchema;
+import ru.cqa.model.greeting.soap.GreetingContractSoap;

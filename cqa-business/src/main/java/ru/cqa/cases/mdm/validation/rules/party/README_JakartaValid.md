@@ -1,13 +1,13 @@
 # Валидация формы DTO (Jakarta Bean Validation)
 
 Первый слой проверки запроса `saveAndMerge`: **форма** — есть ли нужные объекты, списки
-и ключевые поля. Проверки объявлены аннотациями прямо на DTO модуля `cqa-dto`,
+и ключевые поля. Проверки объявлены аннотациями прямо на DTO модуля `cqa-model`,
 выполняет их Hibernate Validator. Смысл значений реквизитов проверяет второй слой —
 [правила бизнес-логики](README.md).
 
 | Что проверяем | Где | Чем |
 |---|---|---|
-| структура запроса: party, field, attribute, обязательные свойства | DTO в `cqa-dto` | аннотации `jakarta.validation` |
+| структура запроса: party, field, attribute, обязательные свойства | DTO в `cqa-model` | аннотации `jakarta.validation` |
 | значения реквизитов: `identificationLevel`, даты, ФИО, СНИЛС... | `rules/party` | классы `Rule<PartyDTO>` |
 
 Реквизиты приходят парами `{"name": ..., "value": ...}`, поэтому аннотацией нельзя сказать
@@ -22,7 +22,7 @@
 2. Контроллер выбирает валидатор по `party[0].type`: `PHYSICAL` или `LEGAL`. Если `party`
    пустой или тип другой, ответ сразу `400` с одной ошибкой
    `party[0].type: ожидается одно из [PHYSICAL, LEGAL]` — форма тогда не проверяется.
-3. Базовый [Validator](../../../../../../../../../../../cqa-validation/src/main/java/ru/cqa/validation/Validator.java) (его наследник —
+3. Адаптер [BeanFormValidator](../../../../../../../../../../../cqa-validation/src/main/java/ru/cqa/validation/BeanFormValidator.java) (его через интерфейс `FormValidator` вызывает
    [SaveAndMergeValidator](../../../../../validators/mdm/SaveAndMergeValidator.java)) вызывает
    `validator.validate(request)` — проверяется всё дерево объектов разом, без остановки
    на первой ошибке.
@@ -43,7 +43,7 @@
 | свойство элемента списка | `party[0].field[2].name: ...` |
 | сам элемент списка (`List<@NotNull X>`) | `party[0].field[1]: ...` |
 
-Hibernate добавляет к пути элемента служебное `.<list element>` — базовый `Validator`
+Hibernate добавляет к пути элемента служебное `.<list element>` — `BeanFormValidator`
 его вырезает.
 
 ---
@@ -51,7 +51,7 @@ Hibernate добавляет к пути элемента служебное `.<
 ## Аннотации по DTO
 
 ### SaveAndMergeDTO — корень запроса
-[SaveAndMergeDTO](../../../../../../../../../../cqa-dto/src/main/java/ru/cqa/dto/SaveAndMergeDTO.java)
+[SaveAndMergeDTO](../../../../../../../../../../../cqa-model/src/main/java/ru/cqa/model/mdm/SaveAndMergeDTO.java)
 
 | Свойство | Аннотации | Требование |
 |---|---|---|
@@ -69,7 +69,7 @@ Hibernate добавляет к пути элемента служебное `.<
 | `updateType: "ANY"` | ✅ |
 
 ### PartyDTO — участник
-[PartyDTO](../../../../../../../../../../cqa-dto/src/main/java/ru/cqa/dto/PartyDTO.java)
+[PartyDTO](../../../../../../../../../../../cqa-model/src/main/java/ru/cqa/model/mdm/PartyDTO.java)
 
 | Свойство | Аннотации | Требование |
 |---|---|---|
@@ -89,7 +89,7 @@ Hibernate добавляет к пути элемента служебное `.<
 | `"attribute": [null]` | ✅ на этом слое; ❌ в правиле 18 |
 
 ### FieldDTO — реквизит
-[FieldDTO](../../../../../../../../../../cqa-dto/src/main/java/ru/cqa/dto/FieldDTO.java)
+[FieldDTO](../../../../../../../../../../../cqa-model/src/main/java/ru/cqa/model/mdm/FieldDTO.java)
 
 | Свойство | Аннотации | Требование |
 |---|---|---|
@@ -104,7 +104,7 @@ Hibernate добавляет к пути элемента служебное `.<
 | два реквизита с одним `name` | ✅ — форма не видит; в правилах останется последний |
 
 ### AttributeDTO — атрибут участника
-[AttributeDTO](../../../../../../../../../../cqa-dto/src/main/java/ru/cqa/dto/AttributeDTO.java)
+[AttributeDTO](../../../../../../../../../../../cqa-model/src/main/java/ru/cqa/model/mdm/AttributeDTO.java)
 
 | Свойство | Аннотации | Требование |
 |---|---|---|
@@ -120,7 +120,7 @@ Hibernate добавляет к пути элемента служебное `.<
 | `"field": [null]` | ❌ `party[0].attribute[0].field[0]: ...` |
 
 ### IncludeDTO — состав ответа
-[IncludeDTO](../../../../../../../../../../cqa-dto/src/main/java/ru/cqa/dto/IncludeDTO.java)
+[IncludeDTO](../../../../../../../../../../../cqa-model/src/main/java/ru/cqa/model/mdm/IncludeDTO.java)
 
 Ограничений нет: `partyInfo` — любой список строк или его отсутствие.
 

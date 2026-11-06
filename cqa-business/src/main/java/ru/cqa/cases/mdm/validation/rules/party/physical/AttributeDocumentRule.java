@@ -1,48 +1,47 @@
 package ru.cqa.cases.mdm.validation.rules.party.physical;
 
-import ru.cqa.validation.Rule;
-import ru.cqa.utils.FieldMaps;
-import ru.cqa.dto.AttributeDTO;
-import ru.cqa.dto.PartyDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import ru.cqa.api.validation.Rule;
+import ru.cqa.model.mdm.AttributeDTO;
+import ru.cqa.model.mdm.PartyDTO;
+import ru.cqa.utils.FieldMaps;
 
-import static ru.cqa.cases.mdm.constants.AttributesRequisitesNames.*;
-import static ru.cqa.cases.mdm.constants.AttributesTypes.DOCUMENT_PASSPORT;
-import static ru.cqa.cases.mdm.constants.AttributesTypes.PASSPORT;
+import static ru.cqa.cases.mdm.constants.AttributeFieldNames.*;
+import static ru.cqa.cases.mdm.constants.AttributeTypes.DOCUMENT_PASSPORT;
+import static ru.cqa.cases.mdm.constants.AttributeTypes.PASSPORT;
 
 /**
  * 19. Правило атрибута — документ {@code DOCUMENT_PASSPORT}: обязательно наличие реквизитов
- * {@code type} = {@code PASSPORT}, поля уточнения типа документа {@code qualifierType},
+ * {@code documentType} = {@code PASSPORT}, поля уточнения типа документа {@code qualifierType},
  * а также обязательных реквизитов. Реквизит {@code rawSource}, если передан, должен быть пустым.
  */
 public final class AttributeDocumentRule implements Rule<PartyDTO> {
 
     @Override
     public List<String> check(PartyDTO party) {
-        List<AttributeDTO> attrs = party.attribute();
-        if (attrs == null) {
+        List<AttributeDTO> attributes = party.attribute();
+        if (attributes == null) {
             return List.of();
         }
         List<String> errors = new ArrayList<>();
-        for (int i = 0; i < attrs.size(); i++) {
-            AttributeDTO a = attrs.get(i);
-            if (a == null || !DOCUMENT_PASSPORT.equals(a.type())) {
+        for (int attributeIndex = 0; attributeIndex < attributes.size(); attributeIndex++) {
+            AttributeDTO attribute = attributes.get(attributeIndex);
+            if (attribute == null || !DOCUMENT_PASSPORT.equals(attribute.type())) {
                 continue;
             }
-            Map<String, String> f = FieldMaps.of(a);
-            String path = "party[0].attribute[" + i + "].field.";
-            String type = f.get(ATTR_TYPE);
-            if (isBlank(type) || !PASSPORT.equals(type.strip())) {
-                errors.add(path + ATTR_TYPE + ": для " + DOCUMENT_PASSPORT + " ожидается только " + PASSPORT);
+            Map<String, String> fieldsByName = FieldMaps.of(attribute);
+            String fieldPath = "party[0].attribute[" + attributeIndex + "].field.";
+            String documentType = fieldsByName.get(ATTRIBUTE_TYPE);
+            if (isBlank(documentType) || !PASSPORT.equals(documentType.strip())) {
+                errors.add(fieldPath + ATTRIBUTE_TYPE + ": для " + DOCUMENT_PASSPORT + " ожидается только " + PASSPORT);
             }
-            if (isBlank(f.get(QUALIFIER_TYPE))) {
-                errors.add(path + QUALIFIER_TYPE + ": обязательно для " + DOCUMENT_PASSPORT);
+            if (isBlank(fieldsByName.get(QUALIFIER_TYPE))) {
+                errors.add(fieldPath + QUALIFIER_TYPE + ": обязательно для " + DOCUMENT_PASSPORT);
             }
-            if (!isBlank(f.get(RAW_SOURCE))) {
-                errors.add(path + RAW_SOURCE + ": должно быть пустым");
+            if (!isBlank(fieldsByName.get(RAW_SOURCE))) {
+                errors.add(fieldPath + RAW_SOURCE + ": должно быть пустым");
             }
         }
         return errors;

@@ -1,55 +1,21 @@
 # CQA Scenario Engine
 
-Архитектурный каркас универсального движка последовательного исполнения сценариев CQA.
+Создание, проверка и последовательное исполнение сценариев. Зависит только
+от `cqa-api` и `cqa-model` внутри проекта, не использует Spring и сетевые клиенты.
 
-`ru.cqa.scenario` · артефакт `cqa-scenario-engine` · [← к карте проекта](../README.md)
+`ScenarioCreationService` реализует `ScenarioCreator`; `DefaultScenarioEngine` —
+`ScenarioEngine`. Парсинг, хранилище, проверка формы и исполнители поступают
+через интерфейсы. Модели сценариев и результатов находятся в `cqa-model`.
 
-## Назначение
+Внутри движка остаются стратегии, runners, реестры, диспетчеризация assertions/extracts,
+JSONPath-чтение и `DefaultExecutionContext`. Предметный `ScenarioValidator`
+делегирует проверку формы `FormValidator` и выдаёт ошибку из API.
 
-Модуль задаёт модели сценариев и контракты для исполнения шагов, проверок, извлечения значений, предварительных условий, подключений, хранения JSON-сценариев и JAR-плагинов. Есть минимальная реализация последовательной стратегии и реестров. Конкретные HTTP, SQL, Kafka и SOAP-операции не реализованы.
+HTTP-адаптер находится в `cqa-server`, сборка компонентов — в `cqa-bootstrap`.
+SQL/Kafka/SOAP-исполнители и подсистема плагинов пока не подключены.
 
-## Границы
-
-- ядро не зависит от Spring, JDBC, PostgreSQL-драйверов, Kafka-клиентов и HTTP/SOAP-библиотек;
-- конфигурации подключений и секреты поступают через внешние адаптеры CQA;
-- интерфейсы `ScenarioRepository`, `ScenarioParser` и `ScenarioSerializer` не содержат PostgreSQL- или JSON-библиотечной реализации;
-- встроенные исполнители регистрируются через `MoveExecutor`; плагины отложены в `pluginOLD`.
-
-## Пакеты
-
-| Пакет | Назначение |
-|---|---|
-| `definition.model`, `definition.model.move` | сценарии, шаги, зависимости, перемещения и типизированные модели HTTP/SQL/Kafka/SOAP |
-| `execution` | жизненный цикл прогона и последовательная стратегия |
-| `executor` | контракт исполнителя перемещения и реестр |
-| `pluginOLD`, `actionOLD` | отложенная подсистема расширений; классы и пакеты помечены суффиксом `OLD` |
-| `repository`, `serialization` | порты хранения и JSON-парсинга/сериализации |
-| `assertion`, `extract` | контракты и диспетчеризация проверок и извлечения |
-| `preconditionOLD`, `connection`, `definition.validation` | проверки предусловий отложены; подключения и валидация модели |
-| `result` | статусы и результаты перемещений, шагов и запусков |
-
-Подробнее: [ARCHITECTURE.md](ARCHITECTURE.md).
-
-## Зависимости
-
-### Внутренние
-
-- `cqa-validation` — общий механизм Bean Validation и базовые контракты для прикладных правил.
-
-### Внешние
-
-- Jakarta Validation API для аннотаций Bean Validation;
-- Hibernate Validator как runtime-провайдер.
-
-`ScenarioValidator` принимает `jakarta.validation.Validator` через конструктор. Сам провайдер
-Bean Validation подключает приложение, использующее движок (сейчас — `cqa-server`).
-
-## Сборка
+Подробнее: [архитектура](ARCHITECTURE.md), [пошаговый запуск](../MANUAL.md).
 
 ```bash
 mvn -pl cqa-scenario-engine -am package
 ```
-
-## Тесты
-
-_Пока нет._

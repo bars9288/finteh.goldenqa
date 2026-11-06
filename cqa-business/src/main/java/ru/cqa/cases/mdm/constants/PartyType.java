@@ -8,6 +8,6 @@ public enum PartyType {
     LEGAL;
 
     public static Optional<PartyType> of(String value) {
-        return Arrays.stream(values()).filter(t -> t.name().equals(value)).findFirst();
+        return Arrays.stream(values()).filter(partyType -> partyType.name().equals(value)).findFirst();
     }
 }

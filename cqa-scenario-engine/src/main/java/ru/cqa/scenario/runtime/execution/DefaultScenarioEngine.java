@@ -3,21 +3,24 @@ package ru.cqa.scenario.runtime.execution;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.scenario.definition.validation.ScenarioValidator;
-import ru.cqa.scenario.repository.ScenarioRepository;
-import ru.cqa.scenario.runtime.result.ExecutionResult;
+import ru.cqa.api.execution.ExecutionContext;
+import ru.cqa.api.scenario.ScenarioEngine;
+import ru.cqa.api.scenario.ScenarioNotFoundException;
+import ru.cqa.api.scenario.ScenarioRepository;
+import ru.cqa.api.validation.Validator;
+import ru.cqa.model.execution.ExecutionParameters;
+import ru.cqa.model.execution.ExecutionResult;
+import ru.cqa.model.scenario.Scenario;
 
 /** Загружает и проверяет сохранённый сценарий, затем передаёт его стратегии исполнения. */
 public final class DefaultScenarioEngine implements ScenarioEngine {
     private final ScenarioRepository repository;
-    private final ScenarioValidator validator;
+    private final Validator<Scenario> validator;
     private final ExecutionStrategy strategy;
 
     public DefaultScenarioEngine(
             ScenarioRepository repository,
-            ScenarioValidator validator,
+            Validator<Scenario> validator,
             ExecutionStrategy strategy) {
         this.repository = Objects.requireNonNull(repository, "repository");
         this.validator = Objects.requireNonNull(validator, "validator");
@@ -34,7 +37,7 @@ public final class DefaultScenarioEngine implements ScenarioEngine {
                 .orElseThrow(() -> new ScenarioNotFoundException(scenarioId, version));
         validator.validateBody(scenario);
 
-        ExecutionContext context = new ExecutionContext(
+        ExecutionContext context = new DefaultExecutionContext(
                 UUID.randomUUID(),
                 scenario.id(),
                 parameters.environmentId(),

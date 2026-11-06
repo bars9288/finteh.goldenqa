@@ -3,8 +3,7 @@ package ru.cqa.scenario.runtime.expression;
 import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
-
-import ru.cqa.scenario.runtime.result.HttpResponseData;
+import ru.cqa.model.execution.HttpResponseData;
 
 /** Читает базовые JSONPath-выражения по телу JSON-ответа и HTTP-статус из HttpResponseData. */
 public final class JsonPathReader {
@@ -19,39 +18,39 @@ public final class JsonPathReader {
         if (value instanceof HttpResponseData response && "$.statusCode".equals(expression)) {
             return response.statusCode();
         }
-        Object current = value instanceof HttpResponseData response ? response.body() : value;
+        Object currentValue = value instanceof HttpResponseData response ? response.body() : value;
         int index = 1;
         while (index < expression.length()) {
             char marker = expression.charAt(index);
             if (marker == '.') {
-                int start = ++index;
+                int propertyStartIndex = ++index;
                 while (index < expression.length()
                         && expression.charAt(index) != '.'
                         && expression.charAt(index) != '[') {
                     index++;
                 }
-                if (start == index) {
+                if (propertyStartIndex == index) {
                     throw new IllegalArgumentException("Пустое имя свойства в JSONPath: " + expression);
                 }
-                current = property(current, expression.substring(start, index), expression);
+                currentValue = property(currentValue, expression.substring(propertyStartIndex, index), expression);
             } else if (marker == '[') {
-                int end = expression.indexOf(']', index + 1);
-                if (end < 0) {
+                int closingBracketIndex = expression.indexOf(']', index + 1);
+                if (closingBracketIndex < 0) {
                     throw new IllegalArgumentException("Не закрыт индекс в JSONPath: " + expression);
                 }
                 int itemIndex;
                 try {
-                    itemIndex = Integer.parseInt(expression.substring(index + 1, end));
+                    itemIndex = Integer.parseInt(expression.substring(index + 1, closingBracketIndex));
                 } catch (NumberFormatException exception) {
                     throw new IllegalArgumentException("Поддерживаются только числовые индексы: " + expression);
                 }
-                current = item(current, itemIndex, expression);
-                index = end + 1;
+                currentValue = item(currentValue, itemIndex, expression);
+                index = closingBracketIndex + 1;
             } else {
                 throw new IllegalArgumentException("Ожидался '.' или '[' в JSONPath: " + expression);
             }
         }
-        return current;
+        return currentValue;
     }
 
     private static Object property(Object value, String name, String expression) {

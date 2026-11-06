@@ -5,52 +5,51 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.stereotype.Component;
+import ru.cqa.api.scenario.ScenarioParser;
+import ru.cqa.model.scenario.Dependency;
+import ru.cqa.model.scenario.Execution;
+import ru.cqa.model.scenario.Move;
+import ru.cqa.model.scenario.Scenario;
+import ru.cqa.model.scenario.ScenarioMetadata;
+import ru.cqa.model.scenario.Step;
+import ru.cqa.model.scenario.move.HttpMove;
+import ru.cqa.model.scenario.move.KafkaMove;
+import ru.cqa.model.scenario.move.SoapMove;
+import ru.cqa.model.scenario.move.SqlMove;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.json.JsonMapper;
-import ru.cqa.scenario.definition.model.Dependency;
-import ru.cqa.scenario.definition.model.Execution;
-import ru.cqa.scenario.definition.model.Move;
-import ru.cqa.scenario.definition.model.Scenario;
-import ru.cqa.scenario.definition.model.ScenarioMetadata;
-import ru.cqa.scenario.definition.model.Step;
-import ru.cqa.scenario.definition.model.move.HttpMove;
-import ru.cqa.scenario.definition.model.move.KafkaMove;
-import ru.cqa.scenario.definition.model.move.SoapMove;
-import ru.cqa.scenario.definition.model.move.SqlMove;
-import ru.cqa.scenario.serialization.ScenarioParser;
+import tools.jackson.databind.node.ObjectNode;
 
 /** Jackson-адаптер: поле type выбирает конкретную модель Move. */
 @Component
 public final class JacksonScenarioParser implements ScenarioParser {
-    private final JsonMapper mapper;
+    private final JsonMapper jsonMapper;
 
-    public JacksonScenarioParser(JsonMapper mapper) {
-        this.mapper = mapper;
+    public JacksonScenarioParser(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
     public Scenario parse(String json) {
         try {
-            JsonNode root = mapper.readTree(json);
-            if (root == null || !root.isObject()) {
+            JsonNode scenarioNode = jsonMapper.readTree(json);
+            if (scenarioNode == null || !scenarioNode.isObject()) {
                 throw new IllegalArgumentException("Корень сценария должен быть JSON-объектом");
             }
 
-            JsonNode metadataNode = root.get("metadata");
+            JsonNode metadataNode = scenarioNode.get("metadata");
             ScenarioMetadata metadata = metadataNode == null || metadataNode.isNull()
                     ? null
-                    : mapper.treeToValue(metadataNode, ScenarioMetadata.class);
-            List<Dependency> dependencies = readObjects(root.get("dependencies"), Dependency.class);
-            Execution execution = readExecution(root.get("execution"));
-            List<Step> steps = readSteps(root.get("steps"));
+                    : jsonMapper.treeToValue(metadataNode, ScenarioMetadata.class);
+            List<Dependency> dependencies = readObjects(scenarioNode.get("dependencies"), Dependency.class);
+            Execution execution = readExecution(scenarioNode.get("execution"));
+            List<Step> steps = readSteps(scenarioNode.get("steps"));
 
-            JsonNode idNode = root.get("id");
-            UUID id = idNode == null || idNode.isNull() ? null : UUID.fromString(stringValue(idNode, "id"));
-            return new Scenario(id, optionalString(root, "version"), metadata, dependencies, execution, steps);
+            JsonNode idNode = scenarioNode.get("id");
+            UUID scenarioId = idNode == null || idNode.isNull() ? null : UUID.fromString(stringValue(idNode, "id"));
+            return new Scenario(scenarioId, optionalString(scenarioNode, "version"), metadata, dependencies, execution, steps);
         } catch (JacksonException | DateTimeException exception) {
             throw new IllegalArgumentException("JSON сценария имеет неверный формат: " + exception.getMessage(), exception);
         }
@@ -98,10 +97,10 @@ public final class JacksonScenarioParser implements ScenarioParser {
             ObjectNode properties = ((ObjectNode) moveNode).deepCopy();
             properties.remove("type");
             moves.add(switch (type) {
-                case "http" -> mapper.treeToValue(properties, HttpMove.class);
-                case "sql" -> mapper.treeToValue(properties, SqlMove.class);
-                case "kafka" -> mapper.treeToValue(properties, KafkaMove.class);
-                case "soap" -> mapper.treeToValue(properties, SoapMove.class);
+                case "http" -> jsonMapper.treeToValue(properties, HttpMove.class);
+                case "sql" -> jsonMapper.treeToValue(properties, SqlMove.class);
+                case "kafka" -> jsonMapper.treeToValue(properties, KafkaMove.class);
+                case "soap" -> jsonMapper.treeToValue(properties, SoapMove.class);
                 default -> throw new IllegalArgumentException("Неизвестный тип Move: " + type);
             });
         }
@@ -115,7 +114,7 @@ public final class JacksonScenarioParser implements ScenarioParser {
         requireArray(node, "dependencies");
         List<T> values = new ArrayList<>();
         for (JsonNode item : node) {
-            values.add(mapper.treeToValue(item, type));
+            values.add(jsonMapper.treeToValue(item, type));
         }
         return values;
     }
